@@ -1,8 +1,13 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -33,7 +38,7 @@ public class User {
     }
 
     public boolean isLoginUnical(Map<Integer, User> users) {
-        for (User user: users.values()) {
+        for (User user : users.values()) {
             if (this.getLogin().equals(user.getLogin())) {
                 return false;
             }
@@ -42,7 +47,7 @@ public class User {
     }
 
     public void nameEqualLoginIfNameIsNullOrBlank() {
-        if(name == null || name.isBlank()){
+        if (name == null || name.isBlank()) {
             name = login;
         }
     }

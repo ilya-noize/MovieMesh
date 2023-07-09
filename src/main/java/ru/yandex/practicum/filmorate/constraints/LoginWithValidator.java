@@ -14,7 +14,7 @@ public class LoginWithValidator implements ConstraintValidator<LoginWith, String
 
     @Override
     public boolean isValid(String login, ConstraintValidatorContext context) {
-        for (char symbol: validChars) {
+        for (char symbol : validChars) {
             if (login.contains("" + symbol)) {
                 return true;
             }

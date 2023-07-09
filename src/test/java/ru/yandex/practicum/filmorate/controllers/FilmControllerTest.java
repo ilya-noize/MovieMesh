@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 class FilmControllerTest {
-    private static final LocalDate RIGHT_RELEASE = LocalDate.of(1895,12,28);
-    private static final LocalDate WRONG_RELEASE = LocalDate.of(1895,12,27);
+    private static final LocalDate RIGHT_RELEASE = LocalDate.of(1895, 12, 28);
+    private static final LocalDate WRONG_RELEASE = LocalDate.of(1895, 12, 27);
     private static final int RIGHT_DURATION = 100;
     private static final int WRONG_DURATION = -1;
 
@@ -30,7 +30,7 @@ class FilmControllerTest {
     }
 
     private Film getFilm() {
-        return new Film("name","description",RIGHT_RELEASE,RIGHT_DURATION);
+        return new Film("name", "description", RIGHT_RELEASE, RIGHT_DURATION);
     }
 
     @DisplayName(value = "Создание фильма - Ошибка:null-название")
