@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
-public class UserController extends Controller{
+public class UserController extends Controller {
     private final Map<Integer, User> users;
 
     public UserController() {
