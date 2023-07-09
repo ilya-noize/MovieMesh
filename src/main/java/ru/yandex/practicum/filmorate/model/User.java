@@ -40,4 +40,10 @@ public class User {
         }
         return true;
     }
+
+    public void nameEqualLoginIfNameIsNullOrBlank() {
+        if(name == null || name.isBlank()){
+            name = login;
+        }
+    }
 }

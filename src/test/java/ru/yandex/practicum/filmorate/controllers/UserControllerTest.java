@@ -19,7 +19,7 @@ public class UserControllerTest {
     @DisplayName(value = "Создать пользователя")
     @Test
     void createUser() {
-        User user = controller.createUser(getUser());
+        User user = controller.create(getUser());
         assertNotNull(user.getId());
     }
 
@@ -30,7 +30,7 @@ public class UserControllerTest {
     @DisplayName(value = "Создать пользователя - Безымянный: Логин = Имя")
     @Test
     void createUserNoName() {
-        User user = controller.createUser(getUserNoName());
+        User user = controller.create(getUserNoName());
         assertEquals(user.getLogin(), user.getName());
     }
 
@@ -43,7 +43,7 @@ public class UserControllerTest {
     void createUserFailEmail() {
 
         try {
-            controller.createUser(getUserFailEmail());
+            controller.create(getUserFailEmail());
         } catch (Exception e) {
             assertEquals("Введенное значение не является адресом электронной почты.", e.getMessage());
         }
@@ -57,7 +57,7 @@ public class UserControllerTest {
     @Test
     void createUserFailSpaceLogin() {
         try {
-            controller.createUser(getUserFailSpaceLogin());
+            controller.create(getUserFailSpaceLogin());
         } catch (Exception e) {
             assertEquals("Логин не может содержать пробелы.", e.getMessage());
         }
@@ -71,7 +71,7 @@ public class UserControllerTest {
     @Test
     void createUserFailShortLogin() {
         try {
-            controller.createUser(getUserFailShortLogin());
+            controller.create(getUserFailShortLogin());
         } catch (Exception e) {
             assertEquals("Логин должен быть от 3 до 20 символов.", e.getMessage());
         }
@@ -85,7 +85,7 @@ public class UserControllerTest {
     @Test
     void createUserFailLongLogin() {
         try {
-            controller.createUser(getUserFailLongLogin());
+            controller.create(getUserFailLongLogin());
         } catch (Exception e) {
             assertEquals("Логин должен быть от 3 до 20 символов.", e.getMessage());
         }
@@ -99,7 +99,7 @@ public class UserControllerTest {
     @Test
     void createUserFailWrongBirthday() {
         try {
-            controller.createUser(getUserFailBirthday());
+            controller.create(getUserFailBirthday());
         } catch (Exception e) {
             assertEquals("Дата рождения должна быть только в прошлом.", e.getMessage());
         }
@@ -113,9 +113,9 @@ public class UserControllerTest {
     @Test
     void updateUser() {
         User user = getUser();
-        controller.createUser(user);
+        controller.create(user);
         user.setName("Vasya");
-        assertEquals(1, controller.updateUser(user).getId());
+        assertEquals(1, controller.update(user).getId());
     }
 
     @DisplayName(value = "Изменить пользователя - Ошибка: несуществующий пользователь")
@@ -123,7 +123,7 @@ public class UserControllerTest {
     void updateUserInvalidUser() {
         User user = getUserNotExist();
         try {
-            controller.updateUser(user);
+            controller.update(user);
         } catch (Exception e) {
             assertEquals("Нет такого пользователя.", e.getMessage());
         }
@@ -138,8 +138,8 @@ public class UserControllerTest {
     @DisplayName(value = "Получить список пользователей")
     @Test
     void getUsers() {
-        controller.createUser(getUser());
-        int countUsers = controller.getUsers().size();
+        controller.create(getUser());
+        int countUsers = controller.getAll().size();
         assertEquals(1, countUsers);
     }
 }

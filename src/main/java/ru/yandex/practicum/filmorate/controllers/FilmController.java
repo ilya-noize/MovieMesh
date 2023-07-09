@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
@@ -9,21 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.yandex.practicum.filmorate.FilmorateApplication.log;
-
-
 @RestController
 @RequestMapping("/films")
-public class FilmController {
+public class FilmController extends Controller {
     private final Map<Integer, Film> films;
-    private Integer generateId = 1;
 
     public FilmController() {
         films = new HashMap<>();
     }
 
     @PostMapping
-    public Film createFilm(@Valid @RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) {
         log.info("Получен запрос POST к эндпоинту: /films");
 
         film.setId(generateId++);
@@ -33,7 +30,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
         log.info("Получен запрос PUT к эндпоинту: /films");
 
         if (films.containsKey(film.getId())) {
@@ -41,11 +38,11 @@ public class FilmController {
             log.info("Изменён фильм({})", film);
             return film;
         }
-        throw new RuntimeException("Нет такого фильма.");
+        throw new NotFoundException("Нет такого фильма.");
     }
 
     @GetMapping
-    public List<Film> getFilms() {
+    public List<Film> getAll() {
         log.info("Получен запрос GET к эндпоинту: /films");
 
         return new ArrayList<>(films.values());

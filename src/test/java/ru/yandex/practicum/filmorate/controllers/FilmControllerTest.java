@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate.controllers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.ValidationException;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +25,7 @@ class FilmControllerTest {
     @DisplayName(value = "Создание фильма")
     @Test
     void createFilm() {
-        Film film = controller.createFilm(getFilm());
+        Film film = controller.create(getFilm());
         assertNotNull(film.getId());
     }
 
@@ -35,8 +37,8 @@ class FilmControllerTest {
     @Test
     void createFilmFailNullName() {
         try {
-            controller.createFilm(getFilmNullName());
-        } catch (Exception e) {
+            controller.create(getFilmNullName());
+        } catch (ValidationException e) {
             assertEquals("Название фильма не может быть null.", e.getMessage());
         }
     }
@@ -49,8 +51,8 @@ class FilmControllerTest {
     @Test
     void createFilmFailBlankName() {
         try {
-            controller.createFilm(getFilmBlankName());
-        } catch (Exception e) {
+            controller.create(getFilmBlankName());
+        } catch (ValidationException e) {
             assertEquals("Название фильма не может быть пустым.", e.getMessage());
         }
     }
@@ -63,8 +65,8 @@ class FilmControllerTest {
     @Test
     void createFilmFailLongDescription() {
         try {
-            controller.createFilm(getFilmLongDescription());
-        } catch (Exception e) {
+            controller.create(getFilmLongDescription());
+        } catch (ValidationException e) {
             assertEquals("Длина описания не более 200 символов.", e.getMessage());
         }
     }
@@ -83,8 +85,8 @@ class FilmControllerTest {
     @Test
     void createFilmFailWrongRelease() {
         try {
-            controller.createFilm(getFilmWrongRelease());
-        } catch (Exception e) {
+            controller.create(getFilmWrongRelease());
+        } catch (ValidationException e) {
             assertEquals("Дата релиза не раньше 28 DEC 1895 и не позже сегодня", e.getMessage());
         }
     }
@@ -97,8 +99,8 @@ class FilmControllerTest {
     @Test
     void createFilmFailWrongDuration() {
         try {
-            controller.createFilm(getFilmWrongDuration());
-        } catch (Exception e) {
+            controller.create(getFilmWrongDuration());
+        } catch (ValidationException e) {
             assertEquals("Продолжительность фильма - положительное натуральное число.", e.getMessage());
         }
     }
@@ -110,17 +112,17 @@ class FilmControllerTest {
     @DisplayName(value = "Обновление фильма")
     @Test
     void updateFilm() {
-        Film film = controller.createFilm(getFilm());
+        Film film = controller.create(getFilm());
         film.setDescription("new description");
-        assertEquals(1, controller.updateFilm(film).getId());
+        assertEquals(1, controller.update(film).getId());
     }
 
     @DisplayName(value = "Обновление фильма - Ошибка: нет такого фильма")
     @Test
     void updateNotExistFilm() {
         try {
-            controller.createFilm(getNotExistFilm());
-        } catch (Exception e) {
+            controller.create(getNotExistFilm());
+        } catch (NotFoundException e) {
             assertEquals("Нет такого фильма.", e.getMessage());
         }
     }
@@ -132,8 +134,8 @@ class FilmControllerTest {
     @DisplayName(value = "Получить список фильмов")
     @Test
     void getFilms() {
-        controller.createFilm(getFilm());
-        int countFilms = controller.getFilms().size();
+        controller.create(getFilm());
+        int countFilms = controller.getAll().size();
         assertEquals(1, countFilms);
     }
 }
