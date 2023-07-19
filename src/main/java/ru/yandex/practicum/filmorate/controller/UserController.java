@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
@@ -7,34 +8,22 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-/**
- * POST /users — создание пользователя;
- * PUT /users — обновление пользователя;
- * PUT /users/{id}/friends/{friendId} — добавление в друзья.
- * DELETE /users/{id}/friends/{friendId} — удаление из друзей.
- * GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
- * GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
- * GET /users — получение списка всех пользователей.
- */
 @RestController
+@Slf4j
 @RequestMapping("/users")
 public class UserController extends Controller {
 
     UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
+
+    public UserController(@Autowired(required = false) UserService userService) {
         this.userService = userService;
     }
 
-    /**
-     * создание пользователя
-     * @param user  пользователь
-     * @return пользователь
-     */
-    @PostMapping("/users")
+    @PostMapping
     public User create(@RequestBody @Valid User user) {
         log.info("Получен запрос POST к endpoint: /users");
         user = userService.create(user);
@@ -42,12 +31,7 @@ public class UserController extends Controller {
         return user;
     }
 
-    /**
-     * обновление пользователя
-     * @param user пользователь
-     * @return пользователь
-     */
-    @PutMapping("/users")
+    @PutMapping
     public User update(@RequestBody @Valid User user) {
         log.info("Получен запрос PUT к endpoint: /users");
         userService.update(user);
@@ -55,54 +39,56 @@ public class UserController extends Controller {
         return user;
     }
 
-    /**
-     * добавление в друзья
-     * @param userId уин пользователя
-     * @param friendId  уин пользователя-друга
-     */
-    @PutMapping("/users/{id}/friends/{friendId}")
-    public void friendlyUsers(@PathVariable Integer userId, Integer friendId) {
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable String userId, String friendId) {
         log.info("Получен запрос PUT к endpoint: /users/{}/friends/{}", userId, friendId);
-        userService.friendlyUser(userId, friendId);
+        userService.addFriendUser(userId, friendId);
         log.info("Пользователи с id:{} и id:{} теперь друзья", userId, friendId);
     }
 
-    /**
-     * удаление из друзей.
-     * @param userId уин пользователя
-     * @param friendId уин пользователя-друга
-     */
-    @DeleteMapping("/users/{id}/friends/{friendId}")
-    public void unFriendlyUsers(@PathVariable Integer userId, Integer friendId) {
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable String userId, String friendId) {
         log.info("Получен запрос DELETE к endpoint: /users/{}/friends/{}", userId, friendId);
-        userService.unFriendlyUser(userId, friendId);
+        userService.deleteFriendUser(userId, friendId);
         log.info("Пользователь с id:{} и с id:{} больше не друзья", userId, friendId);
     }
 
-    /**
-     * возвращаем список пользователей, являющихся его друзьями.
-     * @param id уин пользователя
-     * @return список пользователей
-     */
-    @GetMapping("/users/{id}/friends")
-    public Set<User> getUserFriends(@PathVariable Integer id){
+    @GetMapping("/{id}")
+    public User get(@PathVariable String id){
+        log.info("Получен запрос GET к endpoint: /users/{}", id);
+        return userService.get(id);
+    }
+
+    @GetMapping("/{id}/friends")
+    public Set<User> getUserFriends(@PathVariable String id){
         log.info("Получен запрос GET к endpoint: /users/{}/friends", id);
         return userService.getUserFriends(id);
     }
 
-    @GetMapping("/users/{id}/friends/common/{otherId}")
-    public Set<User> getUserCommonFriends(@PathVariable Integer id, Integer otherId){
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Set<User> getUserCommonFriends(@PathVariable String id, String otherId){
         log.info("Получен запрос GET к endpoint: /users/{}/friends/common/{}", id, otherId);
         return userService.getUserFriendsCommon(id, otherId);
     }
 
-    /**
-     * получение списка всех пользователей
-     * @return список
-     */
     @GetMapping
     public List<User> getAll() {
         log.info("Получен запрос GET к endpoint: /users");
         return userService.getAll();
+    }
+
+    @ExceptionHandler
+    public Map<String, String> handleNegativeCount(final IllegalArgumentException e){
+        return Map.of("error", "Передан отрицательный параметр count.");
+    }
+
+    @ExceptionHandler
+    public Map<String, String> handleNullableCount(final NullPointerException e) {
+        return Map.of("error", "Параметр count не указан.");
+    }
+
+    @ExceptionHandler
+    public Map<String, String> handleError(final RuntimeException e) {
+        return Map.of("error", e.getMessage());
     }
 }

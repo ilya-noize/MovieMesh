@@ -42,6 +42,14 @@ public class User {
         friends = new HashSet<>();
     }
 
+    public boolean addFriend(Integer id) {
+        return friends.add(id);
+    }
+
+    public boolean deleteFriend(Integer id) {
+        return friends.remove(id);
+    }
+
     public boolean isLoginUnical(Map<Integer, User> users) {
         for (User user : users.values()) {
             if (this.getLogin().equals(user.getLogin())) {

@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,37 +30,14 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        ifExist(film.getId());
         films.replace(film.getId(), film);
         return film;
     }
 
     @Override
-    public Film ifExist(Integer filmId) {
-        if (!films.containsKey(filmId)) {
-            throw new NotFoundException("Нет такого фильма.");
-        } else {
-            return films.get(filmId);
-        }
-    }
-
-    /**
-     * get Film by id
-     *
-     * @param id id-film
-     * @return Film
-     */
-    @Override
     public Film get(Integer id) {
         return films.get(id);
     }
-
-//todo сделать поиск
-//    public Optional<Film> getByName(String name) {
-//        return getAll().stream()
-//                .filter(film -> film.getName().contains(name))
-//                .findFirst();
-//    }
 
     @Override
     public List<Film> getAll() {
@@ -66,8 +45,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void like(Integer filmId, Integer userId) {
-        Film film = ifExist(filmId);
+    public void addLike(Integer filmId, Integer userId) {
+        Film film = get(filmId);
         if (film.getLikes().add(userId)) {
             films.replace(filmId, film);
         }
@@ -75,8 +54,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void unLike(Integer filmId, Integer userId) {
-        Film film = ifExist(filmId);
+    public void deleteLike(Integer filmId, Integer userId) {
+        Film film = get(filmId);
         if (film.getLikes().remove(userId)) {
             films.replace(filmId, film);
         }
@@ -84,11 +63,8 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(Integer count) {
-        if (count < 0) {
-            throw new IllegalArgumentException();
-        }
-        return films.values().stream()
-                .sorted(Comparator.comparingInt(film -> film.getLikes().size()))
+        return getAll().stream()
+                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
                 .limit(count)
                 .collect(Collectors.toList());
     }

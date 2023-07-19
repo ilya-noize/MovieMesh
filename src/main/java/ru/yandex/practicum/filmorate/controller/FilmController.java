@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -19,11 +20,12 @@ import java.util.List;
  */
 
 @RestController
+@Slf4j
 @RequestMapping("/films")
 public class FilmController extends Controller {
     FilmService filmService;
 
-    @Autowired
+    @Autowired(required = false)
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
@@ -60,10 +62,10 @@ public class FilmController extends Controller {
      * @param filmId уин фильма
      * @param userId уин пользователя
      */
-    @PutMapping("/films/{filmId}/like/{userId}")
-    public void like(@PathVariable Integer filmId, Integer userId) { // todo test
+    @PutMapping("/{filmId}/like/{userId}")
+    public void addLike(@PathVariable String filmId, String userId) { // todo test
         log.info("Получен запрос PUT к endpoint-у: /films" + filmId + "/like/" + userId);
-        filmService.like(filmId, userId);
+        filmService.addLike(filmId, userId);
     }
 
     /**
@@ -72,10 +74,10 @@ public class FilmController extends Controller {
      * @param filmId уин фильма
      * @param userId уин пользователя
      */
-    @DeleteMapping("/films/{filmId}/like/{userId}")
-    public void unLike(@PathVariable Integer filmId, Integer userId) { // todo test
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void deleteLike(@PathVariable String filmId, String userId) { // todo test
         log.info("Получен запрос PUT к endpoint-у: /films/" + filmId + "/like/" + userId);
-        filmService.unLike(filmId, userId);
+        filmService.deleteLike(filmId, userId);
     }
 
     /**
@@ -83,7 +85,7 @@ public class FilmController extends Controller {
      *
      * @return список
      */
-    @GetMapping("/films")
+    @GetMapping()
     public List<Film> getAll() {
         log.info("Получен запрос GET к endpoint-у: /films");
         return filmService.getAll();
@@ -94,8 +96,8 @@ public class FilmController extends Controller {
      *
      * @return 1 pcs
      */
-    @GetMapping("/films/{id}")
-    public Film get(@PathVariable Integer id) { // todo test
+    @GetMapping("/{id}")
+    public Film get(@PathVariable String id) {
         log.info("Получен запрос GET к endpoint-у: /films");
         return filmService.get(id);
     }
@@ -107,9 +109,10 @@ public class FilmController extends Controller {
      * @return список
      */
     @GetMapping("/films/popular?count={count}")
-    public List<Film> getPopular( // todo test
-            @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
+    public List<Film> getPopular(@RequestParam(value = "count", defaultValue = "10", required = false) String count) {
         log.info("Получен запрос GET к endpoint-у: /films/popular?count=" + count);
         return filmService.getPopular(count);
     }
+
+
 }

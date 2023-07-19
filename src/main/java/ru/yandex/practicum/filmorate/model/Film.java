@@ -43,4 +43,12 @@ public class Film {
         this.duration = duration;
         this.likes = new HashSet<>();
     }
+
+    public boolean addLike(Integer userId) {
+        return likes.add(userId);
+    }
+
+    public boolean deleteLike(Integer userId){
+        return likes.remove(userId);
+    }
 }

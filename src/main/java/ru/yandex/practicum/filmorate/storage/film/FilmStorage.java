@@ -9,15 +9,13 @@ public interface FilmStorage {
 
     Film update(Film film);
 
-    Film ifExist(Integer id);
-
     Film get(Integer id);
 
     List<Film> getAll();
 
-    void like(Integer filmId, Integer userId);
+    void addLike(Integer filmId, Integer userId);
 
-    void unLike(Integer filmId, Integer userId);
+    void deleteLike(Integer filmId, Integer userId);
 
     List<Film> getPopular(Integer count);
 }

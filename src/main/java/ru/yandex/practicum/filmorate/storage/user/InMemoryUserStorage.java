@@ -5,8 +5,10 @@ import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -20,9 +22,9 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        if (user.isLoginUnical(users)) {
+        if (user.isLoginUnical(users)) { // todo in service
             user.setId(generateId++);
-            user.nameEqualLoginIfNameIsNullOrBlank();
+            user.nameEqualLoginIfNameIsNullOrBlank(); // todo in service
 
             users.put(user.getId(), user);
             return user;
@@ -32,9 +34,12 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        user = ifExist(user.getId());
-        user.nameEqualLoginIfNameIsNullOrBlank();
-        users.replace(user.getId(), user);
+        Integer userId = user.getId();
+        if (!users.containsKey(userId)) {
+            throw new NotFoundException("Пользователь с уин:" + userId + " не зарегистрирован.");
+        }
+        user.nameEqualLoginIfNameIsNullOrBlank(); // todo in service
+        users.replace(userId, user);
         return user;
     }
 
@@ -44,58 +49,35 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User ifExist(Integer id) {
-        if (!users.containsKey(id)) {
-            throw new NotFoundException("Нет такого пользователя.");
-        } else {
-            return users.get(id);
-        }
-    }
-
-    @Override
-    public void friendlyUser(Integer userId, Integer userIdFriend) {
-        User user = ifExist(userId);
-        User userFriend = ifExist(userIdFriend);
-
-        if (user.getFriends().add(userIdFriend)
-                && userFriend.getFriends().add(userId)) {
-            users.replace(userId, user);
-            users.replace(userIdFriend, userFriend);
-        }
-    }
-
-    @Override
-    public void unFriendlyUser(Integer userId, Integer userIdFriend) {
-        User user = ifExist(userId);
-        User userFriend = ifExist(userIdFriend);
-
-        if (user.getFriends().remove(userIdFriend)
-                && userFriend.getFriends().remove(userId)) {
-            users.replace(userId, user);
-            users.replace(userIdFriend, userFriend);
-        }
-    }
-
-    @Override
-    public Set<User> getUserFriends(Integer userId) {
-        Set<Integer> friends = ifExist(userId).getFriends();
-        return friends.stream()
-                .map(users::get)
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<User> getUserFriendsCommon(Integer userId, Integer otherUserId) {
-        Set<Integer> friendsUser = ifExist(userId).getFriends();
-        Set<Integer> friendsOtherUser = ifExist(otherUserId).getFriends();
-        friendsUser.retainAll(friendsOtherUser);
-        return friendsUser.stream()
-                .map(users::get)
-                .collect(Collectors.toSet());
-    }
-
-    @Override
     public List<User> getAll() {
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public boolean addFriend(Integer userId, Integer friendId) {
+        User user = users.get(userId);
+        User friend = users.get(friendId);
+        if (user.addFriend(friendId) && friend.addFriend(userId)) {
+            users.replace(userId, user);
+            users.replace(friendId, friend);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteFriend(Integer userId, Integer friendId) {
+        User user = users.get(userId);
+        User friend = users.get(friendId);
+        if (user.deleteFriend(friendId) && friend.deleteFriend(userId)) {
+            users.replace(userId, user);
+            users.replace(friendId, friend);
+
+            return true;
+        } else {
+            return false;
+        }
     }
 }
