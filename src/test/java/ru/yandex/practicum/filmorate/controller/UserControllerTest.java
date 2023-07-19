@@ -1,9 +1,11 @@
-package ru.yandex.practicum.filmorate.controllers;
+package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -14,7 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class UserControllerTest {
     private static final LocalDate RIGHT_BIRTHDAY = LocalDate.of(2000, 1, 1);
     private static final LocalDate WRONG_BIRTHDAY = LocalDate.now();
-    UserController controller = new UserController();
+
+    UserController controller = new UserController(
+            new UserService(
+                    new InMemoryUserStorage()
+            ));
 
     @DisplayName(value = "Создать пользователя")
     @Test
@@ -114,7 +120,7 @@ public class UserControllerTest {
     void updateUser() {
         User user = getUser();
         controller.create(user);
-        user.setName("Vasya");
+        user.setName("login2");
         assertEquals(1, controller.update(user).getId());
     }
 

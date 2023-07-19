@@ -1,10 +1,13 @@
-package ru.yandex.practicum.filmorate.controllers;
+package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
@@ -15,12 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 class FilmControllerTest {
-    private static final LocalDate RIGHT_RELEASE = LocalDate.of(1895, 12, 28);
-    private static final LocalDate WRONG_RELEASE = LocalDate.of(1895, 12, 27);
-    private static final int RIGHT_DURATION = 100;
-    private static final int WRONG_DURATION = -1;
+    final LocalDate RIGHT_RELEASE = LocalDate.of(1895, 12, 28);
+    final int RIGHT_DURATION = 1;
 
-    FilmController controller = new FilmController();
+    FilmStorage storage = new InMemoryFilmStorage();
+    FilmService service = new FilmService(storage);
+    FilmController controller = new FilmController(service);
 
     @DisplayName(value = "Создание фильма")
     @Test
@@ -92,7 +95,8 @@ class FilmControllerTest {
     }
 
     private Film getFilmWrongRelease() {
-        return new Film("name", "description", WRONG_RELEASE, RIGHT_DURATION);
+        LocalDate wrongRelease = LocalDate.of(1895, 12, 27);
+        return new Film("name", "description", wrongRelease, RIGHT_DURATION);
     }
 
     @DisplayName(value = "Создание фильма - Ошибка: Отрицательная продолжительность фильма")
@@ -106,6 +110,7 @@ class FilmControllerTest {
     }
 
     private Film getFilmWrongDuration() {
+        int WRONG_DURATION = -1;
         return new Film("name", "description", RIGHT_RELEASE, WRONG_DURATION);
     }
 
@@ -121,14 +126,16 @@ class FilmControllerTest {
     @Test
     void updateNotExistFilm() {
         try {
-            controller.create(getNotExistFilm());
+            controller.create(getNotExistFilm());//todo wtf
         } catch (NotFoundException e) {
             assertEquals("Нет такого фильма.", e.getMessage());
         }
     }
 
-    private static Film getNotExistFilm() {
-        return new Film(9999, "name", "description", RIGHT_RELEASE, RIGHT_DURATION);
+    private Film getNotExistFilm() {
+        Film film = getFilm();
+        film.setId(9999);
+        return film;
     }
 
     @DisplayName(value = "Получить список фильмов")

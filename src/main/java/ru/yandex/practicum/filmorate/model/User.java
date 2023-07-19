@@ -9,7 +9,9 @@ import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @ToString
@@ -30,11 +32,14 @@ public class User {
     @Past(message = "Дата рождения должна быть только в прошлом.")
     private LocalDate birthday;
 
+    private final Set<Integer> friends;
+
     public User(String login, String name, String email, LocalDate birthday) {
         this.login = login;
         this.name = name;
         this.email = email;
         this.birthday = birthday;
+        friends = new HashSet<>();
     }
 
     public boolean isLoginUnical(Map<Integer, User> users) {

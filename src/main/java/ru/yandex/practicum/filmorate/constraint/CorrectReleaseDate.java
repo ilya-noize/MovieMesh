@@ -1,7 +1,7 @@
-package ru.yandex.practicum.filmorate.constraints;
+package ru.yandex.practicum.filmorate.constraint;
 
 import javax.validation.Constraint;
-import javax.validation.Payload;
+//import javax.validation.Payload;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -16,7 +16,7 @@ public @interface CorrectReleaseDate {
 
     String message() default "Дата релиза не раньше определённой даты и не позже сегодняшней";
 
-    Class<?>[] groups() default {};
+//    Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+//    Class<? extends Payload>[] payload() default {};
 }
