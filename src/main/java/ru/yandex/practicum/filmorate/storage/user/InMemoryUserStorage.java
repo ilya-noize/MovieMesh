@@ -1,23 +1,22 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ExistException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private Integer generateId;
     private final Map<Integer, User> users;
+    private final Map<Integer, Set<Integer>> friends;
 
     public InMemoryUserStorage() {
         generateId = 1;
         this.users = new HashMap<>();
+        this.friends = new HashMap<>();
     }
 
     @Override
@@ -27,9 +26,10 @@ public class InMemoryUserStorage implements UserStorage {
             user.nameEqualLoginIfNameIsNullOrBlank(); // todo in service
 
             users.put(user.getId(), user);
+            friends.put(user.getId(), new HashSet<>());
             return user;
         }
-        throw new ExistException("User with login:" + user.getLogin() + "exist");
+        throw new UserAlreadyExistException("User with login:" + user.getLogin() + "exist");
     }
 
     @Override
@@ -55,12 +55,16 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public boolean addFriend(Integer userId, Integer friendId) {
-        User user = users.get(userId);
-        User friend = users.get(friendId);
-        if (user.addFriend(friendId) && friend.addFriend(userId)) {
-            users.replace(userId, user);
-            users.replace(friendId, friend);
-
+//        User user = users.get(userId);
+//        User friend = users.get(friendId);
+//        if (user.addFriend(friendId) && friend.addFriend(userId)) {
+//            users.replace(userId, user);
+//            users.replace(friendId, friend);
+        Set<Integer> userFriends = friends.get(userId);
+        Set<Integer> friendFriends = friends.get(friendId);
+        if (userFriends.add(friendId) && friendFriends.add(userId)) {
+            friends.replace(userId, userFriends);
+            friends.replace(friendId, friendFriends);
             return true;
         } else {
             return false;
@@ -69,15 +73,28 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public boolean deleteFriend(Integer userId, Integer friendId) {
-        User user = users.get(userId);
-        User friend = users.get(friendId);
-        if (user.deleteFriend(friendId) && friend.deleteFriend(userId)) {
-            users.replace(userId, user);
-            users.replace(friendId, friend);
-
+//        User user = users.get(userId);
+//        User friend = users.get(friendId);
+//        if (user.deleteFriend(friendId) && friend.deleteFriend(userId)) {
+//            users.replace(userId, user);
+//            users.replace(friendId, friend);
+        Set<Integer> userFriends = friends.get(userId);
+        Set<Integer> friendFriends = friends.get(friendId);
+        if (userFriends.remove(friendId) && friendFriends.remove(userId)) {
+            friends.replace(userId, userFriends);
+            friends.replace(friendId, friendFriends);
             return true;
         } else {
             return false;
         }
     }
+
+    @Override
+    public Set<Integer> getFriends(Integer userId) {
+//        return friends.get(userId).stream()
+//                .map(users::get)
+//                .collect(Collectors.toSet());
+        return friends.get(userId);
+    }
+
 }

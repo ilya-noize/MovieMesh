@@ -52,13 +52,15 @@ public class UserService {
         User userFriend = get(supposedIdFriend);
         Integer userIdFriend = userFriend.getId();
 
-        boolean friends01 = user.addFriend(userIdFriend);
-        boolean friends10 = userFriend.addFriend(userId);
+        userStorage.addFriend(userId, userIdFriend);
 
-        if (friends01 && friends10) {
-            update(user);
-            update(userFriend);
-        }
+//        boolean friends01 = user.addFriend(userIdFriend);
+//        boolean friends10 = userFriend.addFriend(userId);
+//
+//        if (friends01 && friends10) {
+//            update(user);
+//            update(userFriend);
+//        }
     }
 
     /**
@@ -73,13 +75,15 @@ public class UserService {
         User userFriend = get(supposedIdFriend);
         Integer userIdFriend = userFriend.getId();
 
-        boolean friends01 = user.deleteFriend(userIdFriend);
-        boolean friends10 = userFriend.deleteFriend(userId);
+        userStorage.deleteFriend(userId, userIdFriend);
 
-        if (friends01 && friends10) {
-            update(user);
-            update(userFriend);
-        }
+//        boolean friends01 = user.deleteFriend(userIdFriend);
+//        boolean friends10 = userFriend.deleteFriend(userId);
+//
+//        if (friends01 && friends10) {
+//            update(user);
+//            update(userFriend);
+//        }
     }
 
     /**
@@ -103,8 +107,13 @@ public class UserService {
      * @return список
      */
     public Set<User> getUserFriends(String supposedId) {
-        Set<Integer> friends = get(supposedId).getFriends();
-        return getFriendsUserSet(friends);
+//        Set<Integer> friends = get(supposedId).getFriends();
+//        return getFriendsUserSet(friends);
+
+        User user = get(supposedId);
+        Set<Integer> friendsIdUser = userStorage.getFriends(user.getId());
+
+        return getFriendsUserSet(friendsIdUser);
     }
 
     /**
@@ -114,11 +123,19 @@ public class UserService {
      * @return список
      */
     public Set<User> getUserFriendsCommon(String supposedId, String supposedOtherId) {
-        Set<Integer> friendsUser = get(supposedId).getFriends();
-        Set<Integer> friendsOtherUser = get(supposedOtherId).getFriends();
-        friendsUser.retainAll(friendsOtherUser);
+//        Set<Integer> friendsUser = get(supposedId).getFriends();
+//        Set<Integer> friendsOtherUser = get(supposedOtherId).getFriends();
+//        friendsUser.retainAll(friendsOtherUser);
+//
+//        return getFriendsUserSet(friendsUser);
 
-        return getFriendsUserSet(friendsUser);
+        User user = get(supposedId);
+        User userOther = get(supposedOtherId);
+        Set<Integer> friendsIdUser = userStorage.getFriends(user.getId());
+        Set<Integer> friendsIdUserOther = userStorage.getFriends(userOther.getId());
+        friendsIdUser.retainAll(friendsIdUserOther);
+
+        return getFriendsUserSet(friendsIdUser);
     }
 
     /**

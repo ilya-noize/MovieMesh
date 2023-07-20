@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -62,5 +63,11 @@ public class FilmController extends Controller {
     public List<Film> getPopular(@RequestParam(value = "count", defaultValue = "10", required = false) String count) {
         log.info("Получен запрос GET к endpoint-у: /films/popular?count=" + count);
         return filmService.getPopular(count);
+    }
+
+
+    @ExceptionHandler
+    public Map<String, String> handleNegativeCount(final IllegalArgumentException e) {
+        return Map.of("error", "Передан отрицательный параметр count.");
     }
 }
