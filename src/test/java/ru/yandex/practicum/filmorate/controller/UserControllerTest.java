@@ -131,7 +131,7 @@ public class UserControllerTest {
         try {
             controller.update(user);
         } catch (Exception e) {
-            assertEquals("Нет такого пользователя.", e.getMessage());
+            assertEquals("Пользователь с уин:9999 не зарегистрирован.", e.getMessage());
         }
     }
 
