@@ -51,6 +51,7 @@ public class FilmController extends Controller {
         log.info("Получен запрос GET к endpoint-у: /films");
         return filmService.getAll();
     }
+
     @GetMapping("/{id}")
     public Film get(@PathVariable String id) {
         log.info("Получен запрос GET к endpoint-у: /films");
