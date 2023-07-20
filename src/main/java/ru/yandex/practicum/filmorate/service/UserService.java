@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class UserService{
+public class UserService {
     UserStorage userStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage memoryUserStorage){
+    public UserService(InMemoryUserStorage memoryUserStorage) {
         this.userStorage = memoryUserStorage;
     }
 

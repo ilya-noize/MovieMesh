@@ -48,7 +48,7 @@ public class Film {
         return likes.add(userId);
     }
 
-    public boolean deleteLike(Integer userId){
+    public boolean deleteLike(Integer userId) {
         return likes.remove(userId);
     }
 }

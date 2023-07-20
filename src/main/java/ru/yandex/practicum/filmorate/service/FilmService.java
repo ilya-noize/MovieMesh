@@ -18,7 +18,7 @@ public class FilmService {
 
     @Autowired
     public FilmService(FilmStorage filmStorage,
-                       @Autowired(required = false) UserService userService){
+                       @Autowired(required = false) UserService userService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
     }
@@ -87,7 +87,7 @@ public class FilmService {
      */
     public List<Film> getPopular(String supposedCount) {
         Integer count = idFromString(supposedCount);
-        if (count == Integer.MIN_VALUE){
+        if (count == Integer.MIN_VALUE) {
             count = 10;
         }
         return filmStorage.getPopular(count);
