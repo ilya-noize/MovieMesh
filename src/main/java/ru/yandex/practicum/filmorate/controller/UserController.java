@@ -54,19 +54,19 @@ public class UserController extends Controller {
     }
 
     @GetMapping("/{id}")
-    public User get(@PathVariable String id){
+    public User get(@PathVariable String id) {
         log.info("Получен запрос GET к endpoint: /users/{}", id);
         return userService.get(id);
     }
 
     @GetMapping("/{id}/friends")
-    public Set<User> getUserFriends(@PathVariable String id){
+    public Set<User> getUserFriends(@PathVariable String id) {
         log.info("Получен запрос GET к endpoint: /users/{}/friends", id);
         return userService.getUserFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User> getUserCommonFriends(@PathVariable String id, String otherId){
+    public Set<User> getUserCommonFriends(@PathVariable String id, String otherId) {
         log.info("Получен запрос GET к endpoint: /users/{}/friends/common/{}", id, otherId);
         return userService.getUserFriendsCommon(id, otherId);
     }
@@ -78,7 +78,7 @@ public class UserController extends Controller {
     }
 
     @ExceptionHandler
-    public Map<String, String> handleNegativeCount(final IllegalArgumentException e){
+    public Map<String, String> handleNegativeCount(final IllegalArgumentException e) {
         return Map.of("error", "Передан отрицательный параметр count.");
     }
 
