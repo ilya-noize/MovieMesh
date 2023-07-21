@@ -87,7 +87,7 @@ public class FilmServiceImpl implements FilmService {
         }
         return getAll().stream()
                 .sorted((f1, f2) -> (
-                    filmStorage.getLikes(f2.getId()).size() - filmStorage.getLikes(f1.getId()).size()
+                        filmStorage.getLikes(f2.getId()).size() - filmStorage.getLikes(f1.getId()).size()
                 ))
                 .limit(count)
                 .collect(Collectors.toList());
