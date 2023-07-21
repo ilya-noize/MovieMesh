@@ -3,10 +3,14 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.exception.FailSetFriendException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.WrongIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,14 +86,17 @@ public class UserServiceImpl implements UserService {
         Integer userFriendId = userFriend.getId();
         Set<Integer> userFriendFriends = userStorage.getFriends(userFriendId);
 
-        log.info("* Добавление в друзья {}<->{}", user.getLogin(), userFriend.getLogin());
+        log.info("* Добавление в друзья {}< - >{}", user.getLogin(), userFriend.getLogin());
 
         if (userFriends.add(userFriendId) && userFriendFriends.add(userId)) {
             userStorage.setFriends(userId, userFriends);
             userStorage.setFriends(userFriendId, userFriendFriends);
         } else {
-            throw new FailSetFriendException("Неудачное добавление в список друзей");
+            String error = "Неудачное добавление в список друзей";
+            log.error(error);
+            throw new FailSetFriendException(error);
         }
+        log.info("* Добавление завершено {}< - >{}", user.getId(), userFriend.getId());
     }
 
     /**
@@ -107,14 +114,17 @@ public class UserServiceImpl implements UserService {
         Integer userFriendId = userFriend.getId();
         Set<Integer> userFriendFriends = userStorage.getFriends(userFriendId);
 
-        log.info("* Пользователь {} удаляет друга {} из списка друзей", user.getLogin(), userFriend.getLogin());
+        log.info("* Удаление из друзей {}< - >{}", user.getLogin(), userFriend.getLogin());
 
         if (userFriends.remove(userFriendId) && userFriendFriends.remove(userId)) {
             userStorage.setFriends(userId, userFriends);
             userStorage.setFriends(userFriendId, userFriendFriends);
         } else {
-            throw new FailSetFriendException("Неудачное удаление из списка друзей");
+            String error = "Неудачное удаление из списка друзей";
+            log.error(error);
+            throw new FailSetFriendException(error);
         }
+        log.info("* Удаление завершено {}< o >{}", user.getId(), userFriend.getId());
     }
 
     /**
@@ -146,10 +156,28 @@ public class UserServiceImpl implements UserService {
         log.info("* Возвращаем список общих друзей между пользователями {}<->{}", user.getLogin(), userOther.getLogin());
         Set<Integer> friendsIdUser = userStorage.getFriends(user.getId());
         Set<Integer> friendsIdUserOther = userStorage.getFriends(userOther.getId());
-        friendsIdUser.retainAll(friendsIdUserOther);
 
-//        log.info("Найдено совпадений {}", friendsIdUser.size());
-        return getFriendsSet(friendsIdUser);
+        return getFriendsSet(findFriendsCommon(friendsIdUser, friendsIdUserOther));
+    }
+
+    /**
+     * Поиск общих чисел в HashSet-ах. А именно,
+     * аналог HashSet1<Integer>.retainAll(HashSet2<Integer>), но (!)
+     * без затирания HashSet1
+     * @param friendsIdUser HashSet-1
+     * @param friendsIdUserOther HashSet-2
+     * @return пересечение HashSet-1 и HashSet-2. другой HashSet-3
+     */
+    private Set<Integer> findFriendsCommon(Set<Integer> friendsIdUser, Set<Integer> friendsIdUserOther) {
+        Set<Integer> friendsCommon = new HashSet<>();
+        for (Integer id : friendsIdUser) {
+            for (Integer idOther : friendsIdUserOther) {
+                if(id.equals(idOther)) {
+                    friendsCommon.add(id);
+                }
+            }
+        }
+        return friendsCommon;
     }
 
     /**
@@ -162,12 +190,15 @@ public class UserServiceImpl implements UserService {
      * @see #getAll()
      */
     private Set<User> getFriendsSet(Set<Integer> friendsIdSet) {
-        log.info("* Возвращаем список пользователей-друзей");
+//        log.info("* Возвращаем список пользователей-друзей");
         Set<User> friendsSet = friendsIdSet.stream()
                 .map(userStorage::get)
                 .collect(Collectors.toSet());
         if (friendsSet.size() == 0) {
-            throw new EmptyFriendsSetException("Список пользователей-друзей пуст");
+            String error = "Список пользователей-друзей пуст";
+            log.error(error);
+//            throw new EmptyFriendsSetException(error);
+            return new HashSet<>();
         }
         return friendsSet;
     }

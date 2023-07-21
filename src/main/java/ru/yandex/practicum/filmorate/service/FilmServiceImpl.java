@@ -48,6 +48,7 @@ public class FilmServiceImpl implements FilmService {
         Integer filmId = film.getId();
         if (filmStorage.get(filmId) == null) {
             String error = String.format("Фильм не найден: id:%d отсутствует", filmId);
+            log.error(error);
             throw new NotFoundException(error);
         }
         return filmStorage.update(film);
@@ -80,7 +81,8 @@ public class FilmServiceImpl implements FilmService {
      */
     public List<Film> getPopular(String supposedCount) {
         Integer count = IntegerFromString(supposedCount);
-        if (count == Integer.MIN_VALUE || count <= 0) {
+        log.info("* Возвращаем ТОП-{} популярных фильмов у пользователей", count);
+        if (count == Integer.MIN_VALUE || count <= 0 || supposedCount == null) {
             count = 10;
         }
         return getAll().stream()
@@ -101,18 +103,21 @@ public class FilmServiceImpl implements FilmService {
         Film film = get(supposedId);
         User user = userService.get(supposedUserId);
 
+        log.info("* Добавляем лайк пользователя {} фильму {}", user.getLogin(), film.getName());
         Integer userId = user.getId();
         Integer filmId = film.getId();
         Set<Integer> likesFilm = filmStorage.getLikes(filmId);
 
-        if (likesFilm.add(userId)) {
-            filmStorage.setLikes(filmId, likesFilm);
-        } else {
-            String error = String.format("Не удалось поставить лайк фильму %s от пользователя %s",
+        if (likesFilm.contains(userId)) {
+            String error = String.format("Пользователь %s уже поставил лайк фильму %s",
                     film.getName(),
                     user.getLogin());
+            log.error(error);
             throw new FailSetFilmLikesException(error);
         }
+
+        likesFilm.add(userId);
+        filmStorage.setLikes(filmId, likesFilm);
     }
 
     /**
@@ -125,18 +130,21 @@ public class FilmServiceImpl implements FilmService {
         Film film = get(supposedId);
         User user = userService.get(supposedUserId);
 
+        log.info("* Удаляем лайк пользователя {} фильму {}", user.getLogin(), film.getName());
         Integer filmId = film.getId();
         Integer userId = user.getId();
         Set<Integer> likesFilm = filmStorage.getLikes(filmId);
 
-        if (likesFilm.remove(userId)) {
-            filmStorage.setLikes(filmId, likesFilm);
-        } else {
-            String error = String.format("Не удалось удалить лайк фильму %s от пользователя %s",
+        if (!likesFilm.contains(userId)) {
+            String error = String.format("Пользователь %s не ставил лайк фильму %s",
                     film.getName(),
                     user.getLogin());
+            log.error(error);
             throw new FailSetFilmLikesException(error);
         }
+
+        likesFilm.remove(userId);
+        filmStorage.setLikes(filmId, likesFilm);
     }
 
     /**
@@ -166,11 +174,14 @@ public class FilmServiceImpl implements FilmService {
         Integer filmId = IntegerFromString(supposedId);
         if (filmId == Integer.MIN_VALUE || filmId <= 0) {
             String error = String.format("Неверный уин фильма: %d", filmId);
+            log.error(error);
             throw new WrongFilmIdException(error);
         }
         Film film = filmStorage.get(filmId);
         if (film == null) {
-            throw new NotFoundException("Фильм не найден: id:" + filmId + " отсутствует");
+            String error = String.format("Фильм не найден: id:%d отсутствует", filmId);
+            log.error(error);
+            throw new NotFoundException(error);
         }
         return film;
     }
