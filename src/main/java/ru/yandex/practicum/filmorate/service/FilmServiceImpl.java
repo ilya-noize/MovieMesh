@@ -80,7 +80,7 @@ public class FilmServiceImpl implements FilmService {
      * @return список
      */
     public List<Film> getPopular(String supposedCount) {
-        Integer count = IntegerFromString(supposedCount);
+        Integer count = integerFromString(supposedCount);
         log.info("* Возвращаем ТОП-{} популярных фильмов у пользователей", count);
         if (count == Integer.MIN_VALUE || count <= 0 || supposedCount == null) {
             count = 10;
@@ -154,7 +154,7 @@ public class FilmServiceImpl implements FilmService {
      * @return число
      * @see #getFilmFromData(String)
      */
-    private Integer IntegerFromString(String supposedInt) {
+    private Integer integerFromString(String supposedInt) {
         try {
             return Integer.valueOf(supposedInt);
         } catch (NumberFormatException e) {
@@ -167,11 +167,11 @@ public class FilmServiceImpl implements FilmService {
      *
      * @param supposedId предполагаемый уин фильма в строке
      * @return пользователь
-     * @see #IntegerFromString(String)
+     * @see #integerFromString(String)
      * @see #get(String)
      */
     private Film getFilmFromData(String supposedId) {
-        Integer filmId = IntegerFromString(supposedId);
+        Integer filmId = integerFromString(supposedId);
         if (filmId == Integer.MIN_VALUE || filmId <= 0) {
             String error = String.format("Неверный уин фильма: %d", filmId);
             log.error(error);

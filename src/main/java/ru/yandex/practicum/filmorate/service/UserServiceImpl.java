@@ -210,7 +210,7 @@ public class UserServiceImpl implements UserService {
      * @return число
      * @see #getUserFromData(String)
      */
-    private Integer IntegerFromString(String supposedInt) {
+    private Integer integerFromString(String supposedInt) {
         try {
             return Integer.valueOf(supposedInt);
         } catch (NumberFormatException e) {
@@ -223,12 +223,12 @@ public class UserServiceImpl implements UserService {
      *
      * @param supposedId предполагаемый уин пользователя в строке
      * @return пользователь
-     * @see #IntegerFromString(String)
+     * @see #integerFromString(String)
      * @see #get(String)
      */
     private User getUserFromData(String supposedId) {
 //        log.info("* Попытка получить данные пользователя");
-        Integer userId = IntegerFromString(supposedId);
+        Integer userId = integerFromString(supposedId);
         if (userId == Integer.MIN_VALUE || userId <= 0) {
             String error = String.format("Неверный уин пользователя: %d", userId);
             log.error(error);
