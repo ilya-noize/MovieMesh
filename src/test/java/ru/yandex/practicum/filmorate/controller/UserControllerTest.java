@@ -4,8 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 
@@ -17,10 +19,9 @@ public class UserControllerTest {
     private static final LocalDate RIGHT_BIRTHDAY = LocalDate.of(2000, 1, 1);
     private static final LocalDate WRONG_BIRTHDAY = LocalDate.now();
 
-    UserController controller = new UserController(
-            new UserServiceImpl(
-                    new InMemoryUserStorage()
-            ));
+    UserStorage storage = new InMemoryUserStorage();
+    UserService service = new UserServiceImpl(storage);
+    UserController controller = new UserController(service);
 
     @DisplayName(value = "Создать пользователя")
     @Test
@@ -121,7 +122,7 @@ public class UserControllerTest {
         User user = getUser();
         controller.create(user);
         user.setName("login2");
-        assertEquals(1, controller.update(user).getId());
+        assertEquals(1, storage.update(user).getId());
     }
 
     @DisplayName(value = "Изменить пользователя - Ошибка: несуществующий пользователь")

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
@@ -28,7 +29,7 @@ class FilmControllerTest {
     UserStorage userStorage = new InMemoryUserStorage();
     UserService userService = new UserServiceImpl(userStorage);
     FilmStorage filmStorage = new InMemoryFilmStorage();
-    FilmServiceImpl service = new FilmServiceImpl(filmStorage, userService);
+    FilmService service = new FilmServiceImpl(filmStorage, userService);
     FilmController controller = new FilmController(service);
 
     @DisplayName(value = "Создание фильма")
