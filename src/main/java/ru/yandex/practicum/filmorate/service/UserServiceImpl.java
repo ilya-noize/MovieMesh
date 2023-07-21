@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService {
         Set<Integer> friendsCommon = new HashSet<>();
         for (Integer id : friendsIdUser) {
             for (Integer idOther : friendsIdUserOther) {
-                if(id.equals(idOther)) {
+                if (id.equals(idOther)) {
                     friendsCommon.add(id);
                 }
             }
