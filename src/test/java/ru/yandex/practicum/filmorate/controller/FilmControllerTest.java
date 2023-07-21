@@ -5,11 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
@@ -23,10 +25,10 @@ class FilmControllerTest {
     final LocalDate rightRelease = LocalDate.of(1895, 12, 28);
     final int rightDuration = 1;
 
-    InMemoryUserStorage userStorage = new InMemoryUserStorage();
-    FilmStorage storage = new InMemoryFilmStorage();
-    FilmService service = new FilmService(storage,
-            new UserService(userStorage));
+    UserStorage userStorage = new InMemoryUserStorage();
+    UserService userService = new UserServiceImpl(userStorage);
+    FilmStorage filmStorage = new InMemoryFilmStorage();
+    FilmServiceImpl service = new FilmServiceImpl(filmStorage, userService);
     FilmController controller = new FilmController(service);
 
     @DisplayName(value = "Создание фильма")

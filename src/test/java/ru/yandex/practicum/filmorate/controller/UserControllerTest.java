@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -18,7 +18,7 @@ public class UserControllerTest {
     private static final LocalDate WRONG_BIRTHDAY = LocalDate.now();
 
     UserController controller = new UserController(
-            new UserService(
+            new UserServiceImpl(
                     new InMemoryUserStorage()
             ));
 

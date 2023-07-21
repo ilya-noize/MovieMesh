@@ -4,21 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     Integer generateId;
     private final Map<Integer, Film> films;
+    private final Map<Integer, Set<Integer>> likes;
 
     @Autowired
     public InMemoryFilmStorage() {
         this.generateId = 1;
         this.films = new HashMap<>();
+        this.likes = new HashMap<>();
     }
 
     @Override
@@ -45,27 +43,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Integer filmId, Integer userId) {
-        Film film = get(filmId);
-        if (film.getLikes().add(userId)) {
-            films.replace(filmId, film);
-        }
-
+    public void setLikes(Integer filmId, Set<Integer> userLikes) {
+        likes.replace(filmId, userLikes);
     }
 
     @Override
-    public void deleteLike(Integer filmId, Integer userId) {
-        Film film = get(filmId);
-        if (film.getLikes().remove(userId)) {
-            films.replace(filmId, film);
-        }
-    }
-
-    @Override
-    public List<Film> getPopular(Integer count) {
-        return getAll().stream()
-                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+    public Set<Integer> getLikes(Integer filmId) {
+        return likes.get(filmId);
     }
 }
