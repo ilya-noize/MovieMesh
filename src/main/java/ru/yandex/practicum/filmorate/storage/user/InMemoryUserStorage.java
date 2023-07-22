@@ -12,20 +12,17 @@ import java.util.*;
 public class InMemoryUserStorage implements UserStorage {
     private Integer generateId;
     private final Map<Integer, User> users;
-    private final Map<Integer, Set<Integer>> friends;
 
     @Autowired
     public InMemoryUserStorage() {
         this.generateId = 1;
         this.users = new HashMap<>();
-        this.friends = new HashMap<>();
     }
 
     @Override
     public User create(User user) {
         user.setId(generateId++);
         users.put(user.getId(), user);
-        friends.put(user.getId(), new HashSet<>());
         return user;
     }
 
@@ -47,16 +44,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void setFriends(Integer userId, Set<Integer> userFriends) {
-        if (userId == 2) {
-            new ArrayList(userFriends).sort(Collections.reverseOrder());
-
-            log.info("!!! Reverse HashSet:{} userId:{} ", userFriends.toArray(), userId);
-        }
-        friends.replace(userId, userFriends);
+        users.get(userId).setFriends(userFriends);
     }
 
     @Override
     public Set<Integer> getFriends(Integer userId) {
-        return friends.get(userId);
+        return users.get(userId).getFriends();
     }
 }
