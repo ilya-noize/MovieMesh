@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
@@ -27,9 +25,8 @@ class FilmControllerTest {
     final int rightDuration = 1;
 
     UserStorage userStorage = new InMemoryUserStorage();
-    UserService userService = new UserServiceImpl(userStorage);
     FilmStorage filmStorage = new InMemoryFilmStorage();
-    FilmService service = new FilmServiceImpl(filmStorage, userService);
+    FilmService service = new FilmServiceImpl(filmStorage, userStorage);
     FilmController controller = new FilmController(service);
 
     @DisplayName(value = "Создание фильма")
@@ -151,5 +148,11 @@ class FilmControllerTest {
         controller.create(getFilm());
         int countFilms = controller.getAll().size();
         assertEquals(1, countFilms);
+    }
+
+
+    @DisplayName(value = "Получить популярные фильмы")
+    @Test
+    void getPopular() {
     }
 }

@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.WrongFilmIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.Set;
@@ -17,14 +18,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmServiceImpl implements FilmService {
-    private final FilmStorage filmStorage;
     private final UserService userService;
+    private final FilmStorage filmStorage;
 
 
     @Autowired
-    public FilmServiceImpl(FilmStorage filmStorage, UserService userService) {
+    public FilmServiceImpl(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
-        this.userService = userService;
+        this.userService = new UserServiceImpl(userStorage);
     }
 
     /**
@@ -107,13 +108,13 @@ public class FilmServiceImpl implements FilmService {
         Integer filmId = film.getId();
         Set<Integer> likes = filmStorage.getLikes(filmId);
 
-        if (likes.contains(userId)) {
+        if (likes != null && likes.contains(userId)) {
             String error = String.format("Пользователь %s уже поставил лайк фильму %s", user.getLogin(), film.getName());
             log.error(error);
             throw new FailSetFilmLikesException(error);
         }
 
-        likes.add(userId);
+        likes.add(userId); //Warning:(117, 15) Method invocation 'add' may produce 'NullPointerException'
         filmStorage.setLikes(filmId, likes);
     }
 
@@ -130,18 +131,18 @@ public class FilmServiceImpl implements FilmService {
         log.info("* Удаляем лайк пользователя {} фильму {}", user.getLogin(), film.getName());
         Integer filmId = film.getId();
         Integer userId = user.getId();
-        Set<Integer> likesFilm = filmStorage.getLikes(filmId);
-
-        if (!likesFilm.contains(userId)) {
+        Set<Integer> likes = filmStorage.getLikes(filmId);
+/*
+        if (likes != null && !likes.contains(userId)) {
             String error = String.format("Пользователь %s не ставил лайк фильму %s",
                     film.getName(),
                     user.getLogin());
             log.error(error);
             throw new FailSetFilmLikesException(error);
         }
-
-        likesFilm.remove(userId);
-        filmStorage.setLikes(filmId, likesFilm);
+*/
+        likes.remove(userId);
+        filmStorage.setLikes(filmId, likes);
     }
 
     /**
