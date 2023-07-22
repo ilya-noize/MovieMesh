@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import ru.yandex.practicum.filmorate.constraint.CorrectReleaseDate;
 
 import javax.validation.constraints.NotBlank;
@@ -11,8 +13,7 @@ import java.time.LocalDate;
 
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@EqualsAndHashCode
 @ToString
 public class Film {
     private static final String RELEASE_DATE_LIMIT = "1895-12-28";

@@ -17,13 +17,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmServiceImpl implements FilmService {
-    FilmStorage filmStorage;
-    UserService userService;
+    private final FilmStorage filmStorage;
+    private final UserService userService;
 
 
     @Autowired
-    public FilmServiceImpl(FilmStorage filmStorage,
-                           @Autowired(required = false) UserService userService) {
+    public FilmServiceImpl(FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
     }
@@ -106,18 +105,16 @@ public class FilmServiceImpl implements FilmService {
         log.info("* Добавляем лайк пользователя {} фильму {}", user.getLogin(), film.getName());
         Integer userId = user.getId();
         Integer filmId = film.getId();
-        Set<Integer> likesFilm = filmStorage.getLikes(filmId);
+        Set<Integer> likes = filmStorage.getLikes(filmId);
 
-        if (likesFilm.contains(userId)) {
-            String error = String.format("Пользователь %s уже поставил лайк фильму %s",
-                    film.getName(),
-                    user.getLogin());
+        if (likes.contains(userId)) {
+            String error = String.format("Пользователь %s уже поставил лайк фильму %s", user.getLogin(), film.getName());
             log.error(error);
             throw new FailSetFilmLikesException(error);
         }
 
-        likesFilm.add(userId);
-        filmStorage.setLikes(filmId, likesFilm);
+        likes.add(userId);
+        filmStorage.setLikes(filmId, likes);
     }
 
     /**

@@ -30,7 +30,7 @@ public class ErrorController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleWrongIdException(WrongIdException e) {
+    public ErrorResponse handleWrongUserIdException(WrongUserIdException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -41,13 +41,13 @@ public class ErrorController {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleFailSetFriendException(FailSetFriendException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleFailSetFilmLikesException(FailSetFilmLikesException e) {
         return new ErrorResponse(e.getMessage());
     }

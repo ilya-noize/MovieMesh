@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FailSetFriendException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
-import ru.yandex.practicum.filmorate.exception.WrongIdException;
+import ru.yandex.practicum.filmorate.exception.WrongUserIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -18,9 +18,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    UserStorage userStorage;
+    private final UserStorage userStorage;
+
+    @Autowired
+    public UserServiceImpl(UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
 
     /**
      * создание пользователя
@@ -232,7 +237,7 @@ public class UserServiceImpl implements UserService {
         if (userId == Integer.MIN_VALUE || userId <= 0) {
             String error = String.format("Неверный уин пользователя: %d", userId);
             log.error(error);
-            throw new WrongIdException(error);
+            throw new WrongUserIdException(error);
         }
         User user = userStorage.get(userId);
         if (user == null) {
