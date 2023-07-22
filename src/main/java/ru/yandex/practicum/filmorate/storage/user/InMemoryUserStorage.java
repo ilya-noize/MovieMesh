@@ -50,7 +50,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (userId == 2) {
             new ArrayList(userFriends).sort(Collections.reverseOrder());
 
-            log.info("!!! Reverse HashSet:{} userId:{} ",userFriends.toArray() ,userId);
+            log.info("!!! Reverse HashSet:{} userId:{} ", userFriends.toArray(), userId);
         }
         friends.replace(userId, userFriends);
     }
