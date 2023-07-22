@@ -13,7 +13,7 @@ import java.util.Set;
 @RestController
 @Slf4j
 @RequestMapping("/users")
-public class UserController extends Controller {
+public class UserController {
 
     private final UserService userService;
 

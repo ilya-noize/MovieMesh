@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/films")
-public class FilmController extends Controller {
+public class FilmController {
 
     private final FilmService filmService;
 

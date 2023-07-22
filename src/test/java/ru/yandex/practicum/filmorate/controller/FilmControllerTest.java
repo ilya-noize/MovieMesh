@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.WrongFilmIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
@@ -154,5 +155,26 @@ class FilmControllerTest {
     @DisplayName(value = "Получить популярные фильмы")
     @Test
     void getPopular() {
+        controller.getPopular("1");
+    }
+
+    @DisplayName(value = "Добавить лайк")
+    @Test
+    void addLike() {
+        try {
+            controller.addLike("", "");
+        } catch (WrongFilmIdException e){
+            assertEquals("Неверный уин фильма: -2147483648", e.getMessage());
+        }
+    }
+
+    @DisplayName(value = "Удалить лайк")
+    @Test
+    void deleteLike() {
+        try {
+            controller.deleteLike("","");
+        } catch (WrongFilmIdException e){
+            assertEquals("Неверный уин фильма: -2147483648", e.getMessage());
+        }
     }
 }

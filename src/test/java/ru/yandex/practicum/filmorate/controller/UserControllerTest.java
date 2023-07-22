@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.exception.WrongUserIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
@@ -148,5 +149,45 @@ public class UserControllerTest {
         controller.create(getUser());
         int countUsers = controller.getAll().size();
         assertEquals(1, countUsers);
+    }
+
+    @DisplayName(value = "Добавить друга")
+    @Test
+    void addFriend() {
+        try {
+            controller.addFriend("", "");
+        } catch (WrongUserIdException e) {
+            assertEquals("Неверный уин пользователя: -2147483648", e.getMessage());
+        }
+    }
+
+    @DisplayName(value = "Удалить друга")
+    @Test
+    void deleteFriend() {
+        try {
+            controller.deleteFriend("", "");
+        } catch (WrongUserIdException e) {
+            assertEquals("Неверный уин пользователя: -2147483648", e.getMessage());
+        }
+    }
+
+    @DisplayName(value = "Получить список друзей")
+    @Test
+    void getUserFriends() {
+        try {
+            controller.getUserFriends("");
+        } catch (WrongUserIdException e) {
+            assertEquals("Неверный уин пользователя: -2147483648", e.getMessage());
+        }
+    }
+
+    @DisplayName(value = "Получить список общих друзей двух пользователей")
+    @Test
+    void getUserCommonFriends() {
+        try {
+            controller.getUserCommonFriends("", "");
+        } catch (WrongUserIdException e) {
+            assertEquals("Неверный уин пользователя: -2147483648", e.getMessage());
+        }
     }
 }

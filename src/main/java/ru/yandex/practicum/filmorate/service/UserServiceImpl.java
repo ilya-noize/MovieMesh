@@ -195,14 +195,13 @@ public class UserServiceImpl implements UserService {
      * @see #getAll()
      */
     private Set<User> getFriendsSet(Set<Integer> friendsIdSet) {
-//        log.info("* Возвращаем список пользователей-друзей");
+        log.info("* Возвращаем список пользователей-друзей");
         Set<User> friendsSet = friendsIdSet.stream()
                 .map(userStorage::get)
                 .collect(Collectors.toSet());
         if (friendsSet.size() == 0) {
             String error = "Список пользователей-друзей пуст";
             log.error(error);
-//            throw new EmptyFriendsSetException(error);
             return new HashSet<>();
         }
         return friendsSet;
@@ -232,7 +231,7 @@ public class UserServiceImpl implements UserService {
      * @see #get(String)
      */
     private User getUserFromData(String supposedId) {
-//        log.info("* Попытка получить данные пользователя");
+        log.info("* Попытка получить данные пользователя");
         Integer userId = integerFromString(supposedId);
         if (userId == Integer.MIN_VALUE || userId <= 0) {
             String error = String.format("Неверный уин пользователя: %d", userId);
@@ -245,7 +244,7 @@ public class UserServiceImpl implements UserService {
             log.error(error);
             throw new NotFoundException(error);
         }
-//        log.info("Успешно получены данные пользователя");
+        log.info("Успешно получены данные пользователя");
         return user;
     }
 
@@ -256,7 +255,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void loginUnical(User user) {
-//        log.info("* Проверка уникальности логина пользователя");
+        log.info("* Проверка уникальности логина пользователя");
         String login = user.getLogin();
         for (User userCheck : getAll()) {
             if (login.equals(userCheck.getLogin())) {
@@ -265,17 +264,17 @@ public class UserServiceImpl implements UserService {
                 throw new UserAlreadyExistException(error);
             }
         }
-//        log.info("Логин пользователя соответствует требованиям");
+        log.info("Логин пользователя соответствует требованиям");
     }
 
     private String checkName(User user) {
-//        log.info("* Проверка имени пользователя");
+        log.info("* Проверка имени пользователя");
         String name = user.getName();
         if (name == null || name.isBlank()) {
-//            log.info("Имя пользователя теперь его логин");
+            log.info("Имя пользователя теперь его логин");
             return user.getLogin();
         } else {
-//            log.info("Имя пользователя соответствует требованиям");
+            log.info("Имя пользователя соответствует требованиям");
             return name;
         }
     }
