@@ -163,7 +163,7 @@ class FilmControllerTest {
     void addLike() {
         try {
             controller.addLike("", "");
-        } catch (WrongFilmIdException e){
+        } catch (WrongFilmIdException e) {
             assertEquals("Неверный уин фильма: -2147483648", e.getMessage());
         }
     }
@@ -173,7 +173,7 @@ class FilmControllerTest {
     void deleteLike() {
         try {
             controller.deleteLike("","");
-        } catch (WrongFilmIdException e){
+        } catch (WrongFilmIdException e) {
             assertEquals("Неверный уин фильма: -2147483648", e.getMessage());
         }
     }
