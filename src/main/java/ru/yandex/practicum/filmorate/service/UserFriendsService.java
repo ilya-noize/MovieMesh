@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class UserFriendsService extends UserService{
+public class UserFriendsService extends UserService {
     @Autowired
     protected UserFriendsService(UserStorage userStorage) {
         super((UserStorage) userStorage);
