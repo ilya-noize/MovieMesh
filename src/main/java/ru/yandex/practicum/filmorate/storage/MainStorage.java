@@ -14,7 +14,7 @@ public abstract class MainStorage<T> {
         this.storage = storage;
     }
 
-    protected Long increment(){
+    protected Long increment() {
         return generateId++;
     }
 
