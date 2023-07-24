@@ -165,7 +165,7 @@ class FilmControllerTest {
     @Test
     void addLike() {
         try {
-            controller.addLike(null , null);
+            controller.addLike(null, null);
         } catch (Exception e) {
             assertNull(e.getMessage());
         }
