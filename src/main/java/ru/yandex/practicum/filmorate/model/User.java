@@ -2,20 +2,16 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Past;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@ToString
 public class User {
     @EqualsAndHashCode.Exclude
+    @Positive(message = "Уникальный номер пользователя только положительный")
     private Integer id;
 
     @Email(message = "Введенное значение не является адресом электронной почты.")

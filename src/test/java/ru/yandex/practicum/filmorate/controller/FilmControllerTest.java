@@ -8,10 +8,10 @@ import ru.yandex.practicum.filmorate.exception.WrongFilmIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
@@ -131,7 +131,7 @@ class FilmControllerTest {
     @Test
     void updateNotExistFilm() {
         try {
-            controller.create(getNotExistFilm());//todo wtf
+            controller.create(getNotExistFilm());
         } catch (NotFoundException e) {
             assertEquals("Нет такого фильма.", e.getMessage());
         }
@@ -155,14 +155,14 @@ class FilmControllerTest {
     @DisplayName(value = "Получить популярные фильмы")
     @Test
     void getPopular() {
-        controller.getPopular("1");
+        controller.getPopular(1L);
     }
 
     @DisplayName(value = "Добавить лайк")
     @Test
     void addLike() {
         try {
-            controller.addLike("", "");
+            controller.addLike(0L,0L);
         } catch (WrongFilmIdException e) {
             assertEquals("Неверный уин фильма: -2147483648", e.getMessage());
         }
@@ -172,7 +172,7 @@ class FilmControllerTest {
     @Test
     void deleteLike() {
         try {
-            controller.deleteLike("","");
+            controller.deleteLike(0L,0L);
         } catch (WrongFilmIdException e) {
             assertEquals("Неверный уин фильма: -2147483648", e.getMessage());
         }

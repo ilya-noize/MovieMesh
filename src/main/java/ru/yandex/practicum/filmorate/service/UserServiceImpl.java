@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.WrongUserIdException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.HashSet;
 import java.util.List;
@@ -58,9 +58,9 @@ public class UserServiceImpl implements UserService {
      *
      * @param supposedId уин пользователя
      * @return пользователь
-     * @see #getUserFromData(String)
+     * @see #getUserFromData(Long)
      */
-    public User get(String supposedId) {
+    public User get(Long supposedId) {
 //        User user = getUserFromData(supposedId);
 //        log.info("* Возвращаем пользователя {}", user.getLogin());
         return getUserFromData(supposedId);
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
      * @param supposedId       уин пользователя
      * @param supposedIdFriend уин пользователя-друга
      */
-    public void addFriend(String supposedId, String supposedIdFriend) {
+    public void addFriend(Long supposedId, Long supposedIdFriend) {
         User user = get(supposedId);
         Integer userId = user.getId();
         Set<Integer> userFriends = userStorage.getFriends(userId);
@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
      * @param supposedId       уин пользователя
      * @param supposedIdFriend уин пользователя-друга
      */
-    public void deleteFriend(String supposedId, String supposedIdFriend) {
+    public void deleteFriend(Long supposedId, Long supposedIdFriend) {
         User user = get(supposedId);
         Integer userId = user.getId();
         Set<Integer> userFriends = userStorage.getFriends(userId);
@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
      * @param supposedId уин пользователя
      * @return список
      */
-    public Set<User> getFriends(String supposedId) {
+    public Set<User> getFriends(Long supposedId) {
         User user = get(supposedId);
 
         log.info("* Возвращаем список пользователей, являющихся друзьями пользователя {}", user.getLogin());
@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
      * @param supposedOtherId уин пользователя №2
      * @return список
      */
-    public Set<User> getFriendsCommon(String supposedId, String supposedOtherId) {
+    public Set<User> getFriendsCommon(Long supposedId, Long supposedOtherId) {
         User user = get(supposedId);
         User userOther = get(supposedOtherId);
 
@@ -169,7 +169,8 @@ public class UserServiceImpl implements UserService {
      * Поиск общих чисел в HashSet-ах. А именно,
      * аналог HashSet1<Integer>.retainAll(HashSet2<Integer>), но (!)
      * без затирания HashSet1
-     * @param friendsIdUser HashSet-1
+     *
+     * @param friendsIdUser      HashSet-1
      * @param friendsIdUserOther HashSet-2
      * @return пересечение HashSet-1 и HashSet-2. другой HashSet-3
      */
@@ -190,8 +191,8 @@ public class UserServiceImpl implements UserService {
      *
      * @param friendsIdSet список уин пользователей
      * @return список
-     * @see #getFriends
-     * @see #getFriendsCommon(String, String)
+     * @see UserService#getFriends
+     * @see UserService#getFriendsCommon(Long, Long)
      * @see #getAll()
      */
     private Set<User> getFriendsSet(Set<Integer> friendsIdSet) {
@@ -212,11 +213,11 @@ public class UserServiceImpl implements UserService {
      *
      * @param supposedInt Строка
      * @return число
-     * @see #getUserFromData(String)
+     * @see #getUserFromData(Long)
      */
-    private Integer integerFromString(String supposedInt) {
+    private Integer integerFromLong(Long supposedInt) {
         try {
-            return Integer.valueOf(supposedInt);
+            return Math.toIntExact(supposedInt);
         } catch (NumberFormatException e) {
             return Integer.MIN_VALUE;
         }
@@ -227,13 +228,13 @@ public class UserServiceImpl implements UserService {
      *
      * @param supposedId предполагаемый уин пользователя в строке
      * @return пользователь
-     * @see #integerFromString(String)
-     * @see #get(String)
+     * @see #integerFromLong(Long)
+     * @see #get(Long)
      */
-    private User getUserFromData(String supposedId) {
+    private User getUserFromData(Long supposedId) {
         log.info("* Попытка получить данные пользователя");
-        Integer userId = integerFromString(supposedId);
-        if (userId == Integer.MIN_VALUE || userId <= 0) {
+        Integer userId = integerFromLong(supposedId);
+        if (userId == Integer.MIN_VALUE) {
             String error = String.format("Неверный уин пользователя: %d", userId);
             log.error(error);
             throw new WrongUserIdException(error);

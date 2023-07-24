@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.exception.WrongUserIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 
@@ -155,7 +155,7 @@ public class UserControllerTest {
     @Test
     void addFriend() {
         try {
-            controller.addFriend("", "");
+            controller.addFriend(0L, 0L);
         } catch (WrongUserIdException e) {
             assertEquals("Неверный уин пользователя: -2147483648", e.getMessage());
         }
@@ -165,7 +165,7 @@ public class UserControllerTest {
     @Test
     void deleteFriend() {
         try {
-            controller.deleteFriend("", "");
+            controller.deleteFriend(0L, 0L);
         } catch (WrongUserIdException e) {
             assertEquals("Неверный уин пользователя: -2147483648", e.getMessage());
         }
@@ -175,7 +175,7 @@ public class UserControllerTest {
     @Test
     void getUserFriends() {
         try {
-            controller.getUserFriends("");
+            controller.getUserFriends(0L);
         } catch (WrongUserIdException e) {
             assertEquals("Неверный уин пользователя: -2147483648", e.getMessage());
         }
@@ -185,7 +185,7 @@ public class UserControllerTest {
     @Test
     void getUserCommonFriends() {
         try {
-            controller.getUserCommonFriends("", "");
+            controller.getUserCommonFriends(0L, 0L);
         } catch (WrongUserIdException e) {
             assertEquals("Неверный уин пользователя: -2147483648", e.getMessage());
         }

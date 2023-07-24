@@ -4,18 +4,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
 
-public interface FilmService {
-    Film create(Film film);
+public interface FilmService extends Service<Film> {
+    List<Film> getPopular(Long supposedCount);
 
-    Film update(Film film);
+    void addLike(Long supposedId, Long supposedUsedId);
 
-    Film get(String supposedId);
-
-    List<Film> getAll();
-
-    List<Film> getPopular(String supposedCount);
-
-    void addLike(String supposedId, String supposedUsedId);
-
-    void deleteLike(String supposedId, String supposedUsedId);
+    void deleteLike(Long supposedId, Long supposedUsedId);
 }
