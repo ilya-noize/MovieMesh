@@ -1,23 +1,22 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
-    private Integer generateId;
-    private final Map<Integer, User> users;
-
-    @Autowired
-    public InMemoryUserStorage() {
-        this.generateId = 1;
-        this.users = new HashMap<>();
-    }
+    private final Map<Long, User> users;
+    private Long generateId = 1L;
 
     @Override
     public User create(User user) {
@@ -28,13 +27,19 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        users.replace(user.getId(), user);
+        if (isExist(user.getId())) {
+            users.replace(user.getId(), user);
+        }
         return user;
     }
 
     @Override
-    public User get(Integer id) {
-        return users.get(id);
+    public User get(Long id) {
+        User user = null;
+        if (isExist(id)) {
+            user = users.get(id);
+        }
+        return user;
     }
 
     @Override
@@ -43,12 +48,22 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void setFriends(Integer userId, Set<Integer> userFriends) {
+    public boolean isExist(Long id) {
+        if (!users.containsKey(id)) {
+            String error = String.format("Пользователь не найден: id:%d не зарегистрирован", id);
+            log.error(error);
+            throw new NotFoundException(error);
+        }
+        return true;
+    }
+
+    @Override
+    public void setFriends(Long userId, Set<Long> userFriends) {
         users.get(userId).setFriends(userFriends);
     }
 
     @Override
-    public Set<Integer> getFriends(Integer userId) {
+    public Set<Long> getFriends(Long userId) {
         return users.get(userId).getFriends();
     }
 }

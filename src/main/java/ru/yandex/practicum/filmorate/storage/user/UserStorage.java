@@ -10,11 +10,13 @@ public interface UserStorage {
 
     User update(User user);
 
-    User get(Integer id);
+    User get(Long id);
 
     List<User> getAll();
 
-    void setFriends(Integer userId, Set<Integer> friendSet);
+    boolean isExist(Long id);
 
-    Set<Integer> getFriends(Integer userId);
+    void setFriends(Long userId, Set<Long> friendSet);
+
+    Set<Long> getFriends(Long userId);
 }

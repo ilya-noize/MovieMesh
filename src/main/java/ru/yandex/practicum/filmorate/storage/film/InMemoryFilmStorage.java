@@ -1,42 +1,46 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
-    Integer generateId;
-    private final Map<Integer, Film> films;
-    private final Map<Integer, Set<Integer>> likes;
-
-    @Autowired
-    public InMemoryFilmStorage() {
-        this.generateId = 1;
-        this.films = new HashMap<>();
-        this.likes = new HashMap<>();
-    }
+    private Long generateId = 1L;
+    private final Map<Long, Film> films;
 
     @Override
     public Film create(Film film) {
         film.setId(generateId++);
-        Integer id = film.getId();
-        films.put(id, film);
-        likes.put(id, new HashSet<>());
+        film.setLikes(new HashSet<>());
+        films.put(film.getId(), film);
         return film;
     }
 
     @Override
     public Film update(Film film) {
-        films.replace(film.getId(), film);
+        if (isExist(film.getId())) {
+            films.replace(film.getId(), film);
+        }
         return film;
     }
 
     @Override
-    public Film get(Integer id) {
-        return films.get(id);
+    public Film get(Long id) {
+        Film film = null;
+        if (isExist(id)) {
+            film = films.get(id);
+        }
+        return film;
     }
 
     @Override
@@ -45,12 +49,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void setLikes(Integer filmId, Set<Integer> userLikes) {
-        likes.replace(filmId, userLikes);
-    }
-
-    @Override
-    public Set<Integer> getLikes(Integer filmId) {
-        return likes.get(filmId);
+    public boolean isExist(Long id) {
+        if (!films.containsKey(id)) {
+            String error = String.format("Фильм не найден: id:%d отсутствует", id);
+            log.error(error);
+            throw new NotFoundException(error);
+        }
+        return true;
     }
 }

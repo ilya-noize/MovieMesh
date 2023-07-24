@@ -9,13 +9,13 @@ public interface FilmService {
 
     Film update(Film film);
 
-    Film get(String supposedId);
+    Film get(Long supposedId);
 
     List<Film> getAll();
 
-    List<Film> getPopular(String supposedCount);
+    List<Film> getPopular(Long supposedCount);
 
-    void addLike(String supposedId, String supposedUsedId);
+    void addLike(Long supposedId, Long supposedUsedId);
 
-    void deleteLike(String supposedId, String supposedUsedId);
+    void deleteLike(Long supposedId, Long supposedUsedId);
 }

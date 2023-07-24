@@ -9,13 +9,6 @@ import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 @RestControllerAdvice
 public class ErrorController {
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.OK)
-    public ErrorResponse handleEmptyFriendsSetException(EmptyFriendsSetException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserAlreadyExistException(UserAlreadyExistException e) {
@@ -35,7 +28,7 @@ public class ErrorController {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleWrongFilmIdException(WrongFilmIdException e) {
         return new ErrorResponse(e.getMessage());
     }

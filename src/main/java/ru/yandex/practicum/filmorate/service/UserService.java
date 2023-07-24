@@ -10,15 +10,15 @@ public interface UserService {
 
     User update(User user);
 
-    User get(String id);
+    User get(Long id);
 
     List<User> getAll();
 
-    void addFriend(String userId, String friendId);
+    void addFriend(Long userId, Long friendId);
 
-    Set<User> getFriends(String id);
+    Set<User> getFriends(Long id);
 
-    Set<User> getFriendsCommon(String userId, String otherUserId);
+    Set<User> getFriendsCommon(Long userId, Long otherUserId);
 
-    void deleteFriend(String userId, String friendId);
+    void deleteFriend(Long userId, Long friendId);
 }

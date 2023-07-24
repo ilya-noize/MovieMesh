@@ -1,31 +1,26 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FailSetFriendException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
-import ru.yandex.practicum.filmorate.exception.WrongUserIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
-
-    @Autowired
-    public UserServiceImpl(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
-
 
     /**
      * создание пользователя
@@ -53,17 +48,49 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    private User validation(User user) {
+        loginUnical(user);
+        user.setName(checkName(user));
+        return user;
+    }
+
+    private void loginUnical(User user) {
+        log.info("* Проверка уникальности логина пользователя");
+        String login = user.getLogin();
+
+        final Predicate<User> TWIN_LOGIN = user1 -> user1.getLogin().equals(login);
+        Optional<User> result = getAll().stream().filter(TWIN_LOGIN).findFirst();
+
+        if (result.isPresent()) {
+            String error = String.format("Пользователь с логином:%s уже существует.", login);
+            log.error(error);
+            throw new UserAlreadyExistException(error);
+        }
+        log.info("Логин пользователя соответствует требованиям");
+    }
+
+    private String checkName(User user) {
+        log.info("* Проверка имени пользователя");
+        String name = user.getName();
+        if (name == null || name.isBlank()) {
+            log.info("Имя пользователя теперь его логин");
+            return user.getLogin();
+        } else {
+            log.info("Имя пользователя соответствует требованиям");
+            return name;
+        }
+    }
+
     /**
      * возвращает пользователя.
      *
-     * @param supposedId уин пользователя
+     * @param id уин пользователя
      * @return пользователь
-     * @see #getUserFromData(String)
      */
-    public User get(String supposedId) {
-//        User user = getUserFromData(supposedId);
-//        log.info("* Возвращаем пользователя {}", user.getLogin());
-        return getUserFromData(supposedId);
+    public User get(Long id) {
+        User user = userStorage.get(id);
+        log.info("get User({})", id);
+        return user;
     }
 
     /**
@@ -79,29 +106,25 @@ public class UserServiceImpl implements UserService {
     /**
      * добавление в друзья
      *
-     * @param supposedId       уин пользователя
-     * @param supposedIdFriend уин пользователя-друга
+     * @param id       уин пользователя
+     * @param idFriend уин пользователя-друга
      */
-    public void addFriend(String supposedId, String supposedIdFriend) {
-        User user = get(supposedId);
-        Integer userId = user.getId();
-        Set<Integer> userFriends = userStorage.getFriends(userId);
+    public void addFriend(Long id, Long idFriend) {
+        if (userStorage.get(id) != null && userStorage.get(idFriend) != null) {
+            addFriendByOne(id, idFriend);
+            addFriendByOne(idFriend, id);
+        }
+    }
 
-        User userFriend = get(supposedIdFriend);
-        Integer userFriendId = userFriend.getId();
-        Set<Integer> userFriendFriends = userStorage.getFriends(userFriendId);
-
-        log.info("* Добавление в друзья {}< - >{}", user.getLogin(), userFriend.getLogin());
-
-        if (userFriends.add(userFriendId) && userFriendFriends.add(userId)) {
-            userStorage.setFriends(userId, userFriends);
-            userStorage.setFriends(userFriendId, userFriendFriends);
+    private void addFriendByOne(Long id, Long idFriend) {
+        Set<Long> userFriends = userStorage.getFriends(id);
+        if (userFriends.add(idFriend)) {
+            userStorage.setFriends(id, userFriends);
         } else {
             String error = "Неудачное добавление в список друзей";
             log.error(error);
             throw new FailSetFriendException(error);
         }
-        log.info("* Добавление завершено {}< - >{}", user.getId(), userFriend.getId());
     }
 
     /**
@@ -110,14 +133,14 @@ public class UserServiceImpl implements UserService {
      * @param supposedId       уин пользователя
      * @param supposedIdFriend уин пользователя-друга
      */
-    public void deleteFriend(String supposedId, String supposedIdFriend) {
+    public void deleteFriend(Long supposedId, Long supposedIdFriend) {
         User user = get(supposedId);
-        Integer userId = user.getId();
-        Set<Integer> userFriends = userStorage.getFriends(userId);
+        Long userId = user.getId();
+        Set<Long> userFriends = userStorage.getFriends(userId);
 
         User userFriend = get(supposedIdFriend);
-        Integer userFriendId = userFriend.getId();
-        Set<Integer> userFriendFriends = userStorage.getFriends(userFriendId);
+        Long userFriendId = userFriend.getId();
+        Set<Long> userFriendFriends = userStorage.getFriends(userFriendId);
 
         log.info("* Удаление из друзей {}< - >{}", user.getLogin(), userFriend.getLogin());
 
@@ -138,11 +161,11 @@ public class UserServiceImpl implements UserService {
      * @param supposedId уин пользователя
      * @return список
      */
-    public Set<User> getFriends(String supposedId) {
+    public Set<User> getFriends(Long supposedId) {
         User user = get(supposedId);
 
         log.info("* Возвращаем список пользователей, являющихся друзьями пользователя {}", user.getLogin());
-        Set<Integer> friendsIdUser = userStorage.getFriends(user.getId());
+        Set<Long> friendsIdUser = userStorage.getFriends(user.getId());
 
         return getFriendsSet(friendsIdUser);
     }
@@ -150,39 +173,34 @@ public class UserServiceImpl implements UserService {
     /**
      * возвращает список общих друзей между пользователями
      *
-     * @param supposedId      уин пользователя №1
-     * @param supposedOtherId уин пользователя №2
+     * @param id      уин пользователя №1
+     * @param otherId уин пользователя №2
      * @return список
      */
-    public Set<User> getFriendsCommon(String supposedId, String supposedOtherId) {
-        User user = get(supposedId);
-        User userOther = get(supposedOtherId);
+    public Set<User> getFriendsCommon(Long id, Long otherId) {
+        User user = get(id);
+        User userOther = get(otherId);
 
         log.info("* Возвращаем список общих друзей между пользователями {}<->{}", user.getLogin(), userOther.getLogin());
-        Set<Integer> friendsIdUser = userStorage.getFriends(user.getId());
-        Set<Integer> friendsIdUserOther = userStorage.getFriends(userOther.getId());
+        Set<Long> friendsIdUser = userStorage.getFriends(user.getId());
+        Set<Long> friendsIdUserOther = userStorage.getFriends(userOther.getId());
 
         return getFriendsSet(findFriendsCommon(friendsIdUser, friendsIdUserOther));
     }
 
     /**
      * Поиск общих чисел в HashSet-ах. А именно,
-     * аналог HashSet1<Integer>.retainAll(HashSet2<Integer>), но (!)
+     * аналог HashSet1<T>.retainAll(HashSet2<T>), но (!)
      * без затирания HashSet1
-     * @param friendsIdUser HashSet-1
-     * @param friendsIdUserOther HashSet-2
-     * @return пересечение HashSet-1 и HashSet-2. другой HashSet-3
+     *
+     * @param friendsIdUser      HashSet1
+     * @param friendsIdUserOther HashSet2
+     * @return пересечение HashSet1 и HashSet2 - другой HashSet3
      */
-    private Set<Integer> findFriendsCommon(Set<Integer> friendsIdUser, Set<Integer> friendsIdUserOther) {
-        Set<Integer> friendsCommon = new HashSet<>();
-        for (Integer id : friendsIdUser) {
-            for (Integer idOther : friendsIdUserOther) {
-                if (id.equals(idOther)) {
-                    friendsCommon.add(id);
-                }
-            }
-        }
-        return friendsCommon;
+    private Set<Long> findFriendsCommon(Set<Long> friendsIdUser, Set<Long> friendsIdUserOther) {
+        return friendsIdUser.stream()
+                .filter(friendsIdUserOther::contains)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -191,91 +209,16 @@ public class UserServiceImpl implements UserService {
      * @param friendsIdSet список уин пользователей
      * @return список
      * @see #getFriends
-     * @see #getFriendsCommon(String, String)
      * @see #getAll()
      */
-    private Set<User> getFriendsSet(Set<Integer> friendsIdSet) {
+    private Set<User> getFriendsSet(Set<Long> friendsIdSet) {
         log.info("* Возвращаем список пользователей-друзей");
         Set<User> friendsSet = friendsIdSet.stream()
                 .map(userStorage::get)
                 .collect(Collectors.toSet());
         if (friendsSet.size() == 0) {
-            String error = "Список пользователей-друзей пуст";
-            log.error(error);
             return new HashSet<>();
         }
         return friendsSet;
-    }
-
-    /**
-     * Преобразование строки в число
-     *
-     * @param supposedInt Строка
-     * @return число
-     * @see #getUserFromData(String)
-     */
-    private Integer integerFromString(String supposedInt) {
-        try {
-            return Integer.valueOf(supposedInt);
-        } catch (NumberFormatException e) {
-            return Integer.MIN_VALUE;
-        }
-    }
-
-    /**
-     * Возвращает пользователя, после всех проверок
-     *
-     * @param supposedId предполагаемый уин пользователя в строке
-     * @return пользователь
-     * @see #integerFromString(String)
-     * @see #get(String)
-     */
-    private User getUserFromData(String supposedId) {
-        log.info("* Попытка получить данные пользователя");
-        Integer userId = integerFromString(supposedId);
-        if (userId == Integer.MIN_VALUE || userId <= 0) {
-            String error = String.format("Неверный уин пользователя: %d", userId);
-            log.error(error);
-            throw new WrongUserIdException(error);
-        }
-        User user = userStorage.get(userId);
-        if (user == null) {
-            String error = String.format("Пользователь не найден: id:%d не зарегистрирован", userId);
-            log.error(error);
-            throw new NotFoundException(error);
-        }
-        log.info("Успешно получены данные пользователя");
-        return user;
-    }
-
-    private User validation(User user) {
-        loginUnical(user);
-        user.setName(checkName(user));
-        return user;
-    }
-
-    private void loginUnical(User user) {
-        log.info("* Проверка уникальности логина пользователя");
-        String login = user.getLogin();
-        for (User userCheck : getAll()) {
-            if (login.equals(userCheck.getLogin())) {
-                String error = String.format("Пользователь с логином:%s уже существует.", login);
-                log.error(error);
-                throw new UserAlreadyExistException(error);
-            }
-        }
-        log.info("Логин пользователя соответствует требованиям");
-    }
-
-    private String checkName(User user) {
-        log.info("* Проверка имени пользователя");
-        String name = user.getName();
-        if (name == null || name.isBlank()) {
-            log.info("Имя пользователя теперь его логин");
-            return user.getLogin();
-        } else {
-            log.info("Имя пользователя соответствует требованиям");
-            return name;
-        }
     }
 }
