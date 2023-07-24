@@ -1,7 +1,5 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -9,26 +7,24 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
-@Slf4j
-@RequiredArgsConstructor
-public class InMemoryUserStorage implements UserStorage {
-    private final Map<Long, User> users;
-    private Long generateId = 1L;
+public class UserStorage extends MainStorage<User> {
+    protected UserStorage(Map<Long, User> storage) {
+        super(storage);
+    }
 
     @Override
     public User create(User user) {
-        user.setId(generateId++);
-        users.put(user.getId(), user);
+        user.setId(increment());
+        storage.put(user.getId(), user);
         return user;
     }
 
     @Override
     public User update(User user) {
         if (isExist(user.getId())) {
-            users.replace(user.getId(), user);
+            storage.replace(user.getId(), user);
         }
         return user;
     }
@@ -37,33 +33,22 @@ public class InMemoryUserStorage implements UserStorage {
     public User get(Long id) {
         User user = null;
         if (isExist(id)) {
-            user = users.get(id);
+            user = storage.get(id);
         }
         return user;
     }
 
     @Override
     public List<User> getAll() {
-        return new ArrayList<>(users.values());
+        return new ArrayList<>(storage.values());
     }
 
     @Override
     public boolean isExist(Long id) {
-        if (!users.containsKey(id)) {
+        if (!storage.containsKey(id)) {
             String error = String.format("Пользователь не найден: id:%d не зарегистрирован", id);
-            log.error(error);
             throw new NotFoundException(error);
         }
         return true;
-    }
-
-    @Override
-    public void setFriends(Long userId, Set<Long> userFriends) {
-        users.get(userId).setFriends(userFriends);
-    }
-
-    @Override
-    public Set<Long> getFriends(Long userId) {
-        return users.get(userId).getFriends();
     }
 }
