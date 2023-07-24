@@ -107,6 +107,7 @@ public abstract class UserService extends MainService<User> {
             return name;
         }
     }
+
     public abstract void addFriend(Long id, Long idFriend);
 
     public abstract void deleteFriend(Long supposedId, Long supposedIdFriend);

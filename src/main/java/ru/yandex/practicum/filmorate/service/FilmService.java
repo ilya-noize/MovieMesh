@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,14 +10,19 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class FilmService extends MainService<Film> {
+public abstract class FilmService extends MainService<Film> {
     protected final MainService<User> userService;
 
-    @Autowired
     protected FilmService(MainStorage<Film> storage, MainService<User> userService) {
         super(storage);
         this.userService = userService;
     }
+
+    public abstract void deleteLike(Long supposedId, Long supposedUserId);
+
+    public abstract void addLike(Long supposedId, Long supposedUserId);
+
+    public abstract List<Film> getPopular(Long supposedCount);
 
     /**
      * Создаёт фильм
