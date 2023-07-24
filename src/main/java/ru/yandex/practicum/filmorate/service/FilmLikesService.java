@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmLikesService extends FilmService {
-    private final Comparator<Film> SORT_LIKES = Comparator.comparing(film -> film.getLikes().size());
+    private final Comparator<Film> sortLikes = Comparator.comparing(film -> film.getLikes().size());
 
     @Autowired
     protected FilmLikesService(MainStorage<Film> storage, MainService<User> userService) {
@@ -32,7 +32,7 @@ public class FilmLikesService extends FilmService {
     public List<Film> getPopular(Long supposedCount) {
         log.info("* Возвращаем ТОП-{} популярных фильмов у пользователей", supposedCount);
         return getAll().stream()
-                .sorted(SORT_LIKES.reversed())
+                .sorted(sortLikes.reversed())
                 .limit(supposedCount)
                 .collect(Collectors.toList());
     }
