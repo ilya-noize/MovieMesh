@@ -1,18 +1,12 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 
-public abstract class MainStorage<T> {
+@RequiredArgsConstructor
+public abstract class MasterStorage<T> {
     private Long generateId = 1L;
-    protected final Map<Long, T> storage;
-
-    @Autowired
-    protected MainStorage(Map<Long, T> storage) {
-        this.storage = storage;
-    }
 
     protected Long increment() {
         return generateId++;

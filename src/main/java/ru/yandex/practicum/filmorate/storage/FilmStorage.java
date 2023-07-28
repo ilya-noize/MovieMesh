@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,24 +12,28 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class FilmStorage extends MainStorage<Film> {
-    protected FilmStorage(Map<Long, Film> storage) {
-        super(storage);
-    }
+@Slf4j
+@RequiredArgsConstructor
+public class FilmStorage extends MasterStorage<Film> {
+    private final Map<Long, Film> storage;
 
     @Override
     public Film create(Film film) {
         film.setId(increment());
         film.setLikes(new HashSet<>());
+        Long filmId = film.getId();
         storage.put(film.getId(), film);
+        log.info("create film({}): obj({})", filmId, film);
         return film;
     }
 
     @Override
     public Film update(Film film) {
-        if (isExist(film.getId())) {
-            storage.replace(film.getId(), film);
+        Long filmId = film.getId();
+        if (isExist(filmId)) {
+            storage.replace(filmId, film);
         }
+        log.info("update film({}): obj({})", filmId, film);
         return film;
     }
 
@@ -36,6 +42,8 @@ public class FilmStorage extends MainStorage<Film> {
         Film film = null;
         if (isExist(id)) {
             film = storage.get(id);
+            Long filmId = film.getId();
+            log.info("get film({})", filmId);
         }
         return film;
     }

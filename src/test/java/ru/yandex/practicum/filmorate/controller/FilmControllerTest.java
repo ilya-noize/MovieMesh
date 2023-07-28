@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @RequiredArgsConstructor
 class FilmControllerTest {
-    final LocalDate rightRelease = LocalDate.of(1895, 12, 28);
-    final int rightDuration = 1;
-    FilmController controller;
+    private final LocalDate rightRelease = LocalDate.of(1895, 12, 28);
+    private final int rightDuration = 1;
+    private FilmController controller;
 
     @DisplayName(value = "Создание фильма")
     @Test

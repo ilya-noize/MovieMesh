@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.MasterStorage;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,12 +15,17 @@ import java.util.function.Predicate;
 
 @Slf4j
 @Service
-public abstract class UserService extends MainService<User> {
+@RequiredArgsConstructor
+public abstract class UserService {
+    private final MasterStorage<User> userStorage;
 
-    @Autowired
-    protected UserService(UserStorage storage) {
-        super(storage);
-    }
+    public abstract void addFriend(Long id, Long idFriend);
+
+    public abstract void deleteFriend(Long supposedId, Long supposedIdFriend);
+
+    public abstract Set<User> getFriends(Long supposedId);
+
+    public abstract Set<User> getFriendsCommon(Long id, Long otherId);
 
     /**
      * создание пользователя
@@ -28,10 +33,9 @@ public abstract class UserService extends MainService<User> {
      * @param user пользователь
      * @return пользователь
      */
-    @Override
     public User create(User user) {
         log.info("* Создание пользователя");
-        user = storage.create(valid(user));
+        user = userStorage.create(valid(user));
         log.info("Пользователь с логином:{} создан", user.getLogin());
         return user;
     }
@@ -42,10 +46,9 @@ public abstract class UserService extends MainService<User> {
      * @param user пользователь
      * @return пользователь
      */
-    @Override
     public User update(User user) {
         log.info("* Обновление данных пользователя");
-        user = storage.update(valid(user));
+        user = userStorage.update(valid(user));
         log.info("Пользователь с логином:{} обновлён", user.getLogin());
         return user;
     }
@@ -56,11 +59,8 @@ public abstract class UserService extends MainService<User> {
      * @param id уин пользователя
      * @return пользователь
      */
-    @Override
     public User get(Long id) {
-        User user = storage.get(id);
-        log.info("get User({})", id);
-        return user;
+        return userStorage.get(id);
     }
 
     /**
@@ -68,14 +68,12 @@ public abstract class UserService extends MainService<User> {
      *
      * @return список
      */
-    @Override
     public List<User> getAll() {
         log.info("* Получаем список всех пользователей");
-        return storage.getAll();
+        return userStorage.getAll();
     }
 
-    @Override
-    public User valid(User user) {
+    private User valid(User user) {
         loginUnical(user);
         user.setName(checkName(user));
         return user;
@@ -107,12 +105,4 @@ public abstract class UserService extends MainService<User> {
             return name;
         }
     }
-
-    public abstract void addFriend(Long id, Long idFriend);
-
-    public abstract void deleteFriend(Long supposedId, Long supposedIdFriend);
-
-    public abstract Set<User> getFriends(Long supposedId);
-
-    public abstract Set<User> getFriendsCommon(Long id, Long otherId);
 }

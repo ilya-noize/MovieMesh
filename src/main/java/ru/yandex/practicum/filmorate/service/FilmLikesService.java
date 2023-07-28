@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FailSetFilmLikesException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.MainStorage;
+import ru.yandex.practicum.filmorate.storage.MasterStorage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -16,11 +16,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmLikesService extends FilmService {
+
+    private final MasterStorage<User> userStorage;
     private final Comparator<Film> sortLikes = Comparator.comparing(film -> film.getLikes().size());
 
     @Autowired
-    protected FilmLikesService(MainStorage<Film> storage, MainService<User> userService) {
-        super(storage, userService);
+    protected FilmLikesService(MasterStorage<Film> filmStorage, MasterStorage<User> userStorage) {
+        super(filmStorage);
+        this.userStorage = userStorage;
     }
 
     /**
@@ -31,7 +34,7 @@ public class FilmLikesService extends FilmService {
      */
     public List<Film> getPopular(Long supposedCount) {
         log.info("* Возвращаем ТОП-{} популярных фильмов у пользователей", supposedCount);
-        return getAll().stream()
+        return this.getAll().stream()
                 .sorted(sortLikes.reversed())
                 .limit(supposedCount)
                 .collect(Collectors.toList());
@@ -44,10 +47,10 @@ public class FilmLikesService extends FilmService {
      * @param supposedUserId уин пользователя
      */
     public void addLike(Long supposedId, Long supposedUserId) {
-        Film film = get(supposedId);
+        Film film = this.get(supposedId);
         Set<Long> likes = film.getLikes();
 
-        User user = userService.storage.get(supposedUserId);
+        User user = userStorage.get(supposedUserId);
         Long userId = user.getId();
 
         log.info("* Добавляем лайк пользователя {} фильму {}", user.getLogin(), film.getName());
@@ -69,10 +72,10 @@ public class FilmLikesService extends FilmService {
      * @param supposedUserId уин пользователя
      */
     public void deleteLike(Long supposedId, Long supposedUserId) {
-        Film film = get(supposedId);
+        Film film = this.get(supposedId);
         Set<Long> likes = film.getLikes();
 
-        User user = userService.storage.get(supposedUserId);
+        User user = userStorage.get(supposedUserId);
         Long userId = user.getId();
 
         log.info("* Удаляем лайк пользователя {} фильму {}", user.getLogin(), film.getName());

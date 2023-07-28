@@ -2,8 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FailSetFriendException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.MasterStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.HashSet;
@@ -11,9 +13,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Service
 public class UserFriendsService extends UserService {
     @Autowired
-    protected UserFriendsService(UserStorage userStorage) {
+    protected UserFriendsService(MasterStorage<User> userStorage) {
         super((UserStorage) userStorage);
     }
 
@@ -25,20 +28,9 @@ public class UserFriendsService extends UserService {
      */
     @Override
     public void addFriend(Long id, Long idFriend) {
-        if (storage.get(id) != null && storage.get(idFriend) != null) {
+        if (this.get(id) != null && this.get(idFriend) != null) {
             addFriendByOne(id, idFriend);
             addFriendByOne(idFriend, id);
-        }
-    }
-
-    private void addFriendByOne(Long id, Long idFriend) {
-        Set<Long> userFriends = storage.get(id).getFriends();
-        if (userFriends.add(idFriend)) {
-            storage.get(id).setFriends(userFriends);
-        } else {
-            String error = "Неудачное добавление в список друзей";
-            log.error(error);
-            throw new FailSetFriendException(error);
         }
     }
 
@@ -50,11 +42,11 @@ public class UserFriendsService extends UserService {
      */
     @Override
     public void deleteFriend(Long supposedId, Long supposedIdFriend) {
-        User user = get(supposedId);
+        User user = this.get(supposedId);
         Long userId = user.getId();
         Set<Long> userFriends = user.getFriends();
 
-        User userFriend = get(supposedIdFriend);
+        User userFriend = this.get(supposedIdFriend);
         Long userFriendId = userFriend.getId();
         Set<Long> userFriendFriends = userFriend.getFriends();
 
@@ -102,8 +94,20 @@ public class UserFriendsService extends UserService {
         log.info("* Возвращаем список общих друзей между пользователями {}<->{}", user.getLogin(), userOther.getLogin());
         Set<Long> friendsIdUser = user.getFriends();
         Set<Long> friendsIdUserOther = userOther.getFriends();
+        Set<Long> friendsCommon = findFriendsCommon(friendsIdUser, friendsIdUserOther);
 
-        return getFriendsSet(findFriendsCommon(friendsIdUser, friendsIdUserOther));
+        return getFriendsSet(friendsCommon);
+    }
+
+    private void addFriendByOne(Long id, Long idFriend) {
+        Set<Long> userFriends = this.get(id).getFriends();
+        if (userFriends.add(idFriend)) {
+            this.get(id).setFriends(userFriends);
+        } else {
+            String error = "Неудачное добавление в список друзей";
+            log.error(error);
+            throw new FailSetFriendException(error);
+        }
     }
 
     /**
@@ -132,7 +136,7 @@ public class UserFriendsService extends UserService {
     private Set<User> getFriendsSet(Set<Long> friendsIdSet) {
         log.info("* Возвращаем список пользователей-друзей");
         Set<User> friendsSet = friendsIdSet.stream()
-                .map(storage::get)
+                .map(this::get)
                 .collect(Collectors.toSet());
         if (friendsSet.size() == 0) {
             return new HashSet<>();

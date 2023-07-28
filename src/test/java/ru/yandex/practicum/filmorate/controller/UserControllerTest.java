@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserControllerTest {
     private static final LocalDate RIGHT_BIRTHDAY = LocalDate.of(2000, 1, 1);
     private static final LocalDate WRONG_BIRTHDAY = LocalDate.now();
-    UserController controller;
+    private UserController controller;
 
     @DisplayName(value = "Создать пользователя")
     @Test
