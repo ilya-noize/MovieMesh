@@ -18,20 +18,22 @@ public class Film {
     private static final String RELEASE_DATE_LIMIT = "1895-12-28";
 
     @EqualsAndHashCode.Exclude
-    @Positive
+    @Positive(message = "The movie ID is a positive natural number.")
     private Long id;
 
-    @NotNull(message = "Название фильма не может быть null.")
-    @NotBlank(message = "Название фильма не может быть пустым.")
+    @NotNull(message = "The name of the movie cannot be null.")
+    @NotBlank(message = "The title of the movie cannot be blank.")
     private String name;
 
-    @Size(max = 200, message = "Длина описания не более 200 символов.")
+    @Size(max = 200,
+            message = "The description length is no more than 200 characters.")
     private String description;
 
-    @CorrectReleaseDate(value = RELEASE_DATE_LIMIT, message = "Дата релиза не раньше 28 DEC 1895 и не позже сегодня")
+    @CorrectReleaseDate(value = RELEASE_DATE_LIMIT,
+            message = "Release date no earlier than 28 DEC 1895 and no later than today")
     private LocalDate releaseDate;
 
-    @Positive(message = "Продолжительность фильма - положительное натуральное число.")
+    @Positive(message = "The duration of the movie is a positive natural number.")
     private int duration;
     private Set<Long> likes;
 

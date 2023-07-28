@@ -11,18 +11,18 @@ import java.util.Set;
 @Data
 public class User {
     @EqualsAndHashCode.Exclude
-    @Positive
+    @Positive(message = "The user ID is a positive natural number.")
     private Long id;
 
-    @Email(message = "Введенное значение не является адресом электронной почты.")
+    @Email(message = "The entered value is not an email address.")
     private String email;
 
-    @Pattern(regexp = "^\\S*$", message = "Логин не может содержать пробелы.")
-    @Size(min = 3, max = 20, message = "Логин должен быть от 3 до 20 символов.")
+    @Pattern(regexp = "^\\S*$", message = "The login cannot contain spaces.")
+    @Size(min = 3, max = 20, message = "The login must be from 3 to 20 characters.")
     private String login;
     private String name;
 
-    @Past(message = "Дата рождения должна быть только в прошлом.")
+    @Past(message = "The date of birth should only be in the past.")
     private LocalDate birthday;
     private Set<Long> friends;
 

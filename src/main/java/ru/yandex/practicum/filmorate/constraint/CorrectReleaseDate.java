@@ -14,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface CorrectReleaseDate {
     String value();
 
-    String message() default "Дата релиза не раньше определённой даты и не позже сегодняшней";
+    String message() default "The release date is not earlier than a certain date and not later than today";
 
     Class<?>[] groups() default {};
 
