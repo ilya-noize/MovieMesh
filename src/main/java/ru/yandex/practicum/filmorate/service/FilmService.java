@@ -32,7 +32,7 @@ public class FilmService extends MasterService<Film> {
      * @return список
      */
     public List<Film> getPopular(Long supposedCount) {
-        log.info("* Возвращаем ТОП-{} популярных фильмов у пользователей", supposedCount);
+        log.info("Returning the TOP{} popular movies from users", supposedCount);
         return this.getAll().stream()
                 .sorted(sortLikes.reversed())
                 .limit(supposedCount)
@@ -52,10 +52,10 @@ public class FilmService extends MasterService<Film> {
         User user = userStorage.get(supposedUserId);
         Long userId = user.getId();
 
-        log.info("* Добавляем лайк пользователя {} фильму {}", user.getLogin(), film.getName());
+        log.info("Adding a user's like {} to the movie {}", user.getLogin(), film.getName());
 
         if (likes.contains(userId)) {
-            String error = String.format("Пользователь %s уже поставил лайк фильму %s", user.getLogin(), film.getName());
+            String error = String.format("User %s has already liked the movie %s", user.getLogin(), film.getName());
             log.error(error);
             throw new FailSetFilmLikesException(error);
         }
@@ -77,10 +77,10 @@ public class FilmService extends MasterService<Film> {
         User user = userStorage.get(supposedUserId);
         Long userId = user.getId();
 
-        log.info("* Удаляем лайк пользователя {} фильму {}", user.getLogin(), film.getName());
+        log.info("Deleting the user's like {} to the movie {}", user.getLogin(), film.getName());
 
         if (!likes.contains(userId)) {
-            String error = String.format("Пользователь %s не ставил лайк фильму %s",
+            String error = String.format("User %s did not like the movie %s",
                     film.getName(),
                     user.getLogin());
             log.error(error);

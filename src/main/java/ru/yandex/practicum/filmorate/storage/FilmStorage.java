@@ -56,7 +56,7 @@ public class FilmStorage extends MasterStorage<Film> {
     @Override
     public boolean isExist(Long id) {
         if (!storage.containsKey(id)) {
-            String error = String.format("Фильм не найден: id:%d отсутствует", id);
+            String error = String.format("film not found - id:%d not exist", id);
             throw new NotFoundException(error);
         }
         return true;

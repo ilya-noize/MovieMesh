@@ -54,7 +54,7 @@ public class UserStorage extends MasterStorage<User> {
     @Override
     public boolean isExist(Long id) {
         if (!storage.containsKey(id)) {
-            String error = String.format("Пользователь не найден: id:%d не зарегистрирован", id);
+            String error = String.format("User not found - id:%d not exist", id);
             throw new NotFoundException(error);
         }
         return true;

@@ -18,11 +18,13 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
+        log.info("request Film:{}", film);
         return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@RequestBody @Valid Film film) {
+        log.info("request Film:{}", film);
         return filmService.update(film);
     }
 
