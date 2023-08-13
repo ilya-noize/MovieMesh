@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.constraints;
+package ru.yandex.practicum.filmorate.constraint;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -10,11 +10,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = {LoginWithValidator.class})
-public @interface LoginWith {
-    String value() default "qwertyuiopasdfghjklzxcvbnm1234567890-_.";
+@Constraint(validatedBy = {CorrectReleaseDateValidator.class})
+public @interface CorrectReleaseDate {
+    String value();
 
-    String message() default "login содержит некорректные символы";
+    String message() default "The release date is not earlier than a certain date and not later than today";
 
     Class<?>[] groups() default {};
 
