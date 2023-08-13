@@ -21,7 +21,7 @@ public class UserStorage extends MasterStorage<User> {
         user.setId(increment());
         Long userId = user.getId();
         storage.put(userId, user);
-        log.info("create User({})", userId);
+        log.info("create User({}): obj({})", userId, user);
         return user;
     }
 
@@ -31,7 +31,7 @@ public class UserStorage extends MasterStorage<User> {
         if (isExist(userId)) {
             storage.replace(userId, user);
         }
-        log.info("update User({})", userId);
+        log.info("update User({}): obj({})", userId, user);
         return user;
     }
 
