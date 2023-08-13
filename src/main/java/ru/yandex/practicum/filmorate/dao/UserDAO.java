@@ -14,8 +14,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class UserDAO extends MasterStorage<User> {
-//        implements Storage<User> {
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public User create(User user) {
         user.setId(increment());
@@ -35,7 +35,7 @@ public class UserDAO extends MasterStorage<User> {
     public User get(Long id) {
         String sql = "SELECT * FROM 'USERS' WHERE 'id' = ?";
         return jdbcTemplate.query(sql, new Object[]{id},
-                new BeanPropertyRowMapper<>(User.class))
+                        new BeanPropertyRowMapper<>(User.class))
                 .stream().findFirst().orElse(null);
     }
 
