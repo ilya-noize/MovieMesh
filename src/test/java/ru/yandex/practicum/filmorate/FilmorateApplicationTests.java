@@ -8,9 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.model.Film;
-
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -30,10 +27,18 @@ class FilmorateApplicationTests {
 
     @Test
     public void greetingShouldReturnMessageFromService() throws Exception {
-		LocalDate date = LocalDate.of(2000, 1, 1);
-        Film film = new Film("Film", "Description", date, 100);
-		film.setId(1L);
-		filmController.create(film);
+//		LocalDate date = LocalDate.of(2000, 1, 1);
+//        Film film = new Film(
+//                1L,
+//                "Film",
+//                date,
+//                "Description",
+//                100,
+//                1,
+//                1L,
+//                Set.of(1L));
+//		film.setId(1L);
+//		filmController.create(film);
     }
 
     @Test

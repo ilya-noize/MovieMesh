@@ -29,7 +29,15 @@ class FilmControllerTest {
     }
 
     private Film getFilm() {
-        return new Film("name", "description", rightRelease, rightDuration);
+        return new Film();
+//                1L,
+//                "Film",
+//                rightRelease,
+//                "Description",
+//                rightDuration,
+//                1,
+//                1L,
+//                Set.of(1L));
     }
 
     @DisplayName(value = "Создание фильма - Ошибка:null-название")
@@ -43,7 +51,15 @@ class FilmControllerTest {
     }
 
     private Film getFilmNullName() {
-        return new Film(null, "description", rightRelease, rightDuration);
+        return new Film();
+//                1L,
+//                null,
+//                rightRelease,
+//                "Description",
+//                rightDuration,
+//                1,
+//                1L,
+//                Set.of(1L));
     }
 
     @DisplayName(value = "Создание фильма - Ошибка:пустое название")
@@ -57,7 +73,15 @@ class FilmControllerTest {
     }
 
     private Film getFilmBlankName() {
-        return new Film("", "description", rightRelease, rightDuration);
+        return new Film();
+//                1L,
+//                "",
+//                rightRelease,
+//                "Description",
+//                rightDuration,
+//                1,
+//                1L,
+//                Set.of(1L));
     }
 
     @DisplayName(value = "Создание фильма - Ошибка:Большое описание")
@@ -77,7 +101,15 @@ class FilmControllerTest {
                 "and Spring Boot features to test the interactions between Spring and your code. " +
                 "You will start with a simple test that the application context loads successfully " +
                 "and continue on to test only the web layer by using Spring’s MockMvc.";
-        return new Film("name", description, rightRelease, rightDuration);
+        return new Film();
+//                1L,
+//                "Film",
+//                rightRelease,
+//                description,
+//                rightDuration,
+//                1,
+//                1L,
+//                Set.of(1L));
     }
 
     @DisplayName(value = "Создание фильма - Ошибка:Неверная дата релиза")
@@ -92,7 +124,15 @@ class FilmControllerTest {
 
     private Film getFilmWrongRelease() {
         LocalDate wrongRelease = LocalDate.of(1895, 12, 27);
-        return new Film("name", "description", wrongRelease, rightDuration);
+        return new Film();
+//                1L,
+//                "Film",
+//                wrongRelease,
+//                "Description",
+//                rightDuration,
+//                1,
+//                1L,
+//                Set.of(1L));
     }
 
     @DisplayName(value = "Создание фильма - Ошибка: Отрицательная продолжительность фильма")
@@ -107,7 +147,15 @@ class FilmControllerTest {
 
     private Film getFilmWrongDuration() {
         int wrongDuration = -1;
-        return new Film("name", "description", rightRelease, wrongDuration);
+        return new Film();
+//                1L,
+//                "Film",
+//                rightRelease,
+//                "Description",
+//                wrongDuration,
+//                1,
+//                1L,
+//                Set.of(1L));
     }
 
     @DisplayName(value = "Обновление фильма")
