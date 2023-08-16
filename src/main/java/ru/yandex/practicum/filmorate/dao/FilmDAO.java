@@ -128,11 +128,11 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
     }
 
     private void updateFilmGenres(Film film) {
-        String sql_genre = "UPDATE genres_film SET"
+        String sqlGenre = "UPDATE genres_film SET"
                 + " genre_id = ? WHERE film_id = ?;";
         film.getGenres().forEach(
                 genre_id -> getJdbcTemplate().update(
-                        sql_genre, genre_id, film.getId()
+                        sqlGenre, genre_id, film.getId()
                 )
         );
     }
