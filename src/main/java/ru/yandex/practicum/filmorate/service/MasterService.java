@@ -23,7 +23,15 @@ public abstract class MasterService<T> {
         return storage.get(id);
     }
 
+    public void delete(Long... id) {
+        storage.delete(id);
+    }
+
     public List<T> getAll() {
         return storage.getAll();
+    }
+
+    public boolean isExist(Long id) {
+        return storage.isExist(id);
     }
 }
