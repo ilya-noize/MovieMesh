@@ -47,6 +47,11 @@ public class UserStorage extends MasterStorage<User> {
     }
 
     @Override
+    public void delete(Long... id) {
+        storage.remove(id);
+    }
+
+    @Override
     public List<User> getAll() {
         return new ArrayList<>(storage.values());
     }

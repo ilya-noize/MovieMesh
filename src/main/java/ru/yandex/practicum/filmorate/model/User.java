@@ -1,15 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
-public class User {
+@NoArgsConstructor
+@AllArgsConstructor
+public final class User {
     @EqualsAndHashCode.Exclude
     @Positive(message = "The user ID is a positive natural number.")
     private Long id;
@@ -25,12 +28,13 @@ public class User {
     @Past(message = "The date of birth should only be in the past.")
     private LocalDate birthday;
     private Set<Long> friends;
+    private Set<Long> likes;
 
-    public User(String login, String name, String email, LocalDate birthday) {
+    public User(String login, String name, String email, LocalDate birthday, Set<Long> friends) {
         this.login = login;
         this.name = name;
         this.email = email;
         this.birthday = birthday;
-        this.friends = new HashSet<>();
+        this.friends = friends;
     }
 }

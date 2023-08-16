@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FailSetFriendException;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.MasterStorage;
@@ -45,47 +44,6 @@ public class UserService extends MasterService<User> {
     }
 
     /**
-     * добавление в друзья
-     *
-     * @param id       уин пользователя
-     * @param idFriend уин пользователя-друга
-     */
-    public void addFriend(Long id, Long idFriend) {
-        if (this.get(id) != null && this.get(idFriend) != null) {
-            addFriendByOne(id, idFriend);
-            addFriendByOne(idFriend, id);
-        }
-    }
-
-    /**
-     * удаление из друзей.
-     *
-     * @param supposedId       уин пользователя
-     * @param supposedIdFriend уин пользователя-друга
-     */
-    public void deleteFriend(Long supposedId, Long supposedIdFriend) {
-        User user = this.get(supposedId);
-        Long userId = user.getId();
-        Set<Long> userFriends = user.getFriends();
-
-        User userFriend = this.get(supposedIdFriend);
-        Long userFriendId = userFriend.getId();
-        Set<Long> userFriendFriends = userFriend.getFriends();
-
-        log.info("Removing from friends {}< - >{}", userId, userFriendId);
-
-        if (userFriends.remove(userFriendId) && userFriendFriends.remove(userId)) {
-            user.setFriends(userFriends);
-            userFriend.setFriends(userFriendFriends);
-        } else {
-            String error = "Unsuccessful deletion from the friends list";
-            log.error(error);
-            throw new FailSetFriendException(error);
-        }
-        log.info("Deletion completed {}< o >{}", user.getId(), userFriend.getId());
-    }
-
-    /**
      * возвращает список пользователей, являющихся друзьями пользователя.
      *
      * @param supposedId уин пользователя
@@ -112,22 +70,12 @@ public class UserService extends MasterService<User> {
         User userOther = get(otherId);
 
         log.info("Returning a list of friends between users {}<->{}", user.getLogin(), userOther.getLogin());
+
         Set<Long> friendsIdUser = user.getFriends();
         Set<Long> friendsIdUserOther = userOther.getFriends();
         Set<Long> friendsCommon = findFriendsCommon(friendsIdUser, friendsIdUserOther);
 
         return getFriendsSet(friendsCommon);
-    }
-
-    private void addFriendByOne(Long id, Long idFriend) {
-        Set<Long> userFriends = this.get(id).getFriends();
-        if (userFriends.add(idFriend)) {
-            this.get(id).setFriends(userFriends);
-        } else {
-            String error = "Unsuccessful addition to the friends list";
-            log.error(error);
-            throw new FailSetFriendException(error);
-        }
     }
 
     /**
@@ -147,6 +95,7 @@ public class UserService extends MasterService<User> {
 
     /**
      * возвращает список пользователей-друзей
+     *
      * @param friendsIdSet список уин пользователей
      * @return список
      * @see #getFriends
