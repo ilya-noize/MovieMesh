@@ -1,51 +1,64 @@
 package ru.yandex.practicum.filmorate.dao;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.MPARating;
-import ru.yandex.practicum.filmorate.storage.MasterStorage;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class MPARatingDAO extends MasterStorage<MPARating> {
-    private final JdbcTemplate jdbcTemplate;
+@Primary
+public final class MPARatingDAO extends MasterStorageDAO<MPARating> {
+    @Autowired
+    public MPARatingDAO(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
+    }
 
     @Override
     public MPARating create(MPARating mpaRating) {
-        mpaRating.setId(increment());
-        jdbcTemplate.update("INSERT INTO 'MPA_RATING' (id, rating, description) VALUES (?, ?, ?)",
-                mpaRating.getId(), mpaRating.getRating(), mpaRating.getDescription());
+        getJdbcTemplate().update("INSERT INTO mpa_rating (rating, description) VALUES (?, ?)",
+                mpaRating.getName(), mpaRating.getDescription());
         return mpaRating;
     }
 
     @Override
     public MPARating update(MPARating mpaRating) {
-        jdbcTemplate.update("UPDATE 'MPA_RATING' SET rating = ?, description = ? WHERE id = ?",
-                mpaRating.getRating(), mpaRating.getDescription(), mpaRating.getId());
+        getJdbcTemplate().update("UPDATE mpa_rating SET rating = ?, description = ? WHERE id = ?",
+                mpaRating.getName(), mpaRating.getDescription(), mpaRating.getId());
         return mpaRating;
     }
 
     @Override
     public MPARating get(Long id) {
-        return jdbcTemplate.query("SELECT * FROM MPA_RATING WHERE 'id' = ?",
-                        new Object[]{id}, new BeanPropertyRowMapper<>(MPARating.class))
+        String error = String.format("MPARating not found - id:%d not exist", id);
+        return getJdbcTemplate().query("SELECT * FROM mpa_rating WHERE id = ?",
+                        this::make, id)
                 .stream().findFirst()
-                .orElse(null);
+                .orElseThrow(new NotFoundException(error));
+    }
+
+    @Override
+    public void delete(Long... id) {
+        String sql = "DELETE FROM  WHERE id = ?;";
+        getJdbcTemplate().update(sql, id[0]);
     }
 
     @Override
     public List<MPARating> getAll() {
-        return jdbcTemplate.query("SELECT * FROM MPA_RATING", new BeanPropertyRowMapper<>(MPARating.class));
+        return getJdbcTemplate().query("SELECT * FROM mpa_rating", this::make);
     }
 
     @Override
-    public boolean isExist(Long id) {
-        return false;
+    public MPARating make(ResultSet rs, int rowNum) throws SQLException {
+        return new MPARating(rs.getLong("id"),
+                rs.getString("name"),
+                rs.getString("description"));
     }
 }
