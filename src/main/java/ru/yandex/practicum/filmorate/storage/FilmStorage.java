@@ -20,7 +20,9 @@ public class FilmStorage extends MasterStorage<Film> {
     @Override
     public Film create(Film film) {
         film.setId(increment());
-        film.setLikes(new HashSet<>());
+        if (film.getGenres() == null) {
+            film.setGenres(new HashSet<>());
+        }
         Long filmId = film.getId();
         storage.put(film.getId(), film);
         log.info("create film({}): obj({})", filmId, film);
@@ -46,6 +48,11 @@ public class FilmStorage extends MasterStorage<Film> {
             log.info("get film({})", filmId);
         }
         return film;
+    }
+
+    @Override
+    public void delete(Long... id) {
+        storage.remove(id[0]);
     }
 
     @Override
