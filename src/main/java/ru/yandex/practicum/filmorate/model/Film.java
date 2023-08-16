@@ -32,8 +32,8 @@ public final class Film {
     private Integer duration;
     private Integer rate;
     private MPARating mpa;
-    //    private Set<GenresFilm> genres;
-    private Set<Long> genres;
+    private Set<Genre> genres;
+    //    private Set<Long> genres;
     private Set<Long> likes;
 
     public Film(
@@ -43,8 +43,8 @@ public final class Film {
             int duration,
             Integer rate,
             MPARating mpa,
-            Set<Long> genres,
-//            Set<GenresFilm> genres,
+//            Set<Long> genres,
+            Set<Genre> genres,
             Set<Long> likes
     ) {
         this.name = name;

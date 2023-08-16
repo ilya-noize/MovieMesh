@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.MPARatingRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.sql.ResultSet;
@@ -80,7 +82,7 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
 
         MPARating mpa = getMPA(filmId);
 //        Set<GenresFilm> genres = getGenresByFilm(filmId);
-        Set<Long> genres = getGenresByFilm(filmId);
+        Set<Genre> genres = getGenresByFilm(filmId);
         Set<Long> likes = getUserLikes(filmId);
         Integer rate = likes.size();//rs.getInt("Rate");
 
@@ -95,12 +97,15 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
     }
 
     //    private Set<GenresFilm> getGenresByFilm(Long id) {
-    private Set<Long> getGenresByFilm(Long id) {
-        String sql = "SELECT genre_id FROM genres_film WHERE film_id = ?";
+    private Set<Genre> getGenresByFilm(Long id) {
+//        String sql = "SELECT genre_id FROM genres_film WHERE film_id = ?";
+        String sql = "SELECT G.* FROM GENRES_FILM GF "
+                + "RIGHT JOIN FILMS F ON F.id = GF.FILM_ID "
+                + "RIGHT JOIN GENRES G ON G.id = GF.GENRE_ID "
+                + "WHERE F.ID = ?";
         return new HashSet<>(getJdbcTemplate().query(
                 sql,
-                //new GenresFilmRowMapper(),
-                (rs, rowNum) -> rs.getLong("genre_id"),
+                new GenreRowMapper(),
                 id));
     }
 
