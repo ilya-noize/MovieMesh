@@ -14,5 +14,5 @@ public final class Genre {
     @Positive
     Long id;
     @NotNull
-    String genre;
+    String name;
 }

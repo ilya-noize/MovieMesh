@@ -1,51 +1,69 @@
 package ru.yandex.practicum.filmorate.dao;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.MasterStorage;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class GenreDAO extends MasterStorage<Genre> {
-    private final JdbcTemplate jdbcTemplate;
+@Primary
+public final class GenreDAO extends MasterStorageDAO<Genre> {
+    public GenreDAO(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
+    }
 
     @Override
     public Genre create(Genre genre) {
         genre.setId(increment());
-        jdbcTemplate.update("INSERT INTO 'GENRES' (id, genre) VALUES (?, ?)",
-                genre.getId(), genre.getGenre());
+        getJdbcTemplate().update("INSERT INTO genres (genre)"
+                        + " VALUES (?) ON CONFLICT DO NOTHING",
+                genre.getName());
         return genre;
     }
 
     @Override
     public Genre update(Genre genre) {
-        jdbcTemplate.update("UPDATE 'GENRES' SET genre = ? WHERE id = ?",
-                genre.getGenre(), genre.getId());
+        getJdbcTemplate().update("UPDATE genres SET genre = ?"
+                        + " WHERE id = ?",
+                genre.getName(), genre.getId());
         return genre;
     }
 
     @Override
     public Genre get(Long id) {
-        return jdbcTemplate.query("SELECT * FROM 'GENRES' WHERE 'id' = ?",
-                        new Object[]{id}, new BeanPropertyRowMapper<>(Genre.class))
+        String error = String
+                .format("Genre not found - id:%d not exist", id);
+        String sql = "SELECT * FROM genres WHERE id = ?";
+
+        return getJdbcTemplate().query(sql, this::make, id)
                 .stream().findFirst()
-                .orElse(null);
+                .orElseThrow(new NotFoundException(error));
+    }
+
+    @Override
+    public void delete(Long... id) {
+        String sql = "DELETE FROM genres WHERE id = ?;";
+        getJdbcTemplate().update(sql, id[0]);
     }
 
     @Override
     public List<Genre> getAll() {
-        return jdbcTemplate.query("SELECT * FROM 'GENRES'", new BeanPropertyRowMapper<>(Genre.class));
+        String sql = "SELECT * FROM genres";
+        return getJdbcTemplate().query(sql, this::make);
     }
 
     @Override
-    public boolean isExist(Long id) {
-        return false;
+    public Genre make(ResultSet rs, int rowNum) throws SQLException {
+        return new Genre(
+                rs.getLong("id"),
+                rs.getString("name")
+        );
     }
 }
