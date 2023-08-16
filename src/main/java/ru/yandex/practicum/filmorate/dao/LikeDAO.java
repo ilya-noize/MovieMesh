@@ -15,8 +15,6 @@ import java.util.List;
 @Component
 @Primary
 public final class LikeDAO extends MasterStorageDAO<Like> {
-    private final String TABLE = "films_like";
-
     @Autowired
     public LikeDAO(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
@@ -24,15 +22,15 @@ public final class LikeDAO extends MasterStorageDAO<Like> {
 
     @Override
     public Like create(Like like) {
-        String sql = "INSERT INTO ? (film_id, user_id) VALUES (?, ?)";
-        getJdbcTemplate().update(sql, TABLE, like.getFilmId(), like.getUserId());
+        String sql = "INSERT INTO films_like (film_id, user_id) VALUES (?, ?)";
+        getJdbcTemplate().update(sql, like.getFilmId(), like.getUserId());
         return like;
     }
 
     @Override
     public Like update(Like like) {
-        String sql = "UPDATE ? SET user_id = ? WHERE film_id = ?;";
-        getJdbcTemplate().update(sql, TABLE, like.getUserId(), like.getFilmId());
+        String sql = "UPDATE films_like SET user_id = ? WHERE film_id = ?;";
+        getJdbcTemplate().update(sql, like.getUserId(), like.getFilmId());
         return like;
     }
 
@@ -43,14 +41,14 @@ public final class LikeDAO extends MasterStorageDAO<Like> {
 
     @Override
     public void delete(Long... id) {
-        String sql = "DELETE FROM ? WHERE film_id = ? AND user_id = ?;";
-        getJdbcTemplate().update(sql, TABLE, id[0], id[1]);
+        String sql = "DELETE FROM films_like WHERE film_id = ? AND user_id = ?;";
+        getJdbcTemplate().update(sql, id[0], id[1]);
     }
 
     @Override
     public List<Like> getAll() {
-        String sql = "SELECT * FROM ?";
-        return getJdbcTemplate().query(sql, this::make, TABLE);
+        String sql = "SELECT * FROM films_like";
+        return getJdbcTemplate().query(sql, this::make);
     }
 
     @Override
