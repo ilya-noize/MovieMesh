@@ -30,9 +30,7 @@ public final class GenresFilmDAO extends MasterStorageDAO<GenresFilm> {
 
     @Override
     public GenresFilm update(GenresFilm genresFilm) {
-        String sql = "UPDATE genres_film SET genre_id = ? WHERE film_id = ?;";
-        getJdbcTemplate().update(sql, genresFilm.getId(), genresFilm.getFilmId());
-        return genresFilm;
+        return null;
     }
 
     @Override
@@ -42,7 +40,8 @@ public final class GenresFilmDAO extends MasterStorageDAO<GenresFilm> {
 
     @Override
     public void delete(Long... id) {
-        String sql = "DELETE FROM genres_film WHERE film_id = ? AND genre_id = ?;";
+        String sql = "DELETE FROM genres_film"
+                + " WHERE film_id = ? AND genre_id = ?;";
         getJdbcTemplate().update(sql, id[0], id[1]);
     }
 
