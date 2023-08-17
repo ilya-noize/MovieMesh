@@ -60,11 +60,9 @@ create TABLE IF NOT EXISTS films_like (
 
 alter table films_like add CONSTRAINT IF NOT EXISTS
  fk_like_user FOREIGN KEY(user_id) REFERENCES users (id)
---  ON delete CASCADE
+  ON delete CASCADE
   ;
 
 alter table films_like add CONSTRAINT IF NOT EXISTS
- fk_like_film FOREIGN KEY(film_id) REFERENCES films (id)
---  ON delete CASCADE
-  ;
+ fk_like_film FOREIGN KEY(film_id) REFERENCES films (id);
 ---E-N-D---S-C-R-I-P-T---------------------------------
