@@ -45,9 +45,18 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
 
     @Override
     public Film update(Film film) {
-        isExist(film.getId());
-        updateFilm(film);
-        updateFilmGenres(film);
+        String sql = "UPDATE films SET"
+                + " name = ?, description = ?, duration = ?, releaseDate = ?, mpa_rating_id=?"
+                + " WHERE id = ?;";
+        getJdbcTemplate().update(
+                sql,
+                film.getName(),
+                film.getDescription(),
+                film.getDuration(),
+                film.getReleaseDate(),
+                film.getMpa().getId(),
+                film.getId()
+        );
         return film;
     }
 
@@ -55,8 +64,8 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
     public Film get(Long id) {
         String error = String.format("Film not found - id:%d not exist", id);
         String sql = "SELECT F.* FROM films F WHERE F.id = ? ORDER BY F.id";
-        return getJdbcTemplate().queryForStream(sql, this::make, id)
-                .findFirst()
+        return getJdbcTemplate().query(sql, this::make, id)
+                .stream().findFirst()
                 .orElseThrow(new NotFoundException(error));
     }
 
@@ -68,7 +77,8 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
 
     @Override
     public List<Film> getAll() {
-        String sql = "SELECT F.* FROM films F ORDER BY F.ID;";
+        String sql = "SELECT F.* FROM films F"
+                + " ORDER BY F.ID;";
         return getJdbcTemplate().query(sql, this::make);
     }
 
@@ -100,10 +110,7 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
                 + "RIGHT JOIN GENRES G ON G.id = GF.GENRE_ID "
                 + "WHERE F.ID = ? "
                 + "ORDER BY G.ID";
-        return new HashSet<>(getJdbcTemplate().query(
-                sql,
-                new GenreRowMapper(),
-                id));
+        return new HashSet<>(getJdbcTemplate().query(sql, new GenreRowMapper(), id));
     }
 
     private Set<Long> getUserLikes(Long id) {
@@ -112,33 +119,5 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
                 sql,
                 (rs, rowNum) -> rs.getLong("user_id"),
                 id));
-    }
-
-    private void updateFilm(Film film) {
-        String sql = "UPDATE films SET"
-                + " name = ?, description = ?, duration = ?, releaseDate = ?, mpa_rating_id=?"
-                + " WHERE id = ?;";
-        getJdbcTemplate().update(
-                sql,
-                film.getName(),
-                film.getDescription(),
-                film.getDuration(),
-                film.getReleaseDate(),
-                film.getMpa().getId(),
-                film.getId()
-        );
-    }
-
-    private void updateFilmGenres(Film film) {
-        String sqlGenre = "UPDATE genres_film SET"
-                + " genre_id = ? WHERE film_id = ?;";
-        Set<Genre> genres = film.getGenres();
-        if (genres != null) {
-            genres.forEach(
-                    genre -> getJdbcTemplate().update(
-                            sqlGenre, genre.getId(), film.getId()
-                    )
-            );
-        }
     }
 }
