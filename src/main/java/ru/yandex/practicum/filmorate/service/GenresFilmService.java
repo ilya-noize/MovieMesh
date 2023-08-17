@@ -25,33 +25,27 @@ public class GenresFilmService extends MasterService<GenresFilm> {
 
     @Override
     public GenresFilm create(GenresFilm genresFilm) {
-        log.info("[+] genresFilm:{}", genresFilm);
-        if (this.isExist(genresFilm)) {
-            super.create(genresFilm);
-            return genresFilm;
-        }
-        return null;
+        log.info("[+] service: genresFilm:{}", genresFilm);
+        isExist(genresFilm);
+        super.create(genresFilm);
+        return genresFilm;
     }
 
     @Override
     public void delete(Long... id) {
-        log.info("[-] genresFilm:{}", (Object[]) id);
+        log.info("[-] service: genresFilm:{}", (Object[]) id);
         GenresFilm genresFilm = getGenresFilm(id[0], id[1]);
-        if (isExist(genresFilm)) {
-            super.delete(genresFilm.getFilmId(), genresFilm.getId());
-        }
+        isExist(genresFilm);
+        super.delete(genresFilm.getFilmId(), genresFilm.getId());
     }
 
     private GenresFilm getGenresFilm(Long filmId, Long genreId) {
         return new GenresFilm(filmId, genreId);
     }
 
-    private boolean isExist(GenresFilm genresFilm) {
-        Long filmId = genresFilm.getFilmId();
-        Long genreId = genresFilm.getId();
-        log.info("[?] Film id:{}, Genre id:{}", filmId, genreId);
-        boolean isExistFilm = filmService.isExist(filmId);
-        boolean isExistGenre = genreService.isExist(genreId);
-        return isExistFilm && isExistGenre;
+    private void isExist(GenresFilm genresFilm) {
+        log.info("[?] GenresFilm:{}", genresFilm);
+        filmStorage.isExist(genresFilm.getFilmId());
+        genreStorage.isExist(genresFilm.getId());
     }
 }
