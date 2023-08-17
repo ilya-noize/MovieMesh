@@ -39,8 +39,7 @@ public final class GenreDAO extends MasterStorageDAO<Genre> {
 
     @Override
     public Genre get(Long id) {
-        String error = String
-                .format("Genre not found - id:%d not exist", id);
+        String error = String.format("Genre not found - id:%d not exist", id);
         String sql = "SELECT * FROM genres WHERE id = ?";
 
         return getJdbcTemplate().query(sql, this::make, id)
