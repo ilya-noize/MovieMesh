@@ -30,10 +30,9 @@ public final class Film {
     private String description;
     @Positive(message = "The duration of the movie is a positive natural number.")
     private Integer duration;
-    private Integer rate;
+    private Integer rate = null; // Not used until the next sprints
     private MPARating mpa;
     private Set<Genre> genres;
-    //    private Set<Long> genres;
     private Set<Long> likes;
 
     public Film(
@@ -41,9 +40,7 @@ public final class Film {
             String description,
             LocalDate releaseDate,
             int duration,
-            Integer rate,
             MPARating mpa,
-//            Set<Long> genres,
             Set<Genre> genres,
             Set<Long> likes
     ) {
@@ -51,7 +48,6 @@ public final class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.rate = rate;
         this.mpa = mpa;
         this.genres = genres;
         this.likes = likes;
