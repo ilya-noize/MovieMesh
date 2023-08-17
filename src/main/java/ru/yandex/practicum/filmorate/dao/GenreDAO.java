@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -55,15 +56,12 @@ public final class GenreDAO extends MasterStorageDAO<Genre> {
 
     @Override
     public List<Genre> getAll() {
-        String sql = "SELECT * FROM genres";
+        String sql = "SELECT * FROM genres ORDER BY id";
         return getJdbcTemplate().query(sql, this::make);
     }
 
     @Override
     public Genre make(ResultSet rs, int rowNum) throws SQLException {
-        return new Genre(
-                rs.getLong("id"),
-                rs.getString("name")
-        );
+        return new GenreRowMapper().mapRow(rs, rowNum);
     }
 }
