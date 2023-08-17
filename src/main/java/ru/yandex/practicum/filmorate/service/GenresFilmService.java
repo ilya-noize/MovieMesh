@@ -19,8 +19,8 @@ public class GenresFilmService extends MasterService<GenresFilm> {
                              MasterStorageDAO<Film> filmService,
                              MasterStorageDAO<Genre> genreService) {
         super(storage);
-        this.filmService = filmService;
-        this.genreService = genreService;
+        this.filmStorage = filmService;
+        this.genreStorage = genreService;
     }
 
     @Override
