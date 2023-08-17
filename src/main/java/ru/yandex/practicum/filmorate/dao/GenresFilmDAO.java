@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.rowMapper.GenresFilmRowMapper;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
 
 import java.sql.ResultSet;
@@ -47,12 +48,12 @@ public final class GenresFilmDAO extends MasterStorageDAO<GenresFilm> {
 
     @Override
     public List<GenresFilm> getAll() {
-        String sql = "SELECT * FROM genres_film";
+        String sql = "SELECT * FROM genres_film GROUP BY film_id";
         return getJdbcTemplate().query(sql, this::make);
     }
 
     @Override
     public GenresFilm make(ResultSet rs, int rowNum) throws SQLException {
-        return new GenresFilm(rs.getLong("film_id"), rs.getLong("genre_id"));
+        return new GenresFilmRowMapper().mapRow(rs, rowNum);
     }
 }
