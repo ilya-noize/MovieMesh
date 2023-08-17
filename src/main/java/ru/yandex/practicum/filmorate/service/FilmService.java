@@ -36,7 +36,7 @@ public class FilmService extends MasterService<Film> {
     public List<Film> getPopular(Long supposedCount) {
         log.info("Returning the TOP{} popular movies from users", supposedCount);
         return this.getAll().stream()
-                .sorted(sortLikes)
+                .sorted(sortLikes.reversed())
                 .limit(supposedCount)
                 .collect(toList());
     }
