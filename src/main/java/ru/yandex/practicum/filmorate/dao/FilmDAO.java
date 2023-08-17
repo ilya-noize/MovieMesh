@@ -39,6 +39,7 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
                 film.getDuration(),
                 film.getReleaseDate(),
                 film.getMpa().getId());
+        film.setId(increment());
         return film;
     }
 

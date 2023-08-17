@@ -23,23 +23,34 @@ public final class MPARatingDAO extends MasterStorageDAO<MPARating> {
 
     @Override
     public MPARating create(MPARating mpaRating) {
-        getJdbcTemplate().update("INSERT INTO mpa_rating (rating, description) VALUES (?, ?)",
-                mpaRating.getName(), mpaRating.getDescription());
+        String sql = "INSERT INTO mpa_rating (rating, description)"
+                + " VALUES (?, ?)";
+        getJdbcTemplate().update(
+                sql,
+                mpaRating.getName(),
+                mpaRating.getDescription()
+        );
+        mpaRating.setId(increment());
         return mpaRating;
     }
 
     @Override
     public MPARating update(MPARating mpaRating) {
-        getJdbcTemplate().update("UPDATE mpa_rating SET rating = ?, description = ? WHERE id = ?",
-                mpaRating.getName(), mpaRating.getDescription(), mpaRating.getId());
+        String sql = "UPDATE mpa_rating"
+                + " SET rating = ?, description = ? WHERE id = ?";
+        getJdbcTemplate().update(
+                sql,
+                mpaRating.getName(),
+                mpaRating.getDescription(),
+                mpaRating.getId());
         return mpaRating;
     }
 
     @Override
     public MPARating get(Long id) {
+        String sql = "SELECT * FROM mpa_rating WHERE id = ?";
         String error = String.format("MPARating not found - id:%d not exist", id);
-        return getJdbcTemplate().query("SELECT * FROM mpa_rating WHERE id = ?",
-                        this::make, id)
+        return getJdbcTemplate().query(sql, this::make, id)
                 .stream().findFirst()
                 .orElseThrow(new NotFoundException(error));
     }
@@ -52,7 +63,8 @@ public final class MPARatingDAO extends MasterStorageDAO<MPARating> {
 
     @Override
     public List<MPARating> getAll() {
-        return getJdbcTemplate().query("SELECT * FROM mpa_rating", this::make);
+        String sql = "SELECT * FROM mpa_rating";
+        return getJdbcTemplate().query(sql, this::make);
     }
 
     @Override
