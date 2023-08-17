@@ -15,9 +15,9 @@ public class GenresFilmService extends MasterService<GenresFilm> {
     private final MasterStorageDAO<Genre> genreStorage;
 
     @Autowired
-    public GenresFilmService(MasterStorage<GenresFilm> storage,
-                             MasterService<Film> filmService,
-                             MasterService<Genre> genreService) {
+    public GenresFilmService(MasterStorageDAO<GenresFilm> storage,
+                             MasterStorageDAO<Film> filmService,
+                             MasterStorageDAO<Genre> genreService) {
         super(storage);
         this.filmService = filmService;
         this.genreService = genreService;
