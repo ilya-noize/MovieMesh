@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.rowMapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.MPARatingRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -14,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +54,7 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
     @Override
     public Film get(Long id) {
         String error = String.format("Film not found - id:%d not exist", id);
-        String sql = "SELECT * FROM films F WHERE F.id = ?";
+        String sql = "SELECT F.* FROM films F WHERE F.id = ? ORDER BY F.id";
         return getJdbcTemplate().queryForStream(sql, this::make, id)
                 .findFirst()
                 .orElseThrow(new NotFoundException(error));
@@ -68,25 +68,23 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
 
     @Override
     public List<Film> getAll() {
-        String sql = "SELECT * FROM films F;";
+        String sql = "SELECT F.* FROM films F ORDER BY F.ID;";
         return getJdbcTemplate().query(sql, this::make);
     }
 
     @Override
     public Film make(ResultSet rs, int rowNum) throws SQLException {
-        Long filmId = rs.getLong("id");
-        String name = rs.getString("Name");
-        LocalDate releaseDate = rs.getDate("ReleaseDate").toLocalDate();
-        String description = rs.getString("Description");
-        Integer duration = rs.getInt("Duration");
+        Film film = new FilmRowMapper().mapRow(rs, rowNum);
+        Long filmId = film != null ? film.getId() : null;
+        if (filmId != null) {
+            Set<Long> likes = getUserLikes(filmId);
 
-        MPARating mpa = getMPA(filmId);
-//        Set<GenresFilm> genres = getGenresByFilm(filmId);
-        Set<Genre> genres = getGenresByFilm(filmId);
-        Set<Long> likes = getUserLikes(filmId);
-        Integer rate = likes.size();//rs.getInt("Rate");
-
-        return new Film(filmId, name, releaseDate, description, duration, rate, mpa, genres, likes);
+            film.setMpa(getMPA(filmId));
+            film.setRate(likes.size());
+            film.setGenres(getGenresByFilm(filmId));
+            film.setLikes(likes);
+        }
+        return film;
     }
 
     private MPARating getMPA(Long filmId) {
@@ -96,13 +94,12 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
         return getJdbcTemplate().queryForObject(sql, new MPARatingRowMapper(), filmId);
     }
 
-    //    private Set<GenresFilm> getGenresByFilm(Long id) {
     private Set<Genre> getGenresByFilm(Long id) {
-//        String sql = "SELECT genre_id FROM genres_film WHERE film_id = ?";
         String sql = "SELECT G.* FROM GENRES_FILM GF "
                 + "RIGHT JOIN FILMS F ON F.id = GF.FILM_ID "
                 + "RIGHT JOIN GENRES G ON G.id = GF.GENRE_ID "
-                + "WHERE F.ID = ?";
+                + "WHERE F.ID = ? "
+                + "ORDER BY G.ID";
         return new HashSet<>(getJdbcTemplate().query(
                 sql,
                 new GenreRowMapper(),
@@ -135,10 +132,13 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
     private void updateFilmGenres(Film film) {
         String sqlGenre = "UPDATE genres_film SET"
                 + " genre_id = ? WHERE film_id = ?;";
-        film.getGenres().forEach(
-                genre_id -> getJdbcTemplate().update(
-                        sqlGenre, genre_id, film.getId()
-                )
-        );
+        Set<Genre> genres = film.getGenres();
+        if (genres != null) {
+            genres.forEach(
+                    genre -> getJdbcTemplate().update(
+                            sqlGenre, genre.getId(), film.getId()
+                    )
+            );
+        }
     }
 }
