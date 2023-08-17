@@ -3,9 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.MasterStorage;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserService extends MasterService<User> {
     @Autowired
-    protected UserService(MasterStorage<User> userStorage) {
+    protected UserService(MasterStorageDAO<User> userStorage) {
         super(userStorage);
     }
 

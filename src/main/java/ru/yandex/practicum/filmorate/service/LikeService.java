@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.MasterStorage;
@@ -10,13 +11,16 @@ import ru.yandex.practicum.filmorate.storage.MasterStorage;
 @Service
 @Slf4j
 public class LikeService extends MasterService<Like> {
-    private final MasterService<Film> filmService;
+    private final MasterStorageDAO<Film> filmStorage;
+    private final MasterStorageDAO<User> userStorage;
 
     @Autowired
-    public LikeService(MasterStorage<Like> storage,
-                       MasterService<Film> filmService) {
+    public LikeService(MasterStorageDAO<Like> storage,
+                       MasterStorageDAO<Film> filmService,
+                       MasterStorageDAO<User> userStorage) {
         super(storage);
-        this.filmService = filmService;
+        this.filmStorage = filmService;
+        this.userStorage = userStorage;
     }
 
     @Override

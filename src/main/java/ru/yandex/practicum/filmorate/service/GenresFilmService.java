@@ -3,16 +3,16 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
-import ru.yandex.practicum.filmorate.storage.MasterStorage;
 
 @Service
 @Slf4j
 public class GenresFilmService extends MasterService<GenresFilm> {
-    private final MasterService<Film> filmService;
-    private final MasterService<Genre> genreService;
+    private final MasterStorageDAO<Film> filmStorage;
+    private final MasterStorageDAO<Genre> genreStorage;
 
     @Autowired
     public GenresFilmService(MasterStorage<GenresFilm> storage,

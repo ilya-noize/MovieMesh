@@ -2,14 +2,14 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.storage.MasterStorage;
+import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
 
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 public abstract class MasterService<T> {
-    private final MasterStorage<T> storage;
+    private final MasterStorageDAO<T> storage;
 
     public T create(T t) {
         return storage.create(t);
