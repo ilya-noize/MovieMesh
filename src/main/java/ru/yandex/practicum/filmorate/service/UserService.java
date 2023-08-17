@@ -11,7 +11,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -90,7 +91,7 @@ public class UserService extends MasterService<User> {
     private Set<Long> findFriendsCommon(Set<Long> friendsIdUser, Set<Long> friendsIdUserOther) {
         return friendsIdUser.stream()
                 .filter(friendsIdUserOther::contains)
-                .collect(Collectors.toSet());
+                .collect(toSet());
     }
 
     /**
@@ -105,7 +106,7 @@ public class UserService extends MasterService<User> {
         log.info("Get friends.");
         Set<User> friendsSet = friendsIdSet.stream()
                 .map(this::get)
-                .collect(Collectors.toSet());
+                .collect(toSet());
         if (friendsSet.size() == 0) {
             return new HashSet<>();
         }
