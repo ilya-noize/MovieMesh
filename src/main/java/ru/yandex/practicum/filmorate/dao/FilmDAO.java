@@ -30,7 +30,6 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
 
     @Override
     public Film create(Film film) {
-        film.setId(increment());
         String sql = "INSERT INTO films"
                 + " (name, description, duration, releaseDate, mpa_rating_id)"
                 + " VALUES (?, ?, ?, ?, ?)";
