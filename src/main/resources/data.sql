@@ -7,6 +7,7 @@
 --  121, 25-05-1977, 1, 1);
 
 delete from films_like;
+delete from genres_film;
 delete from friends;
 delete from users;
 delete from films;
