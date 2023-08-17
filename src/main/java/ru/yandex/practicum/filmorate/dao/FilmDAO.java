@@ -6,18 +6,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmRowMapper;
-import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
-import ru.yandex.practicum.filmorate.dao.rowMapper.MPARatingRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -84,40 +78,6 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
 
     @Override
     public Film make(ResultSet rs, int rowNum) throws SQLException {
-        Film film = new FilmRowMapper().mapRow(rs, rowNum);
-        Long filmId = film != null ? film.getId() : null;
-        if (filmId != null) {
-            Set<Long> likes = getUserLikes(filmId);
-
-            film.setMpa(getMPA(filmId));
-            film.setRate(likes.size());
-            film.setGenres(getGenresByFilm(filmId));
-            film.setLikes(likes);
-        }
-        return film;
-    }
-
-    private MPARating getMPA(Long filmId) {
-        String sql = "SELECT MPA.* FROM MPA_RATING MPA"
-                + " RIGHT JOIN FILMS F ON F.MPA_RATING_ID = MPA.ID"
-                + " WHERE F.ID = ?;";
-        return getJdbcTemplate().queryForObject(sql, new MPARatingRowMapper(), filmId);
-    }
-
-    private Set<Genre> getGenresByFilm(Long id) {
-        String sql = "SELECT G.* FROM GENRES_FILM GF "
-                + "RIGHT JOIN FILMS F ON F.id = GF.FILM_ID "
-                + "RIGHT JOIN GENRES G ON G.id = GF.GENRE_ID "
-                + "WHERE F.ID = ? "
-                + "ORDER BY G.ID";
-        return new HashSet<>(getJdbcTemplate().query(sql, new GenreRowMapper(), id));
-    }
-
-    private Set<Long> getUserLikes(Long id) {
-        String sql = "SELECT user_id FROM films_like WHERE film_id = ?";
-        return new HashSet<>(getJdbcTemplate().query(
-                sql,
-                (rs, rowNum) -> rs.getLong("user_id"),
-                id));
+        return new FilmRowMapper().mapRow(rs, rowNum);
     }
 }
