@@ -36,7 +36,7 @@ public class GenresFilmService extends MasterService<GenresFilm> {
         log.info("[-] service: genresFilm:{}", (Object[]) id);
         GenresFilm genresFilm = getGenresFilm(id[0], id[1]);
         isExist(genresFilm);
-        super.delete(genresFilm.getFilmId(), genresFilm.getId());
+        super.delete(genresFilm.getFilmId(), genresFilm.getGenreId());
     }
 
     private GenresFilm getGenresFilm(Long filmId, Long genreId) {
@@ -46,6 +46,6 @@ public class GenresFilmService extends MasterService<GenresFilm> {
     private void isExist(GenresFilm genresFilm) {
         log.info("[?] GenresFilm:{}", genresFilm);
         filmStorage.isExist(genresFilm.getFilmId());
-        genreStorage.isExist(genresFilm.getId());
+        genreStorage.isExist(genresFilm.getGenreId());
     }
 }
