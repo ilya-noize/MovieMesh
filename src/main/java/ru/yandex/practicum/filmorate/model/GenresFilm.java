@@ -16,5 +16,5 @@ public final class GenresFilm {
     private Long filmId;
     @Positive
     @NotNull
-    private Long id;
+    private Long genreId;
 }
