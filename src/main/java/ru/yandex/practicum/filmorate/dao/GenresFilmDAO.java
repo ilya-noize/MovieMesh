@@ -24,7 +24,7 @@ public final class GenresFilmDAO extends MasterStorageDAO<GenresFilm> {
     @Override
     public GenresFilm create(GenresFilm genresFilm) {
         String sql = "INSERT INTO genres_film (film_id, genre_id) VALUES (?, ?)";
-        getJdbcTemplate().update(sql, genresFilm.getFilmId(), genresFilm.getId());
+        getJdbcTemplate().update(sql, genresFilm.getFilmId(), genresFilm.getGenreId());
         return genresFilm;
     }
 
