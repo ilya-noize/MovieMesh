@@ -22,14 +22,15 @@ import static java.util.stream.Collectors.toSet;
 @Service
 public class FilmService extends MasterService<Film> {
     private static Long filmId;
-    private final MasterStorageDAO<GenresFilm> genresFilmMasterStorageDAO;
+    private final MasterStorageDAO<GenresFilm> genresFilmStorage;
     private final MasterStorageDAO<Genre> genreStorage;
     private final Comparator<Film> sortLikes = Comparator.comparing(film -> film.getLikes().size());
 
     public FilmService(MasterStorageDAO<Film> storage,
-                       MasterStorageDAO<GenresFilm> genresFilmMasterStorageDAO, MasterStorageDAO<Genre> genreStorage) {
+                       MasterStorageDAO<GenresFilm> genresFilmStorage,
+                       MasterStorageDAO<Genre> genreStorage) {
         super(storage);
-        this.genresFilmMasterStorageDAO = genresFilmMasterStorageDAO;
+        this.genresFilmStorage = genresFilmStorage;
         this.genreStorage = genreStorage;
     }
 
@@ -54,8 +55,9 @@ public class FilmService extends MasterService<Film> {
         super.isExist(filmId);
         super.update(film);
         Set<Genre> genres = film.getGenres();
+        log.info("[i] service: update genres:{}", genres);
         updateGenresFilm(
-                filterAllGenresFilms(genresFilmMasterStorageDAO.getAll()),
+                filterAllGenresFilms(genresFilmStorage.getAll()),
                 getSetGenreIds(genres)
         );
         return get(filmId);
@@ -91,7 +93,7 @@ public class FilmService extends MasterService<Film> {
         String sql = "SELECT MPA.* FROM MPA_RATING MPA"
                 + " RIGHT JOIN FILMS F ON F.MPA_RATING_ID = MPA.ID"
                 + " WHERE F.ID = ?;";
-        return genresFilmMasterStorageDAO.getJdbcTemplate().queryForObject(
+        return genresFilmStorage.getJdbcTemplate().queryForObject(
                 sql,
                 new MPARatingRowMapper(),
                 filmId
@@ -113,25 +115,25 @@ public class FilmService extends MasterService<Film> {
 
     private Set<Long> getUserLikes() {
         String sql = "SELECT user_id FROM films_like WHERE film_id = ?";
-        return new HashSet<>(genresFilmMasterStorageDAO.getJdbcTemplate().query(
+        return new HashSet<>(genresFilmStorage.getJdbcTemplate().query(
                 sql,
                 (rs, rowNum) -> rs.getLong("user_id"),
                 filmId));
     }
 
     private Set<Long> filterAllGenresFilms(List<GenresFilm> getAll) {
-        log.info("[i] service: update: filterAllGenresFilms");
+        log.info("[i] service: update:\n getAll:{}", getAll);
         if (getAll == null) {
             return new HashSet<>();
         }
         return getAll.stream()
                 .filter(genresFilm -> genresFilm.getFilmId().equals(filmId))
-                .map(GenresFilm::getId)
+                .map(GenresFilm::getGenreId)
                 .collect(toSet());
     }
 
     private Set<Long> getSetGenreIds(Set<Genre> genres) {
-        log.info("[i] service: update: getSetGenreIds");
+        log.info("[i] service: update:\n getSetGenreIds:{}", genres);
         if (genres == null) {
             return new HashSet<>();
         }
@@ -156,30 +158,35 @@ public class FilmService extends MasterService<Film> {
     private void updateGenresFilm(Set<Long> genresFilmOn,
                                   Set<Long> genresFilmIn) {
         log.info("[i] service: update: updateGenresFilm id:{}", filmId);
+        log.info("[i] service: update:\n genresFilmOn:{}\n genresFilmIn:{}", genresFilmOn, genresFilmIn);
 
-        if (genresFilmOn.size() > genresFilmIn.size()) {
-            genresFilmOn.retainAll(genresFilmIn);
+        int sizeOn = genresFilmOn.size();
+        int sizeIn = genresFilmIn.size();
+        if (sizeOn > sizeIn) {
+            log.info("\n On:{} > In:{}\n DELETE GENRE", sizeOn, sizeIn);
+//            genresFilmOn.retainAll(genresFilmIn);
             deleteGenres(genresFilmOn);
         }
-        if (genresFilmOn.size() < genresFilmIn.size()) {
-            genresFilmIn.retainAll(genresFilmOn);
+        if (sizeOn < sizeIn) {
+            log.info("\n On:{} > In:{}\n ADD GENRE", sizeOn, sizeIn);
+//            genresFilmIn.retainAll(genresFilmOn);
             addGenres(genresFilmIn);
         }
     }
 
     private void deleteGenres(Set<Long> genresFilmOn) {
-        log.info("[i] service: update: deleteGenres genresFilmOn:{}",
-                genresFilmOn);
+        log.info("[i] service: update: deleteGenres\n genresFilmOn:{}", genresFilmOn);
         genresFilmOn.forEach(
-                genresFilm -> genresFilmMasterStorageDAO.delete(
+                genresFilm -> genresFilmStorage.delete(
                         filmId, genresFilm
                 )
         );
     }
 
     private void addGenres(Set<Long> genresFilmIn) {
+        log.info("[i] service: update: addGenres\n genresFilmOn:{}", genresFilmIn);
         genresFilmIn.forEach(
-                genresId -> genresFilmMasterStorageDAO.create(
+                genresId -> genresFilmStorage.create(
                         new GenresFilm(filmId, genresId)
                 )
         );
