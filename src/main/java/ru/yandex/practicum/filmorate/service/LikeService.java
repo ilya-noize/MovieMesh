@@ -5,17 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Like;
+import ru.yandex.practicum.filmorate.model.LikesFilm;
 import ru.yandex.practicum.filmorate.model.User;
 
 @Service
 @Slf4j
-public class LikeService extends MasterService<Like> {
+public class LikeService extends MasterService<LikesFilm> {
     private final MasterStorageDAO<Film> filmStorage;
     private final MasterStorageDAO<User> userStorage;
 
     @Autowired
-    public LikeService(MasterStorageDAO<Like> storage,
+    public LikeService(MasterStorageDAO<LikesFilm> storage,
                        MasterStorageDAO<Film> filmService,
                        MasterStorageDAO<User> userStorage) {
         super(storage);
@@ -24,7 +24,7 @@ public class LikeService extends MasterService<Like> {
     }
 
     @Override
-    public Like create(Like like) {
+    public LikesFilm create(LikesFilm like) {
         log.info("[+] like:{}", like);
         isExist(like);
         return super.create(like);
@@ -33,16 +33,16 @@ public class LikeService extends MasterService<Like> {
     @Override
     public void delete(Long... id) {
         log.info("[-] like:{}", (Object[]) id);
-        Like like = getLike(id[0], id[1]);
-        isExist(like);
-        super.delete(like.getFilmId(), like.getUserId());
+
+        Long filmId = id[0];
+        Long userId = id[1];
+
+        isExist(new LikesFilm(filmId, userId));
+
+        super.delete(filmId, userId);
     }
 
-    private Like getLike(Long filmId, Long userId) {
-        return new Like(filmId, userId);
-    }
-
-    private void isExist(Like like) {
+    private void isExist(LikesFilm like) {
         log.info("[?]: Like:{}", like);
         filmStorage.isExist(like.getFilmId());
         userStorage.isExist(like.getUserId());

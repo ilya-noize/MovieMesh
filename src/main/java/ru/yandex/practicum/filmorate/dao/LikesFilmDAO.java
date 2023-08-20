@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Like;
+import ru.yandex.practicum.filmorate.model.LikesFilm;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,29 +14,30 @@ import java.util.List;
 @Slf4j
 @Component
 @Primary
-public final class LikeDAO extends MasterStorageDAO<Like> {
+public final class LikesFilmDAO extends MasterStorageDAO<LikesFilm> {
     @Autowired
-    public LikeDAO(JdbcTemplate jdbcTemplate) {
+    public LikesFilmDAO(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
     }
 
     @Override
-    public Like create(Like like) {
+    public LikesFilm create(LikesFilm like) {
         String sql = "INSERT INTO films_like (film_id, user_id) VALUES (?, ?)";
         getJdbcTemplate().update(sql, like.getFilmId(), like.getUserId());
         return like;
     }
 
     @Override
-    public Like update(Like like) {
+    public LikesFilm update(LikesFilm like) {
         String sql = "UPDATE films_like SET user_id = ? WHERE film_id = ?;";
         getJdbcTemplate().update(sql, like.getUserId(), like.getFilmId());
         return like;
     }
 
     @Override
-    public Like get(Long id) {
-        return null;
+    public LikesFilm get(Long id) {
+        String sql = "SELECT film_id, user_id FROM films_like WHERE film_id = ? ORDER BY film_id, user_id";
+        return getJdbcTemplate().queryForObject(sql, this::make, id);
     }
 
     @Override
@@ -46,13 +47,13 @@ public final class LikeDAO extends MasterStorageDAO<Like> {
     }
 
     @Override
-    public List<Like> getAll() {
+    public List<LikesFilm> getAll() {
         String sql = "SELECT * FROM films_like";
         return getJdbcTemplate().query(sql, this::make);
     }
 
     @Override
-    public Like make(ResultSet rs, int rowNum) throws SQLException {
-        return new Like(rs.getLong("film_id"), rs.getLong("user_id"));
+    public LikesFilm make(ResultSet rs, int rowNum) throws SQLException {
+        return new LikesFilm(rs.getLong("film_id"), rs.getLong("user_id"));
     }
 }

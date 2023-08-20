@@ -10,7 +10,7 @@ import javax.validation.constraints.Positive;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public final class Like {
+public final class LikesFilm {
     @Positive
     @NotNull
     Long filmId;
