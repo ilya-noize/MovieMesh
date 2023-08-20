@@ -26,6 +26,7 @@ create TABLE IF NOT EXISTS genres (
 create TABLE IF NOT EXISTS genres_film (
   film_id INTEGER NOT NULL,
   genre_id INTEGER NOT NULL
+
 );
 alter table genres_film add CONSTRAINT IF NOT EXISTS
  fk_genres_4_films FOREIGN KEY(genre_id) REFERENCES genres (id);--  ON DELETE RESTRICT;
@@ -52,6 +53,9 @@ alter table friends add CONSTRAINT IF NOT EXISTS
 
 alter table friends add CONSTRAINT IF NOT EXISTS
  fk_friends_friend FOREIGN KEY(user_id_friend) REFERENCES users (id);
+
+alter table friends add CONSTRAINT IF NOT EXISTS
+ unq_friends UNIQUE (user_id_request, user_id_friend);
 ---F-I-L-M-S---L-I-K-E-S-------------------------------
 create TABLE IF NOT EXISTS films_like (
   film_id INTEGER,
@@ -64,4 +68,7 @@ alter table films_like add CONSTRAINT IF NOT EXISTS
 
 alter table films_like add CONSTRAINT IF NOT EXISTS
  fk_like_film FOREIGN KEY(film_id) REFERENCES films (id);
+
+alter table films_like add CONSTRAINT IF NOT EXISTS
+ unq_likes UNIQUE (film_id, user_id);
 ---E-N-D---S-C-R-I-P-T---------------------------------
