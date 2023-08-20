@@ -9,9 +9,7 @@ import ru.yandex.practicum.filmorate.model.GenresFilm;
 import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -53,7 +51,7 @@ public class FilmService extends MasterService<Film> {
     public Film create(Film film) {
         film.setId(super.create(film).getId());
         filmId = film.getId();
-        Set<Genre> genres = film.getGenres();
+        List<Genre> genres = film.getGenres();
         if (genres != null) {
             genres.forEach(genre ->
                     genresFilmStorage.create(
@@ -66,29 +64,28 @@ public class FilmService extends MasterService<Film> {
     @Override
     public Film update(Film film) {
         filmId = film.getId();
-        Set<Genre> genres = film.getGenres();
-        log.info("[i] Film Service: update\n film:{}\n genres:{}", film, genres);
+        List<Genre> genresId = film.getGenres();
+        log.info("[u] Film Service: \n film:{}\n genresId:{}", film, genresId);
         super.isExist(filmId);
         super.update(film);
-        if (genres != null) {
-            log.info("[i] service: update genres:{}", genres);
+        if (genresId != null) {
+            log.info("[i] service: update genresId:{}", genresId);
             genresFilmStorage.delete(filmId, null);
-            genres.forEach(genre -> {
-                GenresFilm genresFilm = new GenresFilm(filmId, genre.getId());
+            genresId.forEach(genreId -> {
+                GenresFilm genresFilm = new GenresFilm(filmId, genreId.getId());//genreId);
                 genresFilmStorage.create(genresFilm);
             });
         }
-
-        return film;
+        return get(filmId);
     }
 
     @Override
     public Film get(Long id) {
         Film film = super.get(id);
-        log.info("[i] FilmService\ngetFilm(id = {})\nFilm = {}", id, film);
+        log.info("[>] FilmService\ngetFilm(id = {})\nFilm = {}", id, film);
         filmId = film != null ? film.getId() : null;
         if (filmId != null) {
-            Set<Long> likes = getUserLikes();
+            List<Long> likes = getUserLikes();
 
             film.setMpa(mpaRatingStorage.get(film.getMpa().getId()));
             film.setRate(likes.size());
@@ -106,28 +103,33 @@ public class FilmService extends MasterService<Film> {
                 .collect(toList());
     }
 
-    private Set<Genre> getGenresByFilm() {
-        Set<Long> allGenres = genreStorage.getAll().stream()
+    private List<Genre> getGenresByFilm() {
+        List<Long> allGenres = genreStorage.getAll().stream()
                 .map(Genre::getId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
-        Set<Long> genresFilmSet = genresFilmStorage.getAll().stream()
+        List<Long> genresFilmSet = genresFilmStorage.getAll().stream()
                 .filter(genresFilm -> genresFilm.getFilmId().equals(filmId))
                 .map(GenresFilm::getGenreId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         return allGenres.stream()
                 .filter(genresFilmSet::contains)
                 .map(genreStorage::get)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    private Set<Long> getUserLikes() {
+    private List<Long> fixIncomingGenresFilm(List<Genre> array) {
+        return array.stream()
+                .map(Genre::getId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private List<Long> getUserLikes() {
         String sql = "SELECT user_id FROM films_like WHERE film_id = ? ORDER BY user_id";
-        return new HashSet<>(genresFilmStorage.getJdbcTemplate().query(
-                sql,
+        return genresFilmStorage.getJdbcTemplate().query(sql,
                 (rs, rowNum) -> rs.getLong("user_id"),
-                filmId)
-        );
+                filmId);
     }
 }

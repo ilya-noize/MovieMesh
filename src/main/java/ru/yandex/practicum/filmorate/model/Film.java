@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -32,8 +32,8 @@ public final class Film {
     private Integer duration;
     private Integer rate = null; // Not used until the next sprints
     private MPARating mpa;
-    private Set<Genre> genres;
-    private Set<Long> likes;
+    private List<Genre> genres;
+    private List<Long> likes;
 
     public Film(
             String name,
@@ -41,8 +41,8 @@ public final class Film {
             LocalDate releaseDate,
             int duration,
             MPARating mpa,
-            Set<Genre> genres,
-            Set<Long> likes
+            List<Genre> genres,
+            List<Long> likes
     ) {
         this.name = name;
         this.description = description;

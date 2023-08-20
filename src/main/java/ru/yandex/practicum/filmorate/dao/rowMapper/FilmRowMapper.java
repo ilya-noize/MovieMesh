@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.MPARating;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 public class FilmRowMapper implements RowMapper<Film> {
 
@@ -21,8 +21,8 @@ public class FilmRowMapper implements RowMapper<Film> {
         Integer duration = rs.getInt("Duration");
         Integer rate = null;
         MPARating mpa = new MPARating(rs.getLong("mpa_rating_id"), null, null);
-        Set<Genre> genres = null;
-        Set<Long> likes = null;
+        List<Genre> genres = null;
+        List<Long> likes = null;
 
         return new Film(filmId, name, releaseDate, description, duration, rate, mpa, genres, likes);
     }

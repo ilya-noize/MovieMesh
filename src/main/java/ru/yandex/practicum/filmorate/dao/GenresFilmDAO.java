@@ -23,27 +23,14 @@ public final class GenresFilmDAO extends MasterStorageDAO<GenresFilm> {
 
     @Override
     public GenresFilm create(GenresFilm genresFilm) {
-        String sql = "INSERT INTO genres_film (film_id, genre_id) VALUES (?, ?)";
+        String sql = "MERGE INTO genres_film KEY(film_id, genre_id) VALUES (? , ?)";
         getJdbcTemplate().update(sql, genresFilm.getFilmId(), genresFilm.getGenreId());
         return genresFilm;
     }
 
-    /**
-     * если жанр есть в базе, то удаление
-     * если жанра нет в базе, то создание
-     *
-     * @param genresFilm Жанр фильма
-     * @return Жанр фильма
-     */
     @Override
     public GenresFilm update(GenresFilm genresFilm) {
-        log.info("[i] update\n GenresFilm:{}", genresFilm);
-        /*
-        Long filmId = genresFilm.getFilmId();
-        Long genreId = genresFilm.getGenreId();
-
-        delete(filmId, genreId);*/
-        return null;/*create(genresFilm);*/
+        return null;
     }
 
     @Override

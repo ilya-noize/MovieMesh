@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public class FilmStorage extends MasterStorage<Film> {
     public Film create(Film film) {
         film.setId(increment());
         if (film.getGenres() == null) {
-            film.setGenres(new HashSet<>());
+            film.setGenres(List.of());
         }
         Long filmId = film.getId();
         storage.put(film.getId(), film);
