@@ -32,7 +32,8 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
                 film.getDescription(),
                 film.getDuration(),
                 film.getReleaseDate(),
-                film.getMpa().getId());
+                film.getMpa().getId()
+        );
         film.setId(increment());
         return film;
     }
@@ -65,8 +66,9 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
 
     @Override
     public void delete(Long... id) {
+        Long filmId = id[0];
         String sql = "DELETE FROM films F WHERE id = ?;";
-        getJdbcTemplate().update(sql, id[0]);
+        getJdbcTemplate().update(sql, filmId);
     }
 
     @Override

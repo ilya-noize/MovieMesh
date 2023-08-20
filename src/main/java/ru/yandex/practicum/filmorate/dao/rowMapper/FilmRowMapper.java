@@ -20,7 +20,7 @@ public class FilmRowMapper implements RowMapper<Film> {
         String description = rs.getString("Description");
         Integer duration = rs.getInt("Duration");
         Integer rate = null;
-        MPARating mpa = null;
+        MPARating mpa = new MPARating(rs.getLong("mpa_rating_id"), null, null);
         Set<Genre> genres = null;
         Set<Long> likes = null;
 

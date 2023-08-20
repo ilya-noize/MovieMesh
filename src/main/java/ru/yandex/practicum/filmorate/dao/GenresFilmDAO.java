@@ -28,9 +28,22 @@ public final class GenresFilmDAO extends MasterStorageDAO<GenresFilm> {
         return genresFilm;
     }
 
+    /**
+     * если жанр есть в базе, то удаление
+     * если жанра нет в базе, то создание
+     *
+     * @param genresFilm Жанр фильма
+     * @return Жанр фильма
+     */
     @Override
     public GenresFilm update(GenresFilm genresFilm) {
-        return null;
+        log.info("[i] update\n GenresFilm:{}", genresFilm);
+        /*
+        Long filmId = genresFilm.getFilmId();
+        Long genreId = genresFilm.getGenreId();
+
+        delete(filmId, genreId);*/
+        return null;/*create(genresFilm);*/
     }
 
     @Override
@@ -40,14 +53,21 @@ public final class GenresFilmDAO extends MasterStorageDAO<GenresFilm> {
 
     @Override
     public void delete(Long... id) {
-        String sql = "DELETE FROM genres_film"
-                + " WHERE film_id = ? AND genre_id = ?;";
-        getJdbcTemplate().update(sql, id[0], id[1]);
+        log.info("[i] deleteGenreFilm\n ids:{}", (Object[]) id);
+        Long filmId = id[0];
+        Long genreId = id[1];
+        String sql = "DELETE FROM genres_film WHERE film_id = ?";
+        if (genreId == null) {
+            getJdbcTemplate().update(sql, filmId);
+        } else {
+            sql += " AND genre_id = ?";
+            getJdbcTemplate().update(sql, filmId, genreId);
+        }
     }
 
     @Override
     public List<GenresFilm> getAll() {
-        String sql = "SELECT * FROM genres_film GROUP BY film_id";
+        String sql = "SELECT film_id, genre_id FROM genres_film GROUP BY film_id, genre_id";
         return getJdbcTemplate().query(sql, this::make);
     }
 
