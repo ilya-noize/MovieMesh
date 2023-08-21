@@ -4,10 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.MPARating;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -25,12 +29,16 @@ public final class MPARatingDAO extends MasterStorageDAO<MPARating> {
     public MPARating create(MPARating mpaRating) {
         String sql = "INSERT INTO mpa_rating (rating, description)"
                 + " VALUES (?, ?)";
-        getJdbcTemplate().update(
-                sql,
-                mpaRating.getName(),
-                mpaRating.getDescription()
-        );
-        mpaRating.setId(increment());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        PreparedStatementCreator psc = con -> {
+            PreparedStatement ps = con.prepareStatement(sql, new String[]{"id"});
+            ps.setString(1, mpaRating.getName());
+            ps.setString(2, mpaRating.getDescription());
+            return ps;
+        };
+        getJdbcTemplate().update(psc, keyHolder);
+        Long mpaId = keyHolder.getKey().longValue();
+        mpaRating.setId(mpaId);
         return mpaRating;
     }
 

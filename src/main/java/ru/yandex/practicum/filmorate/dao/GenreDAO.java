@@ -3,11 +3,15 @@ package ru.yandex.practicum.filmorate.dao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -22,10 +26,17 @@ public final class GenreDAO extends MasterStorageDAO<Genre> {
 
     @Override
     public Genre create(Genre genre) {
-        genre.setId(increment());
-        getJdbcTemplate().update("INSERT INTO genres (genre)"
-                        + " VALUES (?) ON CONFLICT DO NOTHING",
-                genre.getName());
+        String sql = "INSERT INTO genres (genre)"
+                + " VALUES (?) ON CONFLICT DO NOTHING";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        PreparedStatementCreator psc = con -> {
+            PreparedStatement ps = con.prepareStatement(sql, new String[]{"id"});
+            ps.setString(1, genre.getName());
+            return ps;
+        };
+        getJdbcTemplate().update(psc, keyHolder);
+        Long genreId = keyHolder.getKey().longValue();
+        genre.setId(genreId);
         return genre;
     }
 

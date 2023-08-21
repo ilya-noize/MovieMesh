@@ -4,11 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -24,17 +29,21 @@ public final class FilmDAO extends MasterStorageDAO<Film> {
 
     @Override
     public Film create(Film film) {
-        String sql = "INSERT INTO films"
-                + " (name, description, duration, releaseDate, mpa_rating_id)"
-                + " VALUES (?, ?, ?, ?, ?)";
-        getJdbcTemplate().update(sql,
-                film.getName(),
-                film.getDescription(),
-                film.getDuration(),
-                film.getReleaseDate(),
-                film.getMpa().getId()
-        );
-        film.setId(increment());
+        String sql = "INSERT INTO films (name, description, duration, releaseDate, mpa_rating_id)"
+                + " VALUES (?, ?, ?, ?, ?);";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        PreparedStatementCreator psc = con -> {
+            PreparedStatement ps = con.prepareStatement(sql, new String[]{"id"});
+            ps.setString(1, film.getName());
+            ps.setString(2, film.getDescription());
+            ps.setInt(3, film.getDuration());
+            ps.setDate(4, Date.valueOf(film.getReleaseDate()));
+            ps.setLong(5, film.getMpa().getId());
+            return ps;
+        };
+        getJdbcTemplate().update(psc, keyHolder);
+        Long filmId = keyHolder.getKey().longValue();
+        film.setId(filmId);
         return film;
     }
 

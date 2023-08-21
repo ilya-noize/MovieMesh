@@ -7,6 +7,11 @@ import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -120,8 +125,10 @@ public class UserService extends MasterService<User> {
      * @return пользователь
      */
     private User valid(User user) {
-        loginUnical(user);
+        user.setLogin(loginUnical(user));
         user.setName(checkName(user));
+        user.setBirthday(checkBirthday(user));
+        user.setEmail(checkEmail(user));
         return user;
     }
 
@@ -130,8 +137,10 @@ public class UserService extends MasterService<User> {
      *
      * @param user пользователь
      */
-    private void loginUnical(User user) {
-        log.info("Check unical login.");
+    @Pattern(regexp = "^\\S*$", message = "The login cannot contain spaces.")
+    @Size(min = 3, max = 20, message = "The login must be from 3 to 20 characters.")
+    private String loginUnical(User user) {
+        log.info("[?] unical login.");
         String login = user.getLogin();
 
         final Predicate<User> TWIN_LOGIN = user1 -> user1.getLogin().equals(login);
@@ -143,6 +152,7 @@ public class UserService extends MasterService<User> {
             throw new UserAlreadyExistException(error);
         }
         log.info("Login correct.");
+        return login;
     }
 
     /**
@@ -152,7 +162,7 @@ public class UserService extends MasterService<User> {
      * @return имя пользователя
      */
     private String checkName(User user) {
-        log.info("Check username.");
+        log.info("[?] Username.");
         String name = user.getName();
         if (name == null || name.isBlank()) {
             log.info("Username is login.");
@@ -161,5 +171,17 @@ public class UserService extends MasterService<User> {
             log.info("Username correct.");
             return name;
         }
+    }
+
+    @Past(message = "The date of birth should only be in the past.")
+    private LocalDate checkBirthday(User user) {
+        log.info("[?] Birthday");
+        return user.getBirthday();
+    }
+
+    @Email(message = "The entered value is not an email address.")
+    private String checkEmail(User user) {
+        log.info("[?] Email");
+        return user.getEmail();
     }
 }

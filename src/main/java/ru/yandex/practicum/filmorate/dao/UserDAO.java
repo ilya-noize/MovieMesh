@@ -4,10 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -26,17 +31,20 @@ public final class UserDAO extends MasterStorageDAO<User> {
 
     @Override
     public User create(final User user) {
-        user.setId(increment());
-        String sql = "INSERT INTO users (id, login, name, email, birthday)"
-                + " VALUES (?, ?, ?, ?, ?)";
-        getJdbcTemplate().update(
-                sql,
-                user.getId(),
-                user.getLogin(),
-                user.getName(),
-                user.getEmail(),
-                user.getBirthday()
-        );
+        String sql = "INSERT INTO users (login, name, email, birthday)"
+                + " VALUES (?, ?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        PreparedStatementCreator psc = con -> {
+            PreparedStatement ps = con.prepareStatement(sql, new String[]{"id"});
+            ps.setString(1, user.getLogin());
+            ps.setString(2, user.getName());
+            ps.setString(3, user.getEmail());
+            ps.setDate(4, Date.valueOf(user.getBirthday()));
+            return ps;
+        };
+        getJdbcTemplate().update(psc, keyHolder);
+        Long userId = keyHolder.getKey().longValue();
+        user.setId(userId);
         return user;
     }
 
