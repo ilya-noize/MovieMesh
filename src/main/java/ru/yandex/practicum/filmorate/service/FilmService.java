@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.constraint.CorrectReleaseDate;
 import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
+import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
@@ -16,7 +17,6 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static ru.yandex.practicum.filmorate.model.Film.RELEASE_DATE_LIMIT;
@@ -111,19 +111,11 @@ public class FilmService extends MasterService<Film> {
     }
 
     private List<Genre> getGenresByFilm() {
-        List<Long> allGenres = genreStorage.getAll().stream()
-                .map(Genre::getId)
-                .collect(Collectors.toList());
-
-        List<Long> genresFilmSet = genresFilmStorage.getAll().stream()
-                .filter(genresFilm -> genresFilm.getFilmId().equals(filmId))
-                .map(GenresFilm::getGenreId)
-                .collect(Collectors.toList());
-
-        return allGenres.stream()
-                .filter(genresFilmSet::contains)
-                .map(genreStorage::get)
-                .collect(Collectors.toList());
+        String sql = "SELECT G.ID, G.NAME FROM GENRES_FILM GF"
+                + " RIGHT JOIN FILMS F ON F.id = GF.FILM_ID"
+                + " RIGHT JOIN GENRES G ON G.id = GF.GENRE_ID"
+                + " WHERE F.ID = ? ORDER BY G.ID, G.NAME;";
+        return genresFilmStorage.getJdbcTemplate().query(sql, new GenreRowMapper(), filmId);
     }
 
     private List<Long> getUserLikes() {

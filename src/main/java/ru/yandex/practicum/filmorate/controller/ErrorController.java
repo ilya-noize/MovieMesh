@@ -1,51 +1,95 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.FailSetFilmLikesException;
-import ru.yandex.practicum.filmorate.exception.FailSetFriendException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
-import ru.yandex.practicum.filmorate.model.ErrorResponse;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import ru.yandex.practicum.filmorate.exception.*;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 @Slf4j
 public final class ErrorController {
+
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, TypeMismatchException.class})
+    public ResponseEntity<Map<String, Object>> handleException(TypeMismatchException e) {
+
+        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+    }
+
+    @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
+    public ResponseEntity<Map<String, Object>> handleException(BindException e) {
+
+        List<String> errors = new ArrayList<>();
+        e.getFieldErrors().forEach(err -> errors.add(err.getField() + ": " + err.getDefaultMessage()));
+        e.getGlobalErrors().forEach(err -> errors.add(err.getObjectName() + ": " + err.getDefaultMessage()));
+
+        makeMap(e).put("error", errors);
+        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+    }
+
+
     @ExceptionHandler(Throwable.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleMethodArgumentNotValidException(Throwable e) {
-        log.error("Method Argument Not Valid - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(Throwable e) {
+
+        log.error("[!] Method Argument Not Valid \n Exception:{}", e.getMessage());
+        return new ResponseEntity<>(makeMap(e), INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserAlreadyExistException(UserAlreadyExistException e) {
-        log.error("User Already Exist - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(NOT_FOUND)
+    public ResponseEntity<Map<String, Object>> handleUserAlreadyExistException(UserAlreadyExistException e) {
+
+        log.error("[!] User Already Exist \n Exception:{}", (Object[]) e.getStackTrace());
+        return new ResponseEntity<>(makeMap(e), NOT_FOUND);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(NotFoundException e) {
-        log.error("Not Found - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(NOT_FOUND)
+    public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException e) {
+
+        log.error("[!] Not Found \n Exception:{}", (Object[]) e.getStackTrace());
+        return new ResponseEntity<>(makeMap(e), NOT_FOUND);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleFailSetFriendException(FailSetFriendException e) {
-        log.error("Fail Set Friend - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<Map<String, Object>> handleFailSetFriendException(FailSetFriendException e) {
+
+        log.error("[!] Fail Set Friend \n Exception:{}", (Object[]) e.getStackTrace());
+        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleFailSetFilmLikesException(FailSetFilmLikesException e) {
-        log.error("Fail Set Film Likes - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<Map<String, Object>> handleFailSetFilmLikesException(FailSetFilmLikesException e) {
+
+        log.error("[!] Fail Set Film Likes \n Exception:{}", (Object[]) e.getStackTrace());
+        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<Map<String, Object>> handleFriendsException(FriendsException e) {
+
+        log.error("[!] Fail Set Film Likes \n Exception:{}", (Object[]) e.getStackTrace());
+        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+    }
+
+    private Map<String, Object> makeMap(Throwable e) {
+
+        return Map.of("timestamp", LocalDate.now().toString(), "message", e.getLocalizedMessage(), "status", BAD_REQUEST.toString());
     }
 }

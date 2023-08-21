@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
+import ru.yandex.practicum.filmorate.exception.FriendsException;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
+import ru.yandex.practicum.filmorate.model.Friends;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.constraints.Email;
@@ -22,9 +24,12 @@ import static java.util.stream.Collectors.toSet;
 @Slf4j
 @Service
 public class UserService extends MasterService<User> {
+    private final MasterService<Friends> friends;
+
     @Autowired
-    protected UserService(MasterStorageDAO<User> userStorage) {
+    protected UserService(MasterStorageDAO<User> userStorage, MasterService<Friends> friends) {
         super(userStorage);
+        this.friends = friends;
     }
 
     /**
@@ -47,6 +52,19 @@ public class UserService extends MasterService<User> {
     @Override
     public User update(User user) {
         return super.update(valid(user));
+    }
+
+
+    public void addFriend(Long id, Long friendId) {
+        isExist(id);
+        isExist(friendId);
+        friends.create(new Friends(id, friendId));
+    }
+
+    public void deleteFriend(Long id, Long friendId) {
+        isExist(id);
+        isExist(friendId);
+        friends.delete(id, friendId);
     }
 
     /**
@@ -74,6 +92,9 @@ public class UserService extends MasterService<User> {
     public Set<User> getFriendsCommon(Long id, Long otherId) {
         User user = get(id);
         User userOther = get(otherId);
+        if (user.equals(userOther)) {
+            throw new FriendsException();
+        }
 
         log.info("Returning a list of friends between users {}<->{}", user.getLogin(), userOther.getLogin());
 
