@@ -13,8 +13,8 @@ import javax.validation.constraints.Positive;
 public final class LikesFilm {
     @Positive
     @NotNull
-    Long filmId;
+    private Long filmId;
     @Positive
     @NotNull
-    Long userId;
+    private Long userId;
 }

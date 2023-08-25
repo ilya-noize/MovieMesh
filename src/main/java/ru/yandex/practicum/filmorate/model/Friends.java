@@ -11,7 +11,7 @@ import javax.validation.constraints.Positive;
 @AllArgsConstructor
 public final class Friends {
     @Positive
-    Long requestId;
+    private Long requestId;
     @Positive
-    Long friendId;
+    private Long friendId;
 }
