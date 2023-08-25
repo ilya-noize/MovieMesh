@@ -21,19 +21,18 @@ public final class Film {
     @EqualsAndHashCode.Exclude
     @Positive(message = "The movie ID is a positive natural number.")
     private Long id;
-    @NotNull(message = "The name of the movie cannot be null.")
     @NotBlank(message = "The title of the movie cannot be blank.")
     private String name;
     @CorrectReleaseDate(value = RELEASE_DATE_LIMIT)
     private LocalDate releaseDate;
+    @NotNull
     @Size(max = 200, message = "The description length is no more than 200 characters.")
     private String description;
     @Positive(message = "The duration of the movie is a positive natural number.")
     private Integer duration;
-    private Integer rate = null; // Not used until the next sprints
+    @NotNull
     private MPARating mpa;
     private List<Genre> genres;
-    private List<Long> likes;
 
     public Film(
             String name,
@@ -41,8 +40,7 @@ public final class Film {
             LocalDate releaseDate,
             int duration,
             MPARating mpa,
-            List<Genre> genres,
-            List<Long> likes
+            List<Genre> genres
     ) {
         this.name = name;
         this.description = description;
@@ -50,6 +48,5 @@ public final class Film {
         this.duration = duration;
         this.mpa = mpa;
         this.genres = genres;
-        this.likes = likes;
     }
 }
