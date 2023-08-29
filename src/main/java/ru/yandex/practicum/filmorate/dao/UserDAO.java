@@ -1,35 +1,30 @@
 package ru.yandex.practicum.filmorate.dao;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.rowMapper.UserRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 @Slf4j
 @Component
 @Primary
-public final class UserDAO extends MasterStorageDAO<User> {
-    @Autowired
-    public UserDAO(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
-    }
+@RequiredArgsConstructor
+public final class UserDAO {
+    private final JdbcTemplate jdbcTemplate;
+    private final UserRowMapper userRowMapper;
 
-    @Override
     public User create(final User user) {
         String sql = "INSERT INTO users (login, name, email, birthday)"
                 + " VALUES (?, ?, ?, ?)";
@@ -42,17 +37,15 @@ public final class UserDAO extends MasterStorageDAO<User> {
             ps.setDate(4, Date.valueOf(user.getBirthday()));
             return ps;
         };
-        getJdbcTemplate().update(psc, keyHolder);
-        Long userId = keyHolder.getKey().longValue();
+        jdbcTemplate.update(psc, keyHolder);
+        Long userId = Objects.requireNonNull(keyHolder.getKey()).longValue();
         user.setId(userId);
         return user;
     }
 
-    @Override
     public User update(final User user) {
-        isExist(user.getId());
         String sql = "UPDATE users SET login = ?, name = ?, email = ?, birthday = ? WHERE id = ?;";
-        getJdbcTemplate().update(
+        jdbcTemplate.update(
                 sql,
                 user.getLogin(),
                 user.getName(),
@@ -63,54 +56,44 @@ public final class UserDAO extends MasterStorageDAO<User> {
         return user;
     }
 
-    @Override
     public User get(final Long id) {
         String error = String.format("User not found - id:%d not exist", id);
         String sql = "SELECT * FROM users WHERE id = ?";
-        return getJdbcTemplate().query(sql, this::make, id)
+        return jdbcTemplate.query(sql, userRowMapper, id)
                 .stream().findFirst()
                 .orElseThrow(new NotFoundException(error));
     }
 
-    @Override
-    public void delete(Long[] id) {
-        String sql = "DELETE FROM users WHERE id = ?;";
-        getJdbcTemplate().update(sql, id[0]);
-    }
-
-    @Override
     public List<User> getAll() {
         String sql = "SELECT * FROM users";
-        return getJdbcTemplate().query(sql, this::make);
+        return jdbcTemplate.query(sql, userRowMapper);
     }
 
-    @Override
-    public User make(ResultSet rs, int rowNum) throws SQLException {
-        Long userId = rs.getLong("id");
-        String email = rs.getString("email");
-        String login = rs.getString("login");
-        String name = rs.getString("name");
-        LocalDate birthday = rs.getDate("birthday").toLocalDate();
-        Set<Long> friends = getAllUserFriends(userId);
-        Set<Long> likes = getLikesFilmId(userId);
-
-        return new User(userId, email, login, name, birthday, friends, likes);
+    public void createFriend(Long userRequest, Long userFriend) {
+        String sql = "MERGE INTO friends KEY(user_id_request, user_id_friend) VALUES (?, ?)";
+        jdbcTemplate.update(sql, userRequest, userFriend);
     }
 
-    private Set<Long> getAllUserFriends(Long id) {
-        String sql = "SELECT user_id_friend FROM friends WHERE user_id_request = ?";
-        return new HashSet<>(getJdbcTemplate().query(
-                sql,
-                (rs, rowNum) -> rs.getLong("user_id_friend"),
-                id));
+    public void deleteFriend(Long userRequest, Long userFriend) {
+        String sql = "DELETE FROM friends WHERE user_id_request = ? AND user_id_friend = ?;";
+        jdbcTemplate.update(sql, userRequest, userFriend);
     }
 
-    private Set<Long> getLikesFilmId(Long id) {
-        String sql = "SELECT film_id FROM films_like WHERE user_id = ?";
-        return new HashSet<>(getJdbcTemplate().query(
-                sql,
-                (rs, rowNum) -> rs.getLong("film_id"),
-                id)
-        );
+    public List<User> getFriends(Long id) {
+        String sql = "SELECT U.* FROM FRIENDS FR"
+                + " JOIN USERS U ON FR.USER_ID_FRIEND = U.ID"
+                + " WHERE FR.USER_ID_REQUEST = ?";
+        return jdbcTemplate.query(sql, userRowMapper, id);
+    }
+
+    public List<User> getCommonFriends(Long id, Long otherId) {
+        String sql = "SELECT U.* FROM FRIENDS F1"
+                + " JOIN FRIENDS F2"
+                + "  ON F2.USER_ID_REQUEST  = ?"
+                + "  AND F2.USER_ID_FRIEND  = F1.USER_ID_FRIEND"
+                + " JOIN USERS U"
+                + "  ON U.ID = F1.USER_ID_FRIEND"
+                + " WHERE F1.USER_ID_REQUEST = ?";
+        return jdbcTemplate.query(sql, userRowMapper, id, otherId);
     }
 }
