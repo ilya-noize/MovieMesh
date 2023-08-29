@@ -35,10 +35,9 @@ public final class ErrorController {
         e.getFieldErrors().forEach(err -> errors.add(err.getField() + ": " + err.getDefaultMessage()));
         e.getGlobalErrors().forEach(err -> errors.add(err.getObjectName() + ": " + err.getDefaultMessage()));
 
-        makeMap(e).put("error", errors);
+        makeMap(e).put("error", errors); // put - Immutable object is modified
         return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
     }
-
 
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
@@ -90,6 +89,8 @@ public final class ErrorController {
 
     private Map<String, Object> makeMap(Throwable e) {
 
-        return Map.of("timestamp", LocalDate.now().toString(), "message", e.getLocalizedMessage(), "status", BAD_REQUEST.toString());
+        return Map.of("timestamp", LocalDate.now().toString(),
+                "message", e.getLocalizedMessage(),
+                "status", BAD_REQUEST.toString());
     }
 }
