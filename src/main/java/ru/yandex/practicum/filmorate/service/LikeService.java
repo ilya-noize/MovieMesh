@@ -1,50 +1,35 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.LikesFilm;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dao.FilmDAO;
+import ru.yandex.practicum.filmorate.dao.FilmLikesDAO;
+import ru.yandex.practicum.filmorate.dao.UserDAO;
 
 @Service
 @Slf4j
-public class LikeService extends MasterService<LikesFilm> {
-    private final MasterStorageDAO<Film> filmStorage;
-    private final MasterStorageDAO<User> userStorage;
+@RequiredArgsConstructor
+public class LikeService {
+    private final FilmLikesDAO likeDAO;
+    private final UserDAO userDAO;
+    private final FilmDAO filmDAO;
 
-    @Autowired
-    public LikeService(MasterStorageDAO<LikesFilm> storage,
-                       MasterStorageDAO<Film> filmService,
-                       MasterStorageDAO<User> userStorage) {
-        super(storage);
-        this.filmStorage = filmService;
-        this.userStorage = userStorage;
+    public void add(Long filmId, Long userId) {
+        log.info("[+] like to:{} from:{}", filmId, userId);
+        isExist(filmId, userId);
+        likeDAO.add(filmId, userId);
     }
 
-    @Override
-    public LikesFilm create(LikesFilm like) {
-        log.info("[+] like:{}", like);
-        isExist(like);
-        return super.create(like);
+    public void delete(Long filmId, Long userId) {
+        log.info("[-] like to:{} from:{}", filmId, userId);
+        isExist(filmId, userId);
+        likeDAO.delete(filmId, userId);
     }
 
-    @Override
-    public void delete(Long... id) {
-        log.info("[-] like:{}", (Object[]) id);
-
-        Long filmId = id[0];
-        Long userId = id[1];
-
-        isExist(new LikesFilm(filmId, userId));
-
-        super.delete(filmId, userId);
-    }
-
-    private void isExist(LikesFilm like) {
-        log.info("[?]: Like:{}", like);
-        filmStorage.isExist(like.getFilmId());
-        userStorage.isExist(like.getUserId());
+    private void isExist(Long filmId, Long userId) {
+        log.info("[?]: Like to:{} from:{}", filmId, userId);
+        filmDAO.get(filmId);
+        userDAO.get(userId);
     }
 }
