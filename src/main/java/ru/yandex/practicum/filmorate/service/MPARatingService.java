@@ -1,17 +1,26 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.MasterStorageDAO;
+import ru.yandex.practicum.filmorate.dao.MPARatingDAO;
 import ru.yandex.practicum.filmorate.model.MPARating;
+
+import java.util.List;
 
 @Slf4j
 @Service
-public class MPARatingService extends MasterService<MPARating> {
+@RequiredArgsConstructor
+public class MPARatingService {
+    private final MPARatingDAO mpaRatingDAO;
 
-    @Autowired
-    public MPARatingService(MasterStorageDAO<MPARating> storage) {
-        super(storage);
+    public MPARating get(Long id) {
+        log.info("[>][S] MPARating id:{}", id);
+        return mpaRatingDAO.get(id);
+    }
+
+    public List<MPARating> getAll() {
+        log.info("[>][S] All MPARating");
+        return mpaRatingDAO.getAll();
     }
 }
