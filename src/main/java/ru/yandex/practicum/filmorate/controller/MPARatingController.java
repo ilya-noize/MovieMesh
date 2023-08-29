@@ -20,13 +20,13 @@ public class MPARatingController {
 
     @GetMapping
     public List<MPARating> getAll() {
-        log.info("[>] All MPARating");
+        log.info("[>][C] All MPARating");
         return mpaRatingService.getAll();
     }
 
     @GetMapping("/{id}")
     public MPARating get(@PathVariable Long id) {
-        log.info("[>] MPARating id:{}", id);
+        log.info("[>][C] MPARating id:{}", id);
         return mpaRatingService.get(id);
     }
 }
