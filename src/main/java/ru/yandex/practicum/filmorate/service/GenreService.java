@@ -15,17 +15,10 @@ public class GenreService {
     private final GenreDAO genreDAO;
 
     public Genre get(Long id) {
-        isExist(id);
         return genreDAO.get(id);
     }
 
     public List<Genre> getAll() {
         return genreDAO.getAll();
-    }
-
-    private void isExist(Long... ids) {
-        for (Long id : ids) {
-            get(id);
-        }
     }
 }
