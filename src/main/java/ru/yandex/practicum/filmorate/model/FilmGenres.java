@@ -10,11 +10,11 @@ import javax.validation.constraints.Positive;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public final class LikesFilm {
+public final class FilmGenres {
     @Positive
     @NotNull
     private Long filmId;
     @Positive
     @NotNull
-    private Long userId;
+    private Genre genre;
 }
