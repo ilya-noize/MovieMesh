@@ -26,22 +26,6 @@ class FilmorateApplicationTests {
     private FilmController filmController;
 
     @Test
-    public void greetingShouldReturnMessageFromService() throws Exception {
-//		LocalDate date = LocalDate.of(2000, 1, 1);
-//        Film film = new Film(
-//                1L,
-//                "Film",
-//                date,
-//                "Description",
-//                100,
-//                1,
-//                1L,
-//                Set.of(1L));
-//		film.setId(1L);
-//		filmController.create(film);
-    }
-
-    @Test
     void shouldReturnDefaultMessage() throws Exception {
         this.mockMvc.perform(get("/films"))
                 .andDo(print())
