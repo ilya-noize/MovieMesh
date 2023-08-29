@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.LikesFilm;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.LikeService;
 
@@ -31,11 +30,16 @@ public class FilmController {
         return filmService.update(film);
     }
 
+    @GetMapping("/{id}")
+    public Film get(@PathVariable Long id) {
+        log.info("[>] Film id:{}", id);
+        return filmService.get(id);
+    }
+
     @PutMapping("/{filmId}/like/{userId}")
     public void addLike(@PathVariable Long filmId, @PathVariable Long userId) {
-        LikesFilm like = new LikesFilm(filmId, userId);
-        log.info("[+] Like\n Like [{}]", like);
-        likeService.create(like);
+        log.info("[+] Like\n Like [Film filmId:{} from User filmId:{}]", filmId, userId);
+        likeService.add(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
@@ -48,12 +52,6 @@ public class FilmController {
     public List<Film> getAll() {
         log.info("[>] All Films");
         return filmService.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public Film get(@PathVariable Long id) {
-        log.info("[>] Film id:{}", id);
-        return filmService.get(id);
     }
 
     @GetMapping({"/popular?count={count}", "/popular"})
