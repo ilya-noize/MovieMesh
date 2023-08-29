@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FriendsService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @Slf4j
@@ -17,7 +15,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final FriendsService friendsService;
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
@@ -31,9 +28,14 @@ public class UserController {
         return userService.update(user);
     }
 
+    @GetMapping("/{id}")
+    public User get(@PathVariable Long id) {
+        return userService.get(id);
+    }
+
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.addFriend(id, friendId);
+    public void createFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.createFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -41,19 +43,14 @@ public class UserController {
         userService.deleteFriend(id, friendId);
     }
 
-    @GetMapping("/{id}")
-    public User get(@PathVariable Long id) {
-        return userService.get(id);
-    }
-
     @GetMapping("/{id}/friends")
-    public Set<User> getUserFriends(@PathVariable Long id) {
+    public List<User> getFriends(@PathVariable Long id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User> getUserCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        return userService.getFriendsCommon(id, otherId);
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 
     @GetMapping
