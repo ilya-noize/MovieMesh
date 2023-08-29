@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.rowMapper;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
@@ -10,6 +11,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
+@Component
 public class FilmRowMapper implements RowMapper<Film> {
 
     @Override
@@ -19,11 +21,9 @@ public class FilmRowMapper implements RowMapper<Film> {
         LocalDate releaseDate = rs.getDate("ReleaseDate").toLocalDate();
         String description = rs.getString("Description");
         Integer duration = rs.getInt("Duration");
-        Integer rate = null;
         MPARating mpa = new MPARating(rs.getLong("mpa_rating_id"), null, null);
         List<Genre> genres = null;
-        List<Long> likes = null;
 
-        return new Film(filmId, name, releaseDate, description, duration, rate, mpa, genres, likes);
+        return new Film(filmId, name, releaseDate, description, duration, mpa, genres);
     }
 }
