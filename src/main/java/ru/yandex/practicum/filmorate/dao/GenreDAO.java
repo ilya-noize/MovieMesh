@@ -18,8 +18,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public final class GenreDAO {
     private final JdbcTemplate jdbcTemplate;
-    private final FilmGenresDAO filmGenresDAO;
     private final GenreRowMapper genreRowMapper;
+    private final FilmGenresDAO filmGenresDAO;
 
     public Genre get(Long id) {
         String error = String.format("Genre not found - id:%d not exist", id);
