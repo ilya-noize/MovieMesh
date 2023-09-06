@@ -55,8 +55,7 @@ create TABLE `Genres_film` (
 
 create TABLE `Friends_users` (
     `user_id_request` int  NOT NULL ,
-    `user_id_friend` int  NOT NULL ,
-    `agree` boolean  NOT NULL 
+    `user_id_friend` int  NOT NULL
 );
 
 create TABLE `Films_likes` (
