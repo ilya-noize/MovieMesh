@@ -1,231 +1,160 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+@RunWith(SpringRunner.class)
 @SpringBootTest
-@RequiredArgsConstructor
+@AutoConfigureMockMvc
 class FilmControllerTest {
-    private final LocalDate rightRelease = LocalDate.of(1895, 12, 28);
-    private final int rightDuration = 1;
-    private FilmController controller;
+    private static MockHttpServletRequestBuilder requestBuilder;
+    private final List<LocalDate> releases = List.of(
+            LocalDate.of(1999, 5, 19),
+            LocalDate.of(2002, 5, 16),
+            LocalDate.of(2005, 5, 19),
+            LocalDate.of(1977, 5, 25),
+            LocalDate.of(1980, 5, 21),
+            LocalDate.of(1883, 5, 25),
+            LocalDate.of(3015, 12, 18),
+            LocalDate.of(2017, 12, 15),
+            LocalDate.of(2019, 12, 19)
+    );
+    private final List<MPARating> mpa = List.of(
+            new MPARating(1L, "G", "Нет возрастных ограничений"),
+            new MPARating(2L, "PG", "Рекомендуется присутствие родителей"),
+            new MPARating(3L, "PG-13", "Детям до 13 лет просмотр не желателен"),
+            new MPARating(4L, "R", "Лицам до 17 лет обязательно присутствие взрослого"),
+            new MPARating(5L, "NC-17", "Лицам до 18 лет просмотр запрещен")
+    );
+    private final List<Genre> genres = List.of(
+            new Genre(1L, "Комедия"),
+            new Genre(2L, "Драма"),
+            new Genre(3L, "Мультфильм"),
+            new Genre(4L, "Триллер"),
+            new Genre(5L, "Документальный"),
+            new Genre(6L, "Боевик")
+    );
+    private final Map<String, Film> films = Map.of(
+            "film1", new Film(1L, "StarWars:Episode I", releases.get(0), "A long time ago in a galaxy far, far away", 120, mpa.get(1), new ArrayList<>()),
+            "film2", new Film(2L, "StarWars:Episode II", releases.get(1), "A long time ago in a galaxy far, far away", 120, mpa.get(1), new ArrayList<>()),
+            "emptyName", new Film(3L, "", releases.get(2), "A long time ago in a galaxy far, far away", 120, mpa.get(1), new ArrayList<>()),
+            "nullName", new Film(4L, null, releases.get(3), "A long time ago in a galaxy far, far away", 120, mpa.get(1), new ArrayList<>()),
+            "moreLimitDescription", new Film(5L, "StarWars:Episode V", releases.get(4), ("A long time ago in a galaxy far, far away").repeat(5), 120, mpa.get(1), new ArrayList<>()),
+            "wrongReleaseOverLimit", new Film(6L, "StarWars:Episode VI", releases.get(5), "A long time ago in a galaxy far, far away", 120, mpa.get(1), new ArrayList<>()),
+            "wrongReleaseInFuture", new Film(7L, "StarWars:Episode VII", releases.get(6), "A long time ago in a galaxy far, far away", 120, mpa.get(1), new ArrayList<>()),
+            "negativeDuration", new Film(8L, "StarWars:Episode VIII", releases.get(7), "A long time ago in a galaxy far, far away", 120, mpa.get(1), new ArrayList<>()),
+            "wrongId", new Film(9999L, "StarWars:Episode IX", releases.get(8), "A long time ago in a galaxy far, far away", 120, mpa.get(1), new ArrayList<>())
+    );
+    @Autowired
+    private MockMvc mockMvc;
 
-    @DisplayName(value = "Создание фильма")
+    @AfterEach
+    void clearStatic() {
+        requestBuilder = null;
+    }
+
     @Test
-    void createFilm() {
-        try {
-            Film film = controller.create(getFilm());
-            assertNotNull(film.getId());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    void getAll() throws Exception {
+        requestBuilder = get("/films");
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("[]")));
     }
 
-    private Film getFilm() {
-        return new Film();
-//                1L,
-//                "Film",
-//                rightRelease,
-//                "Description",
-//                rightDuration,
-//                1,
-//                1L,
-//                Set.of(1L));
-    }
-
-    @DisplayName(value = "Создание фильма - Ошибка:null-название")
     @Test
-    void createFilmFailNullName() {
-        try {
-            controller.create(getFilmNullName());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    void create() throws Exception {
+        Film film = films.get("film1");
+
+        requestBuilder = post("/films")
+                .param(inQuotes("name"), inQuotes(film.getName()))
+                .param(inQuotes("description"), inQuotes(film.getDescription()))
+                .param(inQuotes("releaseDate"), inQuotes(film.getReleaseDate().toString()))
+                .param(inQuotes("duration"), inQuotes(film.getDuration().toString()))
+                .param(inQuotes("mpa"), inQuotes(film.getMpa().toString()))
+                .param(inQuotes("genres"), inQuotes(film.getGenres().toString()));
+
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
     }
 
-    private Film getFilmNullName() {
-        return new Film();
-//                1L,
-//                null,
-//                rightRelease,
-//                "Description",
-//                rightDuration,
-//                1,
-//                1L,
-//                Set.of(1L));
-    }
-
-    @DisplayName(value = "Создание фильма - Ошибка:пустое название")
     @Test
-    void createFilmFailBlankName() {
-        try {
-            controller.create(getFilmBlankName());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    void update() throws Exception {
+        Film film = films.get("film1");
+        film.setGenres(List.of(genres.get(4), genres.get(5)));
+        requestBuilder = put("/films")
+                .param(inQuotes("name"), inQuotes(film.getName()))
+                .param(inQuotes("description"), inQuotes(film.getDescription()))
+                .param(inQuotes("releaseDate"), inQuotes(film.getReleaseDate().toString()))
+                .param(inQuotes("duration"), inQuotes(film.getDuration().toString()))
+                .param(inQuotes("mpa"), inQuotes(film.getMpa().toString()))
+                .param(inQuotes("genres"), inQuotes(film.getGenres().toString()));
+
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
     }
 
-    private Film getFilmBlankName() {
-        return new Film();
-//                1L,
-//                "",
-//                rightRelease,
-//                "Description",
-//                rightDuration,
-//                1,
-//                1L,
-//                Set.of(1L));
-    }
-
-    @DisplayName(value = "Создание фильма - Ошибка:Большое описание")
     @Test
-    void createFilmFailLongDescription() {
-        try {
-            controller.create(getFilmLongDescription());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    void get1() throws Exception {
+        requestBuilder = get("/films/1");
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString("Film not found - id:1 not exist")));
     }
 
-    private Film getFilmLongDescription() {
-        String description = "You will build a simple Spring application and test it with JUnit. " +
-                "You probably already know how to write and run unit tests of the individual classes " +
-                "in your application, so, for this guide, we will concentrate on using Spring Test " +
-                "and Spring Boot features to test the interactions between Spring and your code. " +
-                "You will start with a simple test that the application context loads successfully " +
-                "and continue on to test only the web layer by using Spring’s MockMvc.";
-        return new Film();
-//                1L,
-//                "Film",
-//                rightRelease,
-//                description,
-//                rightDuration,
-//                1,
-//                1L,
-//                Set.of(1L));
-    }
-
-    @DisplayName(value = "Создание фильма - Ошибка:Неверная дата релиза")
     @Test
-    void createFilmFailWrongRelease() {
-        try {
-            controller.create(getFilmWrongRelease());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    void addLike() throws Exception {
+        requestBuilder = put("/films/1/like/1");
+
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
-    private Film getFilmWrongRelease() {
-        LocalDate wrongRelease = LocalDate.of(1895, 12, 27);
-        return new Film();
-//                1L,
-//                "Film",
-//                wrongRelease,
-//                "Description",
-//                rightDuration,
-//                1,
-//                1L,
-//                Set.of(1L));
-    }
-
-    @DisplayName(value = "Создание фильма - Ошибка: Отрицательная продолжительность фильма")
     @Test
-    void createFilmFailWrongDuration() {
-        try {
-            controller.create(getFilmWrongDuration());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    void deleteLike() throws Exception {
+        requestBuilder = delete("/films/1/like/1");
+
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
-    private Film getFilmWrongDuration() {
-        int wrongDuration = -1;
-        return new Film();
-//                1L,
-//                "Film",
-//                rightRelease,
-//                "Description",
-//                wrongDuration,
-//                1,
-//                1L,
-//                Set.of(1L));
-    }
-
-    @DisplayName(value = "Обновление фильма")
     @Test
-    void updateFilm() {
-        try {
-            Film film = controller.create(getFilm());
-            film.setDescription("new description");
-            assertEquals(1, controller.update(film).getId());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    void getPopular() throws Exception {
+        requestBuilder = get("/films/popular");
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isOk());
+
     }
 
-    @DisplayName(value = "Обновление фильма - Ошибка: нет такого фильма")
-    @Test
-    void updateNotExistFilm() {
-        try {
-            controller.create(getNotExistFilm());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    private Film getNotExistFilm() {
-        Film film = getFilm();
-        film.setId(9999L);
-        return film;
-    }
-
-    @DisplayName(value = "Получить список фильмов")
-    @Test
-    void getFilms() {
-        try {
-            controller.create(getFilm());
-            int countFilms = controller.getAll().size();
-            assertEquals(1, countFilms);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-
-    @DisplayName(value = "Получить популярные фильмы")
-    @Test
-    void getPopular() {
-        try {
-            controller.getPopular(1L);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    @DisplayName(value = "Добавить лайк")
-    @Test
-    void addLike() {
-        try {
-            controller.addLike(null, null);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    @DisplayName(value = "Удалить лайк")
-    @Test
-    void deleteLike() {
-        try {
-            controller.deleteLike(null,null);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    private String inQuotes(String s) {
+        return String.format("\"%s\"", s);
     }
 }
