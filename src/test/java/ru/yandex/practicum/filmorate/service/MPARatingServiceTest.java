@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 
 @SpringBootTest
-@Sql(value = {"/create-mpa-after.sql"}, executionPhase = AFTER_TEST_METHOD)
+@Sql(value = {
+        "/sql/mpa/create-mpa-after.sql"
+}, executionPhase = AFTER_TEST_METHOD)
 class MPARatingServiceTest {
     final List<MPARating> mpaRatings = List.of(
             new MPARating(1L, "G", "Нет возрастных ограничений"),
@@ -28,9 +30,10 @@ class MPARatingServiceTest {
             new MPARating(4L, "R", "Лицам до 17 лет обязательно присутствие взрослого"),
             new MPARating(5L, "NC-17", "Лицам до 18 лет просмотр запрещен")
     );
-    private final DataSource dataSource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-            .addScript("classpath:/schema.sql")
-            .addScript("classpath:/create-mpa-before.sql")
+    private final DataSource dataSource = new EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.H2)
+            .addScript("classpath:/sql/schema-test.sql")
+            .addScript("classpath:/sql/mpa/create-mpa-before.sql")
             .build();
     private final MPARatingService mpaRatingService = new MPARatingService(
             new MPARatingDAO(
