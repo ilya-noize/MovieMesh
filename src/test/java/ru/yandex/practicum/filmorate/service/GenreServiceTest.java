@@ -33,10 +33,10 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 
 @SpringBootTest
 @Sql(value = {
-        "/create-film-genres-after.sql",
-        "/create-films-after.sql",
-        "/create-mpa-after.sql",
-        "/create-genres-after.sql"
+        "/sql/films/genres/create-film-genres-after.sql",
+        "/sql/films/create-films-after.sql",
+        "/sql/mpa/create-mpa-after.sql",
+        "/sql/genres/create-genres-after.sql"
 }, executionPhase = AFTER_TEST_METHOD)
 public class GenreServiceTest {
     final List<Genre> genres = List.of(
@@ -58,11 +58,11 @@ public class GenreServiceTest {
     );
     private final DataSource dataSource = new EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
-            .addScript("classpath:/schema-test.sql")
-            .addScript("classpath:/create-genres-before.sql")
-            .addScript("classpath:/create-mpa-before.sql")
-            .addScript("classpath:/create-films-before.sql")
-            .addScript("classpath:/create-film-genres-before.sql")
+            .addScript("classpath:/sql/schema-test.sql")
+            .addScript("classpath:/sql/genres/create-genres-before.sql")
+            .addScript("classpath:/sql/mpa/create-mpa-before.sql")
+            .addScript("classpath:/sql/films/create-films-before.sql")
+            .addScript("classpath:/sql/films/genres/create-film-genres-before.sql")
             .build();
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     private final GenreService genreService = new GenreService(
