@@ -1,0 +1,110 @@
+package ru.yandex.practicum.filmorate.service;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.test.context.jdbc.Sql;
+import ru.yandex.practicum.filmorate.controller.ErrorController;
+import ru.yandex.practicum.filmorate.dao.FilmGenresDAO;
+import ru.yandex.practicum.filmorate.dao.GenreDAO;
+import ru.yandex.practicum.filmorate.dao.rowMapper.FilmGenresRowMapper;
+import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Genre;
+
+import javax.sql.DataSource;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
+
+/**
+ * Тестирую работу жанров.
+ * Для этого нужно: <br/>
+ * добавить Жанры (get, getAll)<br/>
+ * добавить МПА рейтинги (для создания фильмов) <br/>
+ * добавить фильмы <br/>
+ * добавить жанры к фильмам (getFilmGenres)<br/>
+ */
+
+@SpringBootTest
+@Sql(value = {
+        "/create-film-genres-after.sql",
+        "/create-films-after.sql",
+        "/create-mpa-after.sql",
+        "/create-genres-after.sql"
+}, executionPhase = AFTER_TEST_METHOD)
+public class GenreServiceTest {
+    final List<Genre> genres = List.of(
+            new Genre(1L, "Комедия"),
+            new Genre(2L, "Драма"),
+            new Genre(3L, "Мультфильм"),
+            new Genre(4L, "Триллер"),
+            new Genre(5L, "Документальный"),
+            new Genre(6L, "Боевик")//,
+            //new Genre(7L,  "Фантастика"),
+            //new Genre(8L,  "Вестерн"),
+            //new Genre(9L,  "Детектив"),
+            //new Genre(10L, "Нуар"),
+            //new Genre(11L, "Ужасы"),
+            //new Genre(12L, "Политика"),
+            //new Genre(13L, "Мюзикл"),
+            //new Genre(14L, "Мелодрама"),
+            //new Genre(15L, "Сказка")
+    );
+    private final DataSource dataSource = new EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.H2)
+            .addScript("classpath:/schema-test.sql")
+            .addScript("classpath:/create-genres-before.sql")
+            .addScript("classpath:/create-mpa-before.sql")
+            .addScript("classpath:/create-films-before.sql")
+            .addScript("classpath:/create-film-genres-before.sql")
+            .build();
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    private final GenreService genreService = new GenreService(
+            new GenreDAO(
+                    jdbcTemplate,
+                    new GenreRowMapper(),
+                    new FilmGenresDAO(
+                            jdbcTemplate,
+                            new FilmGenresRowMapper()
+                    )
+            )
+    );
+    private final ErrorController errorController = new ErrorController();
+
+    @Test
+    void get() {
+        assertEquals("Комедия", genreService.get(1L).getName());
+    }
+
+    @Test
+    void getWrongId() {
+        try {
+            genreService.get(9999L);
+        } catch (NotFoundException e) {
+            assertEquals(404, errorController.handleNotFoundException(e).getStatusCode().value());
+        }
+    }
+
+    @Test
+    void getFilmGenres() {
+        final Map<Long, List<Genre>> filmGenres = Map.of(
+                1L, List.of(genres.get(4), genres.get(5)),
+                2L, List.of(genres.get(3), genres.get(5)),
+                3L, List.of(genres.get(4), genres.get(5))
+        );
+        final Set<Long> filmIds = Set.of(1L, 2L, 3L);
+
+        assertEquals(filmGenres, genreService.getFilmGenres(filmIds));
+    }
+
+    @Test
+    void getAll() {
+        assertEquals(genres, genreService.getAll());
+    }
+}
