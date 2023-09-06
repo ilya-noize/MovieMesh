@@ -9,18 +9,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.exception.FriendsException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.ValidException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 @Slf4j
-public final class ErrorController {
+public final class ErrorController extends Throwable {
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, TypeMismatchException.class})
     public ResponseEntity<Map<String, Object>> handleException(TypeMismatchException e) {
@@ -31,11 +32,11 @@ public final class ErrorController {
     @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<Map<String, Object>> handleException(BindException e) {
 
-        List<String> errors = new ArrayList<>();
-        e.getFieldErrors().forEach(err -> errors.add(err.getField() + ": " + err.getDefaultMessage()));
-        e.getGlobalErrors().forEach(err -> errors.add(err.getObjectName() + ": " + err.getDefaultMessage()));
+//        List<String> errors = new ArrayList<>();
+//        e.getFieldErrors().forEach(err -> errors.add(err.getField() + ": " + err.getDefaultMessage()));
+//        e.getGlobalErrors().forEach(err -> errors.add(err.getObjectName() + ": " + err.getDefaultMessage()));
 
-        makeMap(e).put("error", errors); // put - Immutable object is modified
+//        makeMap(e).put("error", errors); // put - Immutable object is modified
         return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
     }
 
@@ -56,6 +57,14 @@ public final class ErrorController {
     }
 
     @ExceptionHandler
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<Map<String, Object>> handleValidException(ValidException e) {
+
+        log.error("[!] Valid Exception \n Exception:{}", (Object[]) e.getStackTrace());
+        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+    }
+
+    @ExceptionHandler
     @ResponseStatus(NOT_FOUND)
     public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException e) {
 
@@ -65,25 +74,9 @@ public final class ErrorController {
 
     @ExceptionHandler
     @ResponseStatus(BAD_REQUEST)
-    public ResponseEntity<Map<String, Object>> handleFailSetFriendException(FailSetFriendException e) {
-
-        log.error("[!] Fail Set Friend \n Exception:{}", (Object[]) e.getStackTrace());
-        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(BAD_REQUEST)
-    public ResponseEntity<Map<String, Object>> handleFailSetFilmLikesException(FailSetFilmLikesException e) {
-
-        log.error("[!] Fail Set Film Likes \n Exception:{}", (Object[]) e.getStackTrace());
-        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(BAD_REQUEST)
     public ResponseEntity<Map<String, Object>> handleFriendsException(FriendsException e) {
 
-        log.error("[!] Fail Set Film Likes \n Exception:{}", (Object[]) e.getStackTrace());
+        log.error("[!] Friends Exception \n Exception:{}", (Object[]) e.getStackTrace());
         return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
     }
 
@@ -91,6 +84,6 @@ public final class ErrorController {
 
         return Map.of("timestamp", LocalDate.now().toString(),
                 "message", e.getLocalizedMessage(),
-                "status", BAD_REQUEST.toString());
+                "status", BAD_REQUEST);
     }
 }
