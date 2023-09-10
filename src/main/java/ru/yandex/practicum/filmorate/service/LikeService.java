@@ -16,19 +16,19 @@ public class LikeService {
     private final FilmDAO filmDAO;
 
     public void add(Long filmId, Long userId) {
-        log.info("[+] like to:{} from:{}", filmId, userId);
+        log.debug("[+] like to:{} from:{}", filmId, userId);
         isExist(filmId, userId);
         likeDAO.add(filmId, userId);
     }
 
     public void delete(Long filmId, Long userId) {
-        log.info("[-] like to:{} from:{}", filmId, userId);
+        log.debug("[-] like to:{} from:{}", filmId, userId);
         isExist(filmId, userId);
         likeDAO.delete(filmId, userId);
     }
 
     private void isExist(Long filmId, Long userId) {
-        log.info("[?]: Like to:{} from:{}", filmId, userId);
+        log.debug("[?]: Like to:{} from:{}", filmId, userId);
         filmDAO.get(filmId);
         userDAO.get(userId);
     }
