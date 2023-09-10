@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.constraint.CorrectReleaseDate;
 
 import javax.validation.constraints.NotBlank;
@@ -14,22 +13,21 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public final class Film {
     public static final String RELEASE_DATE_LIMIT = "1895-12-28";
     @EqualsAndHashCode.Exclude
     @Positive(message = "The movie ID is a positive natural number.")
-    private Long id;
+    private final Long id;
     @NotBlank(message = "The title of the movie cannot be blank.")
-    private String name;
+    private final String name;
     @NotNull
     @Size(max = 200, message = "The description length is no more than 200 characters.")
-    private String description;
+    private final String description;
     @CorrectReleaseDate(value = RELEASE_DATE_LIMIT)
-    private LocalDate releaseDate;
+    private final LocalDate releaseDate;
     @Positive(message = "The duration of the movie is a positive natural number.")
-    private Integer duration;
+    private final Integer duration;
     @NotNull
     private MPARating mpa;
     private List<Genre> genres;
