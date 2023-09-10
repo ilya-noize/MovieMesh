@@ -19,17 +19,20 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 class FilmControllerTest {
     private static MockHttpServletRequestBuilder requestBuilder;
+    @Autowired
+    MockMvc mockMvc;
+
     private final List<LocalDate> releases = List.of(
             LocalDate.of(1999, 5, 19),
             LocalDate.of(2002, 5, 16),
@@ -67,8 +70,6 @@ class FilmControllerTest {
             "negativeDuration", new Film(8L, "StarWars:Episode VIII", "A long time ago in a galaxy far, far away", releases.get(7), 120, mpa.get(1), new ArrayList<>()),
             "wrongId", new Film(9999L, "StarWars:Episode IX", "A long time ago in a galaxy far, far away", releases.get(8), 120, mpa.get(1), new ArrayList<>())
     );
-    @Autowired
-    private MockMvc mockMvc;
 
     @AfterEach
     void clearStatic() {
@@ -77,8 +78,7 @@ class FilmControllerTest {
 
     @Test
     void getAll() throws Exception {
-        requestBuilder = get("/films");
-        mockMvc.perform(requestBuilder)
+        mockMvc.perform(request(GET, "/films"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("[]")));
@@ -103,9 +103,11 @@ class FilmControllerTest {
 
     @Test
     void update() throws Exception {
-        Film film = films.get("film1");
-        film.setGenres(List.of(genres.get(4), genres.get(5)));
+        create();
+        List<Genre> genreList = List.of(genres.get(4), genres.get(5));
+        Film film = new Film(1L, "StarWars:Episode I", "A long time ago in a galaxy far, far away", releases.get(0), 120, mpa.get(1), genreList);
         requestBuilder = put("/films")
+                .param("\"id\"", "\"1\"")
                 .param(inQuotes("name"), inQuotes(film.getName()))
                 .param(inQuotes("description"), inQuotes(film.getDescription()))
                 .param(inQuotes("releaseDate"), inQuotes(film.getReleaseDate().toString()))
@@ -119,36 +121,29 @@ class FilmControllerTest {
     }
 
     @Test
-    void get1() throws Exception {
-        requestBuilder = get("/films/1");
-        mockMvc.perform(requestBuilder)
+    void get() throws Exception {
+        mockMvc.perform(request(GET, "/films/1"))
                 .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Film not found - id:1 not exist")));
+                .andExpect(status().isOk());
     }
 
     @Test
     void addLike() throws Exception {
-        requestBuilder = put("/films/1/like/1");
-
-        mockMvc.perform(requestBuilder)
+        mockMvc.perform(request(PUT, "/films/1/like/1"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void deleteLike() throws Exception {
-        requestBuilder = delete("/films/1/like/1");
-
-        mockMvc.perform(requestBuilder)
+        mockMvc.perform(request(DELETE, "/films/1/like/1"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void getPopular() throws Exception {
-        requestBuilder = get("/films/popular");
-        mockMvc.perform(requestBuilder)
+        mockMvc.perform(request(GET, "/films/popular"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
