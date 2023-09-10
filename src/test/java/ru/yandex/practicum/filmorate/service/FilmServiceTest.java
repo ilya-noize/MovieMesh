@@ -14,11 +14,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.yandex.practicum.filmorate.controller.ErrorController;
 import ru.yandex.practicum.filmorate.dao.FilmDAO;
 import ru.yandex.practicum.filmorate.dao.FilmGenresDAO;
-import ru.yandex.practicum.filmorate.dao.GenreDAO;
 import ru.yandex.practicum.filmorate.dao.MPARatingDAO;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmGenresRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmRowMapper;
-import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.MPARatingRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidException;
@@ -59,8 +57,6 @@ public class FilmServiceTest {
             .addScript("classpath:/sql/films/likes/create-films-like-before.sql")
             .build();
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-    private final GenreDAO genreDAO = new GenreDAO(
-            jdbcTemplate, new GenreRowMapper());
     private final FilmGenresDAO filmGenresDAO = new FilmGenresDAO(
             jdbcTemplate, new FilmGenresRowMapper());
     private final MPARatingDAO mpaRatingDAO = new MPARatingDAO(
@@ -68,7 +64,7 @@ public class FilmServiceTest {
     private final FilmDAO filmDAO = new FilmDAO(
             jdbcTemplate, new FilmRowMapper());
     private final FilmService filmService = new FilmService(
-            filmDAO, filmGenresDAO, genreDAO, mpaRatingDAO);
+            filmDAO, filmGenresDAO, mpaRatingDAO);
     private final Film film = new Film(
             Long.MAX_VALUE,
             "StarWars:Episode X",
