@@ -15,12 +15,12 @@ public class MPARatingService {
     private final MPARatingDAO mpaRatingDAO;
 
     public MPARating get(Long id) {
-        log.info("[>][S] MPARating id:{}", id);
+        log.debug("[>][S] MPARating id:{}", id);
         return mpaRatingDAO.get(id);
     }
 
     public List<MPARating> getAll() {
-        log.info("[>][S] All MPARating");
+        log.debug("[>][S] All MPARating");
         return mpaRatingDAO.getAll();
     }
 }
