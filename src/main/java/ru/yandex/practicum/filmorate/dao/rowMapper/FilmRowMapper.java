@@ -24,6 +24,6 @@ public class FilmRowMapper implements RowMapper<Film> {
         MPARating mpa = new MPARating(rs.getLong("mpa_rating_id"), null, null);
         List<Genre> genres = null;
 
-        return new Film(filmId, name, releaseDate, description, duration, mpa, genres);
+        return new Film(filmId, name, description, releaseDate, duration, mpa, genres);
     }
 }
