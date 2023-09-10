@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.dao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -13,10 +13,11 @@ import java.util.List;
 @Component
 @Primary
 @RequiredArgsConstructor
-public final class GenreDAO {
+public final class GenreDAO implements Showable<Genre> {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreRowMapper genreRowMapper;
+    private final RowMapper<Genre> genreRowMapper;
 
+    @Override
     public Genre get(Long id) {
         String error = String.format("Genre not found - id:%d not exist", id);
         String sql = "SELECT * FROM GENRES WHERE ID = ?";
@@ -26,6 +27,7 @@ public final class GenreDAO {
                 .orElseThrow(new NotFoundException(error));
     }
 
+    @Override
     public List<Genre> getAll() {
         String sql = "SELECT * FROM GENRES ORDER BY ID";
         return jdbcTemplate.query(sql, genreRowMapper);
