@@ -1,1 +1,1 @@
-DELETE FROM FILMS_LIKE;
+delete from FILMS_LIKE;
