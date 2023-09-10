@@ -4,7 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class UserControllerTest {
+class MPARatingControllerTest {
 
     @BeforeEach
     void setUp() {
@@ -15,34 +15,10 @@ class UserControllerTest {
     }
 
     @Test
-    void create() {
-    }
-
-    @Test
-    void update() {
+    void getAll() {
     }
 
     @Test
     void get() {
-    }
-
-    @Test
-    void createFriend() {
-    }
-
-    @Test
-    void deleteFriend() {
-    }
-
-    @Test
-    void getFriends() {
-    }
-
-    @Test
-    void getCommonFriends() {
-    }
-
-    @Test
-    void getAll() {
     }
 }
