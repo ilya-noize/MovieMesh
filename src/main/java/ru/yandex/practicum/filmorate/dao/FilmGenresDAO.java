@@ -9,9 +9,7 @@ import ru.yandex.practicum.filmorate.dao.rowMapper.FilmGenresRowMapper;
 import ru.yandex.practicum.filmorate.model.FilmGenres;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -29,10 +27,22 @@ public final class FilmGenresDAO {
         }
     }
 
-    public void delete(Long id) {
-        log.info("[i] deleteGenreFilm\n id:{}", id);
-        String sql = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
-        jdbcTemplate.update(sql, id);
+    public void update(Long filmId, List<Genre> genres) {
+        delete(filmId);
+        add(filmId, genres);
+    }
+
+
+    public Map<Long, List<Genre>> getFilmGenres(Set<Long> filmIds) {
+        Map<Long, List<Genre>> filmsGenres = new HashMap<>();
+        filmIds.forEach(id -> filmsGenres.put(id, new ArrayList<>()));
+
+        for (FilmGenres filmGenres : getAllFilmGenres(filmIds)) {
+            Long forFilmId = filmGenres.getFilmId();
+            filmsGenres.get(forFilmId).add(filmGenres.getGenre());
+        }
+
+        return filmsGenres;
     }
 
     public List<FilmGenres> getAllFilmGenres(Set<Long> filmIds) {
@@ -44,5 +54,11 @@ public final class FilmGenresDAO {
                 + " WHERE F.ID IN (%s) ORDER BY G.ID, G.NAME;", inSql);
 
         return jdbcTemplate.query(sql, filmGenresRowMapper, filmIds.toArray());
+    }
+
+    private void delete(Long filmId) {
+        log.info("[i] deleteGenreFilm\n filmId:{}", filmId);
+        String sql = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);
     }
 }
