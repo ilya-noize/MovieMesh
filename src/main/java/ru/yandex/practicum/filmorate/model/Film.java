@@ -33,20 +33,4 @@ public final class Film {
     @NotNull
     private MPARating mpa;
     private List<Genre> genres;
-
-    public Film(
-            String name,
-            String description,
-            LocalDate releaseDate,
-            int duration,
-            MPARating mpa,
-            List<Genre> genres
-    ) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpa = mpa;
-        this.genres = genres;
-    }
 }

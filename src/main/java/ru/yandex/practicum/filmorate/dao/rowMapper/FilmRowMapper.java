@@ -3,13 +3,11 @@ package ru.yandex.practicum.filmorate.dao.rowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.List;
 
 @Component
 public class FilmRowMapper implements RowMapper<Film> {
@@ -22,8 +20,7 @@ public class FilmRowMapper implements RowMapper<Film> {
         String description = rs.getString("Description");
         Integer duration = rs.getInt("Duration");
         MPARating mpa = new MPARating(rs.getLong("mpa_rating_id"), null, null);
-        List<Genre> genres = null;
 
-        return new Film(filmId, name, description, releaseDate, duration, mpa, genres);
+        return new Film(filmId, name, description, releaseDate, duration, mpa, null);
     }
 }

@@ -32,11 +32,6 @@ public final class ErrorController extends Throwable {
     @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<Map<String, Object>> handleException(BindException e) {
 
-//        List<String> errors = new ArrayList<>();
-//        e.getFieldErrors().forEach(err -> errors.add(err.getField() + ": " + err.getDefaultMessage()));
-//        e.getGlobalErrors().forEach(err -> errors.add(err.getObjectName() + ": " + err.getDefaultMessage()));
-
-//        makeMap(e).put("error", errors); // put - Immutable object is modified
         return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
     }
 
