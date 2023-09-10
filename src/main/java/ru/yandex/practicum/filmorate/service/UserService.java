@@ -42,19 +42,21 @@ public class UserService {
         return userDAO.get(id);
     }
 
-    public void createFriend(Long id, Long friendId) {
-        isExist(id, friendId);
-        if (id.equals(friendId)) {
+    public void createFriend(long id, long friendId) {
+        log.debug("[i][S] User\t createFriend(long {}, long {})", id, friendId);
+        if (id == friendId) {
+            log.error("[!][S] User\t friendship yourself");
             throw new FriendsException();
         }
+        isExist(id, friendId);
         userDAO.createFriend(id, friendId);
     }
 
     public void deleteFriend(Long id, Long friendId) {
-        isExist(id, friendId);
         if (id.equals(friendId)) {
             throw new FriendsException();
         }
+        isExist(id, friendId);
         userDAO.deleteFriend(id, friendId);
     }
 
@@ -67,7 +69,7 @@ public class UserService {
     public List<User> getFriends(Long id) {
         isExist(id);
 
-        log.info("Returning the user's friends list {}", id);
+        log.debug("Returning the user's friends list {}", id);
         return userDAO.getFriends(id);
     }
 
@@ -84,7 +86,7 @@ public class UserService {
             throw new FriendsException();
         }
 
-        log.info("Returning a list of friends between users {}<->{}", id, otherId);
+        log.debug("Returning a list of friends between users {}<->{}", id, otherId);
         return userDAO.getCommonFriends(id, otherId);
     }
 
@@ -105,9 +107,13 @@ public class UserService {
      * @return пользователь
      */
     private User valid(User user) {
-        user.setLogin(loginUnical(user));
-        user.setName(checkName(user));
-        return user;
+        return new User(
+                user.getId(),
+                user.getEmail(),
+                loginUnical(user),
+                checkName(user),
+                user.getBirthday()
+        );
     }
 
     /**
@@ -116,7 +122,7 @@ public class UserService {
      * @param user пользователь
      */
     private String loginUnical(User user) {
-        log.info("[?] unical login.");
+        log.debug("[?] unical login.");
         String login = user.getLogin();
 
         final Predicate<User> TWIN_LOGIN = user1 -> user1.getLogin().equals(login);
@@ -127,7 +133,7 @@ public class UserService {
             log.error(error);
             throw new UserAlreadyExistException(error);
         }
-        log.info("Login correct.");
+        log.debug("Login correct.");
         return login;
     }
 
@@ -138,13 +144,13 @@ public class UserService {
      * @return имя пользователя
      */
     private String checkName(User user) {
-        log.info("[?] Username.");
+        log.debug("[?] Username.");
         String name = user.getName();
         if (name == null || name.isBlank()) {
-            log.info("Username is login.");
+            log.debug("Username is login.");
             return user.getLogin();
         } else {
-            log.info("Username correct.");
+            log.debug("Username correct.");
             return name;
         }
     }

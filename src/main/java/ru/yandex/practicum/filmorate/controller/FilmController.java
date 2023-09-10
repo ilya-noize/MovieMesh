@@ -20,43 +20,43 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
-        log.info("[+] Film\n Film:{}", film);
+        log.debug("[+] Film\n Film:{}", film);
         return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@RequestBody @Valid Film film) {
-        log.info("[u] Film\n Film:{}", film);
+        log.debug("[u] Film\n Film:{}", film);
         return filmService.update(film);
     }
 
     @GetMapping("/{id}")
     public Film get(@PathVariable Long id) {
-        log.info("[>] Film id:{}", id);
+        log.debug("[>] Film id:{}", id);
         return filmService.get(id);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
     public void addLike(@PathVariable Long filmId, @PathVariable Long userId) {
-        log.info("[+] Like\n Like [Film filmId:{} from User filmId:{}]", filmId, userId);
+        log.debug("[+] Like\n Like [Film filmId:{} from User filmId:{}]", filmId, userId);
         likeService.add(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void deleteLike(@PathVariable Long filmId, @PathVariable Long userId) {
-        log.info("[-] Like\n Like [Film filmId:{} from User filmId:{}]", filmId, userId);
+        log.debug("[-] Like\n Like [Film filmId:{} from User filmId:{}]", filmId, userId);
         likeService.delete(filmId, userId);
     }
 
     @GetMapping
     public List<Film> getAll() {
-        log.info("[>] All Films");
+        log.debug("[>] All Films");
         return filmService.getAll();
     }
 
     @GetMapping({"/popular?count={count}", "/popular"})
     public List<Film> getPopular(@RequestParam(defaultValue = "10") Long count) {
-        log.info("[>] PopularFilms TOP-{}", count);
+        log.debug("[>] PopularFilms TOP-{}", count);
         return filmService.getPopular(count);
     }
 }
