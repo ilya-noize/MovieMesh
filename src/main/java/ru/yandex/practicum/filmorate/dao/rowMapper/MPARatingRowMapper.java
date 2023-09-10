@@ -11,11 +11,10 @@ import java.sql.SQLException;
 public class MPARatingRowMapper implements RowMapper<MPARating> {
     @Override
     public MPARating mapRow(ResultSet rs, int rowNum) throws SQLException {
-        MPARating mpaRating = new MPARating();
-        mpaRating.setId(rs.getLong("id"));
-        mpaRating.setName(rs.getString("name"));
-        mpaRating.setDescription(rs.getString("description"));
-
-        return mpaRating;
+        return new MPARating(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getString("description")
+        );
     }
 }
