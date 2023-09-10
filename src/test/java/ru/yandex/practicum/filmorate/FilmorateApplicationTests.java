@@ -52,27 +52,26 @@ class FilmorateApplicationTests {
                 new MPARating(5L, "NC-17", "Лицам до 18 лет просмотр запрещен")
         );
         final Map<String, Film> films = Map.of(
-                "film1", new Film(1L, "StarWars:Episode I", releases.get(0), "A long time ago in a galaxy far, far away", 120, mpaRatings.get(1), new ArrayList<>()),
-                "film2", new Film(2L, "StarWars:Episode II", releases.get(1), "A long time ago in a galaxy far, far away", 120, mpaRatings.get(1), new ArrayList<>()),
-                "emptyName", new Film(3L, "", releases.get(2), "A long time ago in a galaxy far, far away", 120, mpaRatings.get(1), new ArrayList<>()),
-                "nullName", new Film(4L, null, releases.get(3), "A long time ago in a galaxy far, far away", 120, mpaRatings.get(1), new ArrayList<>()),
-                "moreLimitDescription", new Film(5L, "StarWars:Episode V", releases.get(4), ("A long time ago in a galaxy far, far away").repeat(5), 120, mpaRatings.get(1), new ArrayList<>()),
-                "wrongReleaseOverLimit", new Film(6L, "StarWars:Episode VI", releases.get(5), "A long time ago in a galaxy far, far away", 120, mpaRatings.get(1), new ArrayList<>()),
-                "wrongReleaseInFuture", new Film(7L, "StarWars:Episode VII", releases.get(6), "A long time ago in a galaxy far, far away", 120, mpaRatings.get(1), new ArrayList<>()),
-                "negativeDuration", new Film(8L, "StarWars:Episode VIII", releases.get(7), "A long time ago in a galaxy far, far away", -120, mpaRatings.get(1), new ArrayList<>()),
-                "wrongId", new Film(9999L, "StarWars:Episode IX", releases.get(8), "A long time ago in a galaxy far, far away", 120, mpaRatings.get(1), new ArrayList<>())
+                "film1", new Film(1L, "StarWars:Episode I", "A long time ago in a galaxy far, far away", releases.get(0), 120, mpaRatings.get(1), new ArrayList<>()),
+                "film2", new Film(2L, "StarWars:Episode II", "A long time ago in a galaxy far, far away", releases.get(1), 120, mpaRatings.get(1), new ArrayList<>()),
+                "emptyName", new Film(3L, "", "A long time ago in a galaxy far, far away", releases.get(2), 120, mpaRatings.get(1), new ArrayList<>()),
+                "nullName", new Film(4L, null, "A long time ago in a galaxy far, far away", releases.get(3), 120, mpaRatings.get(1), new ArrayList<>()),
+                "moreLimitDescription", new Film(5L, "StarWars:Episode V", ("A long time ago in a galaxy far, far away").repeat(5), releases.get(4), 120, mpaRatings.get(1), new ArrayList<>()),
+                "wrongReleaseOverLimit", new Film(6L, "StarWars:Episode VI", "A long time ago in a galaxy far, far away", releases.get(5), 120, mpaRatings.get(1), new ArrayList<>()),
+                "wrongReleaseInFuture", new Film(7L, "StarWars:Episode VII", "A long time ago in a galaxy far, far away", releases.get(6), 120, mpaRatings.get(1), new ArrayList<>()),
+                "negativeDuration", new Film(8L, "StarWars:Episode VIII", "A long time ago in a galaxy far, far away", releases.get(7), 120, mpaRatings.get(1), new ArrayList<>()),
+                "wrongId", new Film(9999L, "StarWars:Episode IX", "A long time ago in a galaxy far, far away", releases.get(8), 120, mpaRatings.get(1), new ArrayList<>())
         );
         System.out.println("INSERT INTO USERS (ID, NAME, DESCRIPTION, DURATION, RELEASEDATE, MPA_RATING_ID) VALUES");
 
-        films.forEach((key, film) -> System.out.println("-- Test Film:" + key + "\n"
-                                + String.format("(%d, \"%s\", \"%s\", %d, to_date(\"%s\", \"YYYY.MM.DD\"), %d),",
-                                film.getId(),
-                                film.getName(),
-                                film.getDescription(),
-                                film.getDuration(),
-                                film.getReleaseDate(),
-                                film.getMpa().getId()
-                        )
+        films.forEach((key, film) ->
+                System.out.printf("(%d, \"%s\", \"%s\", %d, \"%s\", %d),",
+                        film.getId(),
+                        film.getName(),
+                        film.getDescription(),
+                        film.getDuration(),
+                        film.getReleaseDate(),
+                        film.getMpa().getId()
                 )
         );
         System.out.println("-".repeat(80));
