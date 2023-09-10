@@ -23,11 +23,11 @@ public final class Film {
     private Long id;
     @NotBlank(message = "The title of the movie cannot be blank.")
     private String name;
-    @CorrectReleaseDate(value = RELEASE_DATE_LIMIT)
-    private LocalDate releaseDate;
     @NotNull
     @Size(max = 200, message = "The description length is no more than 200 characters.")
     private String description;
+    @CorrectReleaseDate(value = RELEASE_DATE_LIMIT)
+    private LocalDate releaseDate;
     @Positive(message = "The duration of the movie is a positive natural number.")
     private Integer duration;
     @NotNull
