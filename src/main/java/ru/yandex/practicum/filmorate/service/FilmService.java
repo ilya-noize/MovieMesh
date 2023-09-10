@@ -5,10 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDAO;
 import ru.yandex.practicum.filmorate.dao.FilmGenresDAO;
-import ru.yandex.practicum.filmorate.dao.MPARatingDAO;
+import ru.yandex.practicum.filmorate.dao.Showable;
 import ru.yandex.practicum.filmorate.exception.ValidException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,11 +27,11 @@ public class FilmService {
     private static Long filmId;
     private final FilmDAO filmDAO;
     private final FilmGenresDAO filmGenresDAO;
-    private final MPARatingDAO mpaRatingDAO;
+    private final Showable<MPARating> mpaRatingDAO;
 
     public Film create(Film film) {
-        log.info("[+][S] Film: \n film:{}", film);
-        filmDAO.create(valid(film));
+        log.debug("[+][S] Film: \n film:{}", film);
+        film = filmDAO.create(valid(film));
         filmId = film.getId();
         List<Genre> genres = film.getGenres();
         if (genres != null) {
@@ -43,10 +44,10 @@ public class FilmService {
         isExist(film.getId());
         filmId = valid(film).getId();
         List<Genre> genres = film.getGenres();
-        log.info("[u][S] Film: \n film:{}\n genres:{}", film, genres);
+        log.debug("[u][S] Film: \n film:{}\n genres:{}", film, genres);
         filmDAO.update(film);
         if (genres != null) {
-            log.info("[i] service: update genres:{}", genres);
+            log.debug("[i] service: update genres:{}", genres);
             filmGenresDAO.update(filmId, genres);
         }
         return get(filmId);
@@ -69,7 +70,7 @@ public class FilmService {
 
     public List<Film> getAll() {
         List<Film> films = filmDAO.getAll();
-        log.info("[>][S] All Films (size = {})", films.size());
+        log.debug("[>][S] All Films (size = {})", films.size());
 
         if (films.isEmpty()) {
             return new ArrayList<>();
@@ -84,7 +85,7 @@ public class FilmService {
      * @return список
      */
     public List<Film> getPopular(Long count) {
-        log.info("Returning the TOP-{} popular movies from users", count);
+        log.debug("Returning the TOP-{} popular movies from users", count);
         List<Film> films = filmDAO.getPopular(count);
         if (films.isEmpty()) {
             return new ArrayList<>();
@@ -93,13 +94,15 @@ public class FilmService {
     }
 
     private List<Film> getAllDataFilm(List<Film> films) {
-        Set<Long> filmIds = films.stream().map(Film::getId).collect(toSet());
-        Map<Long, List<Genre>> filmGenres = filmGenresDAO.getFilmGenres(filmIds);
+        Set<Long> filmIds = films.stream()
+                .map(Film::getId)
+                .collect(toSet());
+        Map<Long, List<Genre>> genres = filmGenresDAO.getFilmGenres(filmIds);
         films.forEach(film -> {
-            if (filmGenres.isEmpty()) {
+            if (genres.isEmpty()) {
                 film.setGenres(new ArrayList<>());
             } else {
-                film.setGenres(filmGenres.get(film.getId()));
+                film.setGenres(genres.get(film.getId()));
             }
             film.setMpa(mpaRatingDAO.get(film.getMpa().getId()));
         });
