@@ -12,9 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.yandex.practicum.filmorate.controller.ErrorController;
-import ru.yandex.practicum.filmorate.dao.FilmDAO;
-import ru.yandex.practicum.filmorate.dao.FilmGenresDAO;
-import ru.yandex.practicum.filmorate.dao.MPARatingDAO;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmGenresRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.MPARatingRowMapper;
@@ -57,11 +55,11 @@ public class FilmServiceTest {
             .addScript("classpath:/sql/films/likes/create-films-like-before.sql")
             .build();
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-    private final FilmGenresDAO filmGenresDAO = new FilmGenresDAO(
+    private final FilmGenresDAO filmGenresDAO = new FilmGenresDAOImpl(
             jdbcTemplate, new FilmGenresRowMapper());
-    private final MPARatingDAO mpaRatingDAO = new MPARatingDAO(
+    private final Showable<MPARating> mpaRatingDAO = new MPARatingDAO(
             jdbcTemplate, new MPARatingRowMapper());
-    private final FilmDAO filmDAO = new FilmDAO(
+    private final FilmDAO filmDAO = new FilmDAOImpl(
             jdbcTemplate, new FilmRowMapper());
     private final FilmService filmService = new FilmService(
             filmDAO, filmGenresDAO, mpaRatingDAO);
@@ -89,7 +87,18 @@ public class FilmServiceTest {
 
     @Test
     public void createEmptyName() {
-        film.setName("");
+        final Film film = new Film(
+                Long.MAX_VALUE,
+                "",
+                "A long time ago in a galaxy far, far away",
+                LocalDate.now(),
+                120,
+                new MPARating(2L, null, null),
+                new ArrayList<>(List.of(
+                        new Genre(6L, null),
+                        new Genre(5L, null))
+                )
+        );
         try {
             filmService.create(film);
         } catch (ValidException e) {
@@ -99,7 +108,18 @@ public class FilmServiceTest {
 
     @Test
     public void createNullName() {
-        film.setName(null);
+        final Film film = new Film(
+                Long.MAX_VALUE,
+                null,
+                "A long time ago in a galaxy far, far away",
+                LocalDate.now(),
+                120,
+                new MPARating(2L, null, null),
+                new ArrayList<>(List.of(
+                        new Genre(6L, null),
+                        new Genre(5L, null))
+                )
+        );
         try {
             filmService.create(film);
         } catch (ValidException e) {
@@ -119,11 +139,22 @@ public class FilmServiceTest {
 
     @Test
     public void updateFailRename() {
-        film.setName("");
+        final Film film = new Film(
+                1L,
+                null,
+                "A long time ago in a galaxy far, far away",
+                LocalDate.now(),
+                120,
+                new MPARating(2L, null, null),
+                new ArrayList<>(List.of(
+                        new Genre(6L, null),
+                        new Genre(5L, null))
+                )
+        );
         try {
             filmService.update(film);
-        } catch (NotFoundException e) {
-            assertEquals(404, errorController.handleNotFoundException(e).getStatusCode().value());
+        } catch (ValidException e) {
+            assertEquals(400, errorController.handleValidException(e).getStatusCode().value());
         }
     }
 
