@@ -7,17 +7,13 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.controller.ErrorController;
-import ru.yandex.practicum.filmorate.dao.FilmGenresDAO;
 import ru.yandex.practicum.filmorate.dao.GenreDAO;
-import ru.yandex.practicum.filmorate.dao.rowMapper.FilmGenresRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -68,11 +64,7 @@ public class GenreServiceTest {
     private final GenreService genreService = new GenreService(
             new GenreDAO(
                     jdbcTemplate,
-                    new GenreRowMapper(),
-                    new FilmGenresDAO(
-                            jdbcTemplate,
-                            new FilmGenresRowMapper()
-                    )
+                    new GenreRowMapper()
             )
     );
     private final ErrorController errorController = new ErrorController();
@@ -89,18 +81,6 @@ public class GenreServiceTest {
         } catch (NotFoundException e) {
             assertEquals(404, errorController.handleNotFoundException(e).getStatusCode().value());
         }
-    }
-
-    @Test
-    void getFilmGenres() {
-        final Map<Long, List<Genre>> filmGenres = Map.of(
-                1L, List.of(genres.get(4), genres.get(5)),
-                2L, List.of(genres.get(3), genres.get(5)),
-                3L, List.of(genres.get(4), genres.get(5))
-        );
-        final Set<Long> filmIds = Set.of(1L, 2L, 3L);
-
-        assertEquals(filmGenres, genreService.getFilmGenres(filmIds));
     }
 
     @Test
