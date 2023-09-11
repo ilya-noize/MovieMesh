@@ -30,9 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class FilmControllerTest {
     private static MockHttpServletRequestBuilder requestBuilder;
-    @Autowired
-    MockMvc mockMvc;
-
     private final List<LocalDate> releases = List.of(
             LocalDate.of(1999, 5, 19),
             LocalDate.of(2002, 5, 16),
@@ -70,6 +67,8 @@ class FilmControllerTest {
             "negativeDuration", new Film(8L, "StarWars:Episode VIII", "A long time ago in a galaxy far, far away", releases.get(7), 120, mpa.get(1), new ArrayList<>()),
             "wrongId", new Film(9999L, "StarWars:Episode IX", "A long time ago in a galaxy far, far away", releases.get(8), 120, mpa.get(1), new ArrayList<>())
     );
+    @Autowired
+    MockMvc mockMvc;
 
     @AfterEach
     void clearStatic() {
@@ -89,12 +88,12 @@ class FilmControllerTest {
         Film film = films.get("film1");
 
         requestBuilder = post("/films")
-                .param(inQuotes("name"), inQuotes(film.getName()))
-                .param(inQuotes("description"), inQuotes(film.getDescription()))
-                .param(inQuotes("releaseDate"), inQuotes(film.getReleaseDate().toString()))
-                .param(inQuotes("duration"), inQuotes(film.getDuration().toString()))
-                .param(inQuotes("mpa"), inQuotes(film.getMpa().toString()))
-                .param(inQuotes("genres"), inQuotes(film.getGenres().toString()));
+                .param("\"name\"", "\"" + film.getName() + "\"")
+                .param("\"description\"", "\"" + film.getDescription() + "\"")
+                .param("\"releaseDate\"", "\"" + film.getReleaseDate().toString() + "\"")
+                .param("\"duration\"", "\"" + film.getDuration().toString() + "\"")
+                .param("\"mpa\"", "\"" + film.getMpa().toString() + "\"")
+                .param("\"genres\"", "\"" + film.getGenres().toString() + "\"");
 
         mockMvc.perform(requestBuilder)
                 .andDo(print())
@@ -108,12 +107,12 @@ class FilmControllerTest {
         Film film = new Film(1L, "StarWars:Episode I", "A long time ago in a galaxy far, far away", releases.get(0), 120, mpa.get(1), genreList);
         requestBuilder = put("/films")
                 .param("\"id\"", "\"1\"")
-                .param(inQuotes("name"), inQuotes(film.getName()))
-                .param(inQuotes("description"), inQuotes(film.getDescription()))
-                .param(inQuotes("releaseDate"), inQuotes(film.getReleaseDate().toString()))
-                .param(inQuotes("duration"), inQuotes(film.getDuration().toString()))
-                .param(inQuotes("mpa"), inQuotes(film.getMpa().toString()))
-                .param(inQuotes("genres"), inQuotes(film.getGenres().toString()));
+                .param("\"name\"", "\"" + film.getName() + "\"")
+                .param("\"description\"", "\"" + film.getDescription() + "\"")
+                .param("\"releaseDate\"", "\"" + film.getReleaseDate().toString() + "\"")
+                .param("\"duration\"", "\"" + film.getDuration().toString() + "\"")
+                .param("\"mpa\"", "\"" + film.getMpa().toString() + "\"")
+                .param("\"genres\"", "\"" + film.getGenres().toString() + "\"");
 
         mockMvc.perform(requestBuilder)
                 .andDo(print())
@@ -124,7 +123,8 @@ class FilmControllerTest {
     void get() throws Exception {
         mockMvc.perform(request(GET, "/films/1"))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString("Film not found - id:1 not exist")));
     }
 
     @Test
@@ -147,9 +147,5 @@ class FilmControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-    }
-
-    private String inQuotes(String s) {
-        return String.format("\"%s\"", s);
     }
 }
