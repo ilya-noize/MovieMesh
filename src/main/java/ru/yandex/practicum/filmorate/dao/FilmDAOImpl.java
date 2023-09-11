@@ -52,9 +52,9 @@ public final class FilmDAOImpl implements FilmDAO {
 
     @Override
     public Film update(Film film) {
-        String sql = "UPDATE FILMS SET"
-                + " NAME = ?, DESCRIPTION = ?, DURATION = ?, RELEASEDATE = ?, MPA_RATING_ID=?"
-                + " WHERE ID = ?;";
+        String sql = "UPDATE films SET"
+                + " name = ?, description = ?, duration = ?, releasedate = ?, mpa_rating_id=?"
+                + " WHERE id = ?;";
         jdbcTemplate.update(
                 sql,
                 film.getName(),
@@ -70,7 +70,17 @@ public final class FilmDAOImpl implements FilmDAO {
     @Override
     public Film get(Long id) {
         String error = String.format("Film not found - id:%d not exist", id);
-        String sql = "SELECT F.* FROM films F WHERE F.id = ? ORDER BY F.id";
+        String sql = "SELECT F.id FILM_ID,"
+                + " F.name FILM_NAME,"
+                + " F.description FILM_DESCRIPTION,"
+                + " F.duration FILM_DURATION,"
+                + " F.releasedate FILM_RELEASE,"
+                + " MPA.id MPA_ID,"
+                + " MPA.name MPA_NAME,"
+                + " MPA.description MPA_DESCRIPTION "
+                + "FROM mpa_rating MPA "
+                + "RIGHT JOIN films F ON F.mpa_rating_id = MPA.id "
+                + "WHERE F.id = ?";
         return jdbcTemplate.query(sql, filmRowMapper, id)
                 .stream().findFirst()
                 .orElseThrow(new NotFoundException(error));
@@ -78,8 +88,17 @@ public final class FilmDAOImpl implements FilmDAO {
 
     @Override
     public List<Film> getAll() {
-        String sql = "SELECT F.* FROM films F"
-                + " ORDER BY F.ID;";
+        String sql = "SELECT F.id FILM_ID,"
+                + " F.name FILM_NAME,"
+                + " F.description FILM_DESCRIPTION,"
+                + " F.duration FILM_DURATION,"
+                + " F.releasedate FILM_RELEASE,"
+                + " MPA.id MPA_ID,"
+                + " MPA.name MPA_NAME,"
+                + " MPA.description MPA_DESCRIPTION "
+                + "FROM mpa_rating MPA "
+                + "RIGHT JOIN films F ON F.mpa_rating_id = MPA.id "
+                + "ORDER BY F.id, MPA.id;";
         return jdbcTemplate.query(sql, filmRowMapper);
     }
 
