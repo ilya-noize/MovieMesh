@@ -5,20 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDAO;
 import ru.yandex.practicum.filmorate.dao.FilmGenresDAO;
-import ru.yandex.practicum.filmorate.dao.Showable;
-import ru.yandex.practicum.filmorate.exception.ValidException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPARating;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
-import static ru.yandex.practicum.filmorate.model.Film.RELEASE_DATE_LIMIT;
 
 @Slf4j
 @Service
@@ -27,7 +22,6 @@ public class FilmService {
     private static Long filmId;
     private final FilmDAO filmDAO;
     private final FilmGenresDAO filmGenresDAO;
-    private final Showable<MPARating> mpaRatingDAO;
 
     public Film create(Film film) {
         log.debug("[+][S] Film: \n film:{}", film);
@@ -57,7 +51,6 @@ public class FilmService {
         filmId = id;
         Film film = filmDAO.get(filmId);
         log.info("[>][S] Film\nFilm = {}", film);
-        film.setMpa(mpaRatingDAO.get(film.getMpa().getId()));
 
         Map<Long, List<Genre>> genres = filmGenresDAO.getFilmGenres(Set.of(filmId));
         if (genres.isEmpty()) {
@@ -104,7 +97,6 @@ public class FilmService {
             } else {
                 film.setGenres(genres.get(film.getId()));
             }
-            film.setMpa(mpaRatingDAO.get(film.getMpa().getId()));
         });
         return films;
     }
@@ -116,34 +108,34 @@ public class FilmService {
     }
 
     private Film valid(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidException("The name" +
-                    " should not be blank");
-        }
-        if (film.getDescription().isBlank() || film.getDescription().length() > 200) {
-            throw new ValidException("The description" +
-                    " should valid");
-        }
-        if (film.getDuration() == null || film.getDuration() <= 0) {
-            throw new ValidException("The duration" +
-                    " should not be null and positive number");
-        }
-        if (film.getReleaseDate() == null) {
-            throw new ValidException("The release date" +
-                    " should not be blank");
-        }
-        if (film.getReleaseDate().isAfter(LocalDate.now())) {
-            throw new ValidException("The release date" +
-                    " should not be in the future");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.parse(RELEASE_DATE_LIMIT))) {
-            throw new ValidException("The release date" +
-                    " should not be before " + RELEASE_DATE_LIMIT);
-        }
-        if (film.getMpa() == null) {
-            throw new ValidException("The MPA Rating" +
-                    " should not be null");
-        }
+//        if (film.getName() == null || film.getName().isBlank()) {
+//            throw new ValidException("The name" +
+//                    " should not be blank");
+//        }
+//        if (film.getDescription().isBlank() || film.getDescription().length() > 200) {
+//            throw new ValidException("The description" +
+//                    " should valid");
+//        }
+//        if (film.getDuration() == null || film.getDuration() <= 0) {
+//            throw new ValidException("The duration" +
+//                    " should not be null and positive number");
+//        }
+//        if (film.getReleaseDate() == null) {
+//            throw new ValidException("The release date" +
+//                    " should not be blank");
+//        }
+//        if (film.getReleaseDate().isAfter(LocalDate.now())) {
+//            throw new ValidException("The release date" +
+//                    " should not be in the future");
+//        }
+//        if (film.getReleaseDate().isBefore(LocalDate.parse(RELEASE_DATE_LIMIT))) {
+//            throw new ValidException("The release date" +
+//                    " should not be before " + RELEASE_DATE_LIMIT);
+//        }
+//        if (film.getMpa() == null) {
+//            throw new ValidException("The MPA Rating" +
+//                    " should not be null");
+//        }
         return film;
     }
 }
