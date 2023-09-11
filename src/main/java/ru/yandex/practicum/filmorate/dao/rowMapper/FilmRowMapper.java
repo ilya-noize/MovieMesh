@@ -14,13 +14,17 @@ public class FilmRowMapper implements RowMapper<Film> {
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Long filmId = rs.getLong("id");
-        String name = rs.getString("Name");
-        LocalDate releaseDate = rs.getDate("ReleaseDate").toLocalDate();
-        String description = rs.getString("Description");
-        Integer duration = rs.getInt("Duration");
-        MPARating mpa = new MPARating(rs.getLong("mpa_rating_id"), null, null);
+        Long filmId = rs.getLong("FILM_ID");
+        String name = rs.getString("FILM_NAME");
+        LocalDate release = rs.getDate("FILM_RELEASE").toLocalDate();
+        String description = rs.getString("FILM_DESCRIPTION");
+        Integer duration = rs.getInt("FILM_DURATION");
+        MPARating mpa = new MPARating(
+                rs.getLong("MPA_ID"),
+                rs.getString("MPA_NAME"),
+                rs.getString("MPA_DESCRIPTION")
+        );
 
-        return new Film(filmId, name, description, releaseDate, duration, mpa, null);
+        return new Film(filmId, name, description, release, duration, mpa, null);
     }
 }
