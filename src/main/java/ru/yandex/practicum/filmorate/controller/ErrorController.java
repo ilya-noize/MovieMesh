@@ -26,12 +26,14 @@ public final class ErrorController extends Throwable {
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, TypeMismatchException.class})
     public ResponseEntity<Map<String, Object>> handleException(TypeMismatchException e) {
 
+        log.error("[!] Type Mismatch \n Exception:{}", e.getMessage());
         return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
     }
 
     @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<Map<String, Object>> handleException(BindException e) {
 
+        log.error("[!] Bind Exception \n Exception:{}", e.getMessage());
         return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
     }
 
