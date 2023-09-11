@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -11,9 +9,7 @@ import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.util.List;
 
-@Slf4j
 @Component
-@Primary
 @RequiredArgsConstructor
 public final class MPARatingDAO implements Showable<MPARating> {
     private final JdbcTemplate jdbcTemplate;

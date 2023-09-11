@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -11,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.List;
 
 @Component
-@Primary
 @RequiredArgsConstructor
 public final class GenreDAO implements Showable<Genre> {
     private final JdbcTemplate jdbcTemplate;
