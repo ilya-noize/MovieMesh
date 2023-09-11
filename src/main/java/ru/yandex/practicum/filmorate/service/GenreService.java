@@ -11,7 +11,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GenreService {
+public class GenreService implements ShowableService<Genre> {
     private final Showable<Genre> genreDAO;
 
     public Genre get(Long id) {
