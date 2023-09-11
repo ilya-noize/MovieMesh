@@ -104,10 +104,20 @@ public final class FilmDAOImpl implements FilmDAO {
 
     @Override
     public List<Film> getPopular(Long count) {
-        String sql = "SELECT F.*, COUNT(FL.USER_ID) LIKES FROM FILMS_LIKE FL" +
-                " RIGHT JOIN FILMS F ON FL.FILM_ID = F.ID" +
-                " GROUP BY F.ID " +
-                " ORDER BY LIKES DESC LIMIT ?;";
+        String sql = "SELECT F.id FILM_ID,"
+                + " F.name FILM_NAME,"
+                + " F.description FILM_DESCRIPTION,"
+                + " F.duration FILM_DURATION,"
+                + " F.releasedate FILM_RELEASE,"
+                + " MPA.id MPA_ID,"
+                + " MPA.name MPA_NAME,"
+                + " MPA.description MPA_DESCRIPTION,"
+                + " COUNT(FL.USER_ID) LIKES "
+                + "FROM films F "
+                + "LEFT JOIN mpa_rating MPA ON F.mpa_rating_id = MPA.id "
+                + "LEFT JOIN films_like FL ON FL.film_id = F.id "
+                + "GROUP BY F.id "
+                + "ORDER BY LIKES DESC LIMIT ?;";
         return jdbcTemplate.query(sql, filmRowMapper, count);
     }
 }
