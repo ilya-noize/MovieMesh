@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.dao.rowMapper.FilmGenresRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.MPARatingRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
