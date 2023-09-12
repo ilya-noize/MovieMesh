@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -103,5 +104,13 @@ public final class UserDAOImpl implements UserDAO {
                 + "  ON U.ID = F1.USER_ID_FRIEND"
                 + " WHERE F1.USER_ID_REQUEST = ?";
         return jdbcTemplate.query(sql, userRowMapper, id, otherId);
+    }
+
+    @Override
+    public boolean isLoginUnique(String login) {
+        String sql = "SELECT 1 FROM users U WHERE U.login = ?";
+        boolean result = Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, ResultSet::getBoolean, login));
+        log.info("[i] isLoginUnique:{}", result);
+        return result;
     }
 }

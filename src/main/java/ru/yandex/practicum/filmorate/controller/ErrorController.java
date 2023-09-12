@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,14 +28,14 @@ public final class ErrorController extends Throwable {
     public ResponseEntity<Map<String, Object>> handleException(TypeMismatchException e) {
 
         log.error("[!] Type Mismatch \n Exception:{}", e.getMessage());
-        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+        return new ResponseEntity<>(makeMap(e, BAD_REQUEST), BAD_REQUEST);
     }
 
     @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<Map<String, Object>> handleException(BindException e) {
 
         log.error("[!] Bind Exception \n Exception:{}", e.getMessage());
-        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+        return new ResponseEntity<>(makeMap(e, BAD_REQUEST), BAD_REQUEST);
     }
 
     @ExceptionHandler(Throwable.class)
@@ -42,7 +43,7 @@ public final class ErrorController extends Throwable {
     public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(Throwable e) {
 
         log.error("[!] Method Argument Not Valid \n Exception:{}", e.getMessage());
-        return new ResponseEntity<>(makeMap(e), INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(makeMap(e, INTERNAL_SERVER_ERROR), INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler
@@ -50,7 +51,7 @@ public final class ErrorController extends Throwable {
     public ResponseEntity<Map<String, Object>> handleUserAlreadyExistException(UserAlreadyExistException e) {
 
         log.error("[!] User Already Exist \n Exception:{}", (Object[]) e.getStackTrace());
-        return new ResponseEntity<>(makeMap(e), NOT_FOUND);
+        return new ResponseEntity<>(makeMap(e, NOT_FOUND), NOT_FOUND);
     }
 
     @ExceptionHandler
@@ -58,7 +59,7 @@ public final class ErrorController extends Throwable {
     public ResponseEntity<Map<String, Object>> handleValidException(ValidException e) {
 
         log.error("[!] Valid Exception \n Exception:{}", (Object[]) e.getStackTrace());
-        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+        return new ResponseEntity<>(makeMap(e, BAD_REQUEST), BAD_REQUEST);
     }
 
     @ExceptionHandler
@@ -66,7 +67,7 @@ public final class ErrorController extends Throwable {
     public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException e) {
 
         log.error("[!] Not Found \n Exception:{}", (Object[]) e.getStackTrace());
-        return new ResponseEntity<>(makeMap(e), NOT_FOUND);
+        return new ResponseEntity<>(makeMap(e, NOT_FOUND), NOT_FOUND);
     }
 
     @ExceptionHandler
@@ -74,13 +75,13 @@ public final class ErrorController extends Throwable {
     public ResponseEntity<Map<String, Object>> handleFriendsException(FriendsException e) {
 
         log.error("[!] Friends Exception \n Exception:{}", (Object[]) e.getStackTrace());
-        return new ResponseEntity<>(makeMap(e), BAD_REQUEST);
+        return new ResponseEntity<>(makeMap(e, BAD_REQUEST), BAD_REQUEST);
     }
 
-    private Map<String, Object> makeMap(Throwable e) {
+    private Map<String, Object> makeMap(Throwable e, HttpStatus httpStatus) {
 
         return Map.of("timestamp", LocalDate.now().toString(),
-                "message", e.getLocalizedMessage(),
-                "status", BAD_REQUEST);
+                "message", e.getMessage(),
+                "status", httpStatus);
     }
 }
