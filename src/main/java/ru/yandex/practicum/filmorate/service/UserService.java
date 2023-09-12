@@ -128,6 +128,7 @@ public class UserService {
         final Predicate<User> TWIN_LOGIN = user1 -> user1.getLogin().equals(login);
         Optional<User> result = getAll().stream().filter(TWIN_LOGIN).findFirst();
 
+//        if (userDAO.isLoginUnique(login)) {
         if (result.isPresent()) {
             String error = String.format("User with login:%s exist.", login);
             log.error(error);

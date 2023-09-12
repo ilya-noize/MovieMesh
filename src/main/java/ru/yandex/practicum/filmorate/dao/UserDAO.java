@@ -12,4 +12,6 @@ public interface UserDAO extends Showable<User>, Committing<User> {
     List<User> getFriends(Long id);
 
     List<User> getCommonFriends(Long id, Long otherId);
+
+    boolean isLoginUnique(String login);
 }
