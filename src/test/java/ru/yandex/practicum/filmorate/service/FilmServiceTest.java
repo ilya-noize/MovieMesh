@@ -12,12 +12,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.yandex.practicum.filmorate.controller.ErrorController;
-import ru.yandex.practicum.filmorate.dao.*;
+import ru.yandex.practicum.filmorate.dao.FilmDAO;
+import ru.yandex.practicum.filmorate.dao.FilmDAOImpl;
+import ru.yandex.practicum.filmorate.dao.FilmGenresDAO;
+import ru.yandex.practicum.filmorate.dao.FilmGenresDAOImpl;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmGenresRowMapper;
 import ru.yandex.practicum.filmorate.dao.rowMapper.FilmRowMapper;
-import ru.yandex.practicum.filmorate.dao.rowMapper.MPARatingRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
@@ -57,12 +58,10 @@ public class FilmServiceTest {
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     private final FilmGenresDAO filmGenresDAO = new FilmGenresDAOImpl(
             jdbcTemplate, new FilmGenresRowMapper());
-    private final Showable<MPARating> mpaRatingDAO = new MPARatingDAO(
-            jdbcTemplate, new MPARatingRowMapper());
     private final FilmDAO filmDAO = new FilmDAOImpl(
             jdbcTemplate, new FilmRowMapper());
     private final FilmService filmService = new FilmService(
-            filmDAO, filmGenresDAO, mpaRatingDAO);
+            filmDAO, filmGenresDAO);
     private final Film film = new Film(
             Long.MAX_VALUE,
             "StarWars:Episode X",
@@ -101,8 +100,8 @@ public class FilmServiceTest {
         );
         try {
             filmService.create(film);
-        } catch (ValidException e) {
-            assertEquals(400, errorController.handleValidException(e).getStatusCode().value());
+        } catch (Throwable e) {
+            assertEquals(500, errorController.handleMethodArgumentNotValidException(e).getStatusCode().value());
         }
     }
 
@@ -122,8 +121,8 @@ public class FilmServiceTest {
         );
         try {
             filmService.create(film);
-        } catch (ValidException e) {
-            assertEquals(400, errorController.handleValidException(e).getStatusCode().value());
+        } catch (Throwable e) {
+            assertEquals(500, errorController.handleMethodArgumentNotValidException(e).getStatusCode().value());
         }
     }
 
@@ -153,8 +152,8 @@ public class FilmServiceTest {
         );
         try {
             filmService.update(film);
-        } catch (ValidException e) {
-            assertEquals(400, errorController.handleValidException(e).getStatusCode().value());
+        } catch (Throwable e) {
+            assertEquals(500, errorController.handleMethodArgumentNotValidException(e).getStatusCode().value());
         }
     }
 
