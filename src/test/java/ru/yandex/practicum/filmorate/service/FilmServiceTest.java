@@ -25,7 +25,7 @@ import ru.yandex.practicum.filmorate.model.MPARating;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,7 +60,7 @@ public class FilmServiceTest {
             jdbcTemplate, new FilmGenresRowMapper());
     private final FilmDAO filmDAO = new FilmDAOImpl(
             jdbcTemplate, new FilmRowMapper());
-    private final FilmService filmService = new FilmService(
+    private final FilmServiceImpl filmService = new FilmServiceImpl(
             filmDAO, filmGenresDAO);
     private final Film film = new Film(
             Long.MAX_VALUE,
@@ -69,7 +69,7 @@ public class FilmServiceTest {
             LocalDate.now(),
             120,
             new MPARating(2L, null, null),
-            new ArrayList<>(List.of(
+            new LinkedHashSet<>(List.of(
                     new Genre(6L, null),
                     new Genre(5L, null))
             )
@@ -93,7 +93,7 @@ public class FilmServiceTest {
                 LocalDate.now(),
                 120,
                 new MPARating(2L, null, null),
-                new ArrayList<>(List.of(
+                new LinkedHashSet<>(List.of(
                         new Genre(6L, null),
                         new Genre(5L, null))
                 )
@@ -114,7 +114,7 @@ public class FilmServiceTest {
                 LocalDate.now(),
                 120,
                 new MPARating(2L, null, null),
-                new ArrayList<>(List.of(
+                new LinkedHashSet<>(List.of(
                         new Genre(6L, null),
                         new Genre(5L, null))
                 )
@@ -145,7 +145,7 @@ public class FilmServiceTest {
                 LocalDate.now(),
                 120,
                 new MPARating(2L, null, null),
-                new ArrayList<>(List.of(
+                new LinkedHashSet<>(List.of(
                         new Genre(6L, null),
                         new Genre(5L, null))
                 )

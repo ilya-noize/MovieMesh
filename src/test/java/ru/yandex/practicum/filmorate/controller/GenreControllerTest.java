@@ -24,6 +24,11 @@ class GenreControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    /**
+     * In JDK17 it would be more beautiful ^_^
+     *
+     * @throws Exception If the context drops, terminate the application
+     */
     @Test
     void getAll() throws Exception {
         mockMvc.perform(request(GET, "/genres"))

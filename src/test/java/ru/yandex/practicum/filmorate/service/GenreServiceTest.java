@@ -18,15 +18,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 
-/**
- * Тестирую работу жанров.
- * Для этого нужно: <br/>
- * добавить Жанры (get, getAll)<br/>
- * добавить МПА рейтинги (для создания фильмов) <br/>
- * добавить фильмы <br/>
- * добавить жанры к фильмам (getFilmGenres)<br/>
- */
-
 @SpringBootTest
 @Sql(value = {
         "/sql/films/genres/create-film-genres-after.sql",
@@ -35,23 +26,6 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
         "/sql/genres/create-genres-after.sql"
 }, executionPhase = AFTER_TEST_METHOD)
 public class GenreServiceTest {
-    final List<Genre> genres = List.of(
-            new Genre(1L, "Комедия"),
-            new Genre(2L, "Драма"),
-            new Genre(3L, "Мультфильм"),
-            new Genre(4L, "Триллер"),
-            new Genre(5L, "Документальный"),
-            new Genre(6L, "Боевик")//,
-            //new Genre(7L,  "Фантастика"),
-            //new Genre(8L,  "Вестерн"),
-            //new Genre(9L,  "Детектив"),
-            //new Genre(10L, "Нуар"),
-            //new Genre(11L, "Ужасы"),
-            //new Genre(12L, "Политика"),
-            //new Genre(13L, "Мюзикл"),
-            //new Genre(14L, "Мелодрама"),
-            //new Genre(15L, "Сказка")
-    );
     private final DataSource dataSource = new EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
             .addScript("classpath:/sql/schema-test.sql")
@@ -68,10 +42,11 @@ public class GenreServiceTest {
             )
     );
     private final ErrorController errorController = new ErrorController();
+    private final GenresContent content = new GenresContent();
 
     @Test
     void get() {
-        assertEquals("Комедия", genreService.get(1L).getName());
+        assertEquals(content.genre(0).getName(), genreService.get(1L).getName());
     }
 
     @Test
@@ -85,6 +60,34 @@ public class GenreServiceTest {
 
     @Test
     void getAll() {
-        assertEquals(genres, genreService.getAll());
+        assertEquals(content.genres(), genreService.getAll());
+    }
+
+    final class GenresContent {
+        private final List<Genre> genres = List.of(
+                new Genre(1L, "Комедия"),
+                new Genre(2L, "Драма"),
+                new Genre(3L, "Мультфильм"),
+                new Genre(4L, "Триллер"),
+                new Genre(5L, "Документальный"),
+                new Genre(6L, "Боевик")//,
+                //new Genre(7L,  "Фантастика"),
+                //new Genre(8L,  "Вестерн"),
+                //new Genre(9L,  "Детектив"),
+                //new Genre(10L, "Нуар"),
+                //new Genre(11L, "Ужасы"),
+                //new Genre(12L, "Политика"),
+                //new Genre(13L, "Мюзикл"),
+                //new Genre(14L, "Мелодрама"),
+                //new Genre(15L, "Сказка")
+        );
+
+        public Genre genre(int index) {
+            return genres.get(index);
+        }
+
+        public List<Genre> genres() {
+            return genres;
+        }
     }
 }

@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,7 +65,7 @@ public final class UserDAOImpl implements UserDAO {
         String sql = "SELECT * FROM users WHERE id = ?";
         return jdbcTemplate.query(sql, userRowMapper, id)
                 .stream().findFirst()
-                .orElseThrow(new NotFoundException(error));
+                .orElseThrow(() -> new NotFoundException(error));
     }
 
     public List<User> getAll() {
@@ -107,10 +106,21 @@ public final class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public boolean isLoginUnique(String login) {
-        String sql = "SELECT 1 FROM users U WHERE U.login = ?";
-        boolean result = Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, ResultSet::getBoolean, login));
-        log.info("[i] isLoginUnique:{}", result);
-        return result;
+    public String isLoginUnique(String login) {
+        String sql = "SELECT U.login FROM users U WHERE U.login = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, numRows) -> rs.getString("login"), login);
+        } catch (Throwable ignored) {
+        }
+        return "";
+    }
+
+    public Long isExist(Long id) {
+        String sql = "SELECT U.id FROM users U WHERE U.id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, numRows) -> rs.getLong("id"), id);
+        } catch (Throwable ignored) {
+        }
+        return 0L;
     }
 }

@@ -83,7 +83,7 @@ public final class FilmDAOImpl implements FilmDAO {
                 + "WHERE F.id = ?";
         return jdbcTemplate.query(sql, filmRowMapper, id)
                 .stream().findFirst()
-                .orElseThrow(new NotFoundException(error));
+                .orElseThrow(() -> new NotFoundException(error));
     }
 
     @Override
@@ -119,5 +119,15 @@ public final class FilmDAOImpl implements FilmDAO {
                 + "GROUP BY F.id "
                 + "ORDER BY LIKES DESC LIMIT ?;";
         return jdbcTemplate.query(sql, filmRowMapper, count);
+    }
+
+    @Override
+    public Long isExist(Long id) {
+        String sql = "SELECT F.id FROM films F WHERE F.id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, numRows) -> rs.getLong("id"), id);
+        } catch (Throwable ignored) {
+        }
+        return 0L;
     }
 }
