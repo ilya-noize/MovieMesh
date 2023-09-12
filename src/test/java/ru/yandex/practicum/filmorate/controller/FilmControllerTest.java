@@ -71,7 +71,7 @@ class FilmControllerTest {
     void update() throws Exception {
         create();
         LinkedHashSet<Genre> genreList = new LinkedHashSet<>(List.of(content.genre(4), content.genre(5)));
-        Film film = new Film(1L, "StarWars:Episode I", "A long time ago in a galaxy far, far away", content.Release(0), 120, content.mpa(1), genreList);
+        Film film = new Film(1L, "StarWars:Episode I", "A long time ago in a galaxy far, far away", content.release(0), 120, content.mpa(1), genreList);
         requestBuilder = put("/films")
                 .param("\"id\"", "\"1\"")
                 .param("\"name\"", "\"" + film.getName() + "\"")
@@ -155,7 +155,7 @@ class FilmControllerTest {
                 "wrongId", new Film(9999L, "StarWars:Episode IX", "A long time ago in a galaxy far, far away", releases.get(8), 120, mpa.get(1), new LinkedHashSet<>())
         );
 
-        public LocalDate Release(int index) {
+        public LocalDate release(int index) {
             return releases.get(index);
         }
 
