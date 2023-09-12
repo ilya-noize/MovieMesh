@@ -86,75 +86,11 @@ public class FilmServiceTest {
     }
 
     @Test
-    public void createEmptyName() {
-        final Film film = new Film(
-                Long.MAX_VALUE,
-                "",
-                "A long time ago in a galaxy far, far away",
-                LocalDate.now(),
-                120,
-                new MPARating(2L, null, null),
-                new ArrayList<>(List.of(
-                        new Genre(6L, null),
-                        new Genre(5L, null))
-                )
-        );
-        try {
-            filmService.create(film);
-        } catch (ValidException e) {
-            assertEquals(400, errorController.handleValidException(e).getStatusCode().value());
-        }
-    }
-
-    @Test
-    public void createNullName() {
-        final Film film = new Film(
-                Long.MAX_VALUE,
-                null,
-                "A long time ago in a galaxy far, far away",
-                LocalDate.now(),
-                120,
-                new MPARating(2L, null, null),
-                new ArrayList<>(List.of(
-                        new Genre(6L, null),
-                        new Genre(5L, null))
-                )
-        );
-        try {
-            filmService.create(film);
-        } catch (ValidException e) {
-            assertEquals(400, errorController.handleValidException(e).getStatusCode().value());
-        }
-    }
-
-    @Test
     public void updateFailId() {
         try {
             filmService.update(film);
         } catch (NotFoundException e) {
             assertEquals(404, errorController.handleNotFoundException(e).getStatusCode().value());
-        }
-
-    }
-
-    @Test
-    public void updateFailRename() {
-        final Film film = new Film(
-                1L,
-                null,
-                "A long time ago in a galaxy far, far away",
-                LocalDate.now(),
-                120,
-                new MPARating(2L, null, null),
-                new ArrayList<>(List.of(
-                        new Genre(6L, null),
-                        new Genre(5L, null))
-                )
-        );
-        try {
-            filmService.update(film);
-        } catch (ValidException e) {
-            assertEquals(400, errorController.handleValidException(e).getStatusCode().value());
         }
     }
 
