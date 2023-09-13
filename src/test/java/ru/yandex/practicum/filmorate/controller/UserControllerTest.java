@@ -52,7 +52,7 @@ class UserControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andDo(print())
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -68,7 +68,7 @@ class UserControllerTest {
                 .param("\"birthday\"", "\"1976-09-20\"");
         mockMvc.perform(requestBuilder)
                 .andDo(print())
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

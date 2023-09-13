@@ -64,7 +64,7 @@ class FilmControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andDo(print())
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -83,7 +83,7 @@ class FilmControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andDo(print())
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -116,7 +116,7 @@ class FilmControllerTest {
 
     }
 
-    final class StarWarsContent {
+    static final class StarWarsContent {
         private final List<LocalDate> releases = List.of(
                 LocalDate.of(1999, 5, 19),
                 LocalDate.of(2002, 5, 16),
