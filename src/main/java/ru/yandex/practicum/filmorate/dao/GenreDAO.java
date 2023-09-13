@@ -22,7 +22,7 @@ public final class GenreDAO implements Showable<Genre> {
 
         return jdbcTemplate.query(sql, genreRowMapper, id)
                 .stream().findFirst()
-                .orElseThrow(new NotFoundException(error));
+                .orElseThrow(() -> new NotFoundException(error));
     }
 
     @Override

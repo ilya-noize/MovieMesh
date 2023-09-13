@@ -21,7 +21,7 @@ public final class MPARatingDAO implements Showable<MPARating> {
         String error = String.format("MPARating not found - id:%d not exist", id);
         return jdbcTemplate.query(sql, mpaRatingRowMapper, id)
                 .stream().findFirst()
-                .orElseThrow(new NotFoundException(error));
+                .orElseThrow(() -> new NotFoundException(error));
     }
 
     @Override
