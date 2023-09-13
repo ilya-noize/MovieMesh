@@ -25,12 +25,12 @@ import ru.yandex.practicum.filmorate.model.MPARating;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 
 @RunWith(SpringRunner.class)
@@ -74,13 +74,44 @@ public class FilmServiceTest {
                     new Genre(5L, null))
             )
     );
+    private final Film film2 = new Film(
+            Long.MAX_VALUE,
+            "StarWars:Episode XX",
+            "A long time ago in a galaxy far, far away",
+            LocalDate.now(),
+            120,
+            new MPARating(2L, null, null),
+            new LinkedHashSet<>(List.of(
+                    new Genre(6L, null),
+                    new Genre(5L, null))
+            )
+    );
 
     @Test
     public void create() {
+        Film film = filmService.create(film2);
+        assertEquals("StarWars:Episode XX", film.getName());
+    }
+
+    @Test
+    public void createWithGenres() {
+        Film film = filmService.create(film2);
+        assertTrue(new ArrayList<>(film.getGenres()).get(0).getName().contains("Документальный"));
+        assertTrue(new ArrayList<>(film.getGenres()).get(1).getName().contains("Боевик"));
+    }
+
+    @Test
+    public void createWithMPA() {
+        Film film = filmService.create(film2);
+        assertTrue(film.getMpa().getName().contains("PG"));
+    }
+
+    @Test
+    public void createExist() {
         try {
             filmService.create(film);
-        } catch (Throwable e) {
-            assertEquals(500, errorController.handleMethodArgumentNotValidException(e).getStatusCode().value());
+        } catch (Exception e) {
+            assertEquals(400, errorController.handleException(e).getStatusCode().value());
         }
     }
 
@@ -100,8 +131,8 @@ public class FilmServiceTest {
         );
         try {
             filmService.create(film);
-        } catch (Throwable e) {
-            assertEquals(500, errorController.handleMethodArgumentNotValidException(e).getStatusCode().value());
+        } catch (Exception e) {
+            assertEquals(400, errorController.handleException(e).getStatusCode().value());
         }
     }
 
@@ -121,8 +152,8 @@ public class FilmServiceTest {
         );
         try {
             filmService.create(film);
-        } catch (Throwable e) {
-            assertEquals(500, errorController.handleMethodArgumentNotValidException(e).getStatusCode().value());
+        } catch (Exception e) {
+            assertEquals(400, errorController.handleException(e).getStatusCode().value());
         }
     }
 
@@ -152,8 +183,8 @@ public class FilmServiceTest {
         );
         try {
             filmService.update(film);
-        } catch (Throwable e) {
-            assertEquals(500, errorController.handleMethodArgumentNotValidException(e).getStatusCode().value());
+        } catch (Exception e) {
+            assertEquals(400, errorController.handleException(e).getStatusCode().value());
         }
     }
 
