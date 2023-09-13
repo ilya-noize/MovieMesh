@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -59,8 +58,7 @@ public class FilmController {
 
     @GetMapping({"/popular?count={count}", "/popular"})
     @Validated
-    public List<Film> getPopular(@Positive @RequestParam(defaultValue = "10") Long count)
-            throws MethodArgumentNotValidException, NoSuchMethodException {
+    public List<Film> getPopular(@Positive @RequestParam(defaultValue = "10") Long count) {
         log.debug("[>] PopularFilms TOP-{}", count);
         return filmService.getPopular(count);
     }
