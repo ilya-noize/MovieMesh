@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.constraint;
 
+import ru.yandex.practicum.filmorate.exception.ValidException;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
@@ -15,6 +17,9 @@ public class CorrectReleaseDateValidator implements ConstraintValidator<CorrectR
 
     @Override
     public boolean isValid(LocalDate date, ConstraintValidatorContext context) {
+        if (releaseDateStart == null) {
+            throw new ValidException("Release Date can't be null");
+        }
         return date.isAfter(releaseDateStart) && date.isBefore(LocalDate.now());
     }
 }
