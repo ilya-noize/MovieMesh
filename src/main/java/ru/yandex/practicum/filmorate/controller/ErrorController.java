@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -25,11 +26,20 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public final class ErrorController extends RuntimeException {
     private static final ZonedDateTime NOW = ZonedDateTime.now(system(systemDefaultZone().getZone()));
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+
+        log.error("[!] Data Integrity Violation:\n {}", e.getMessage());
+        return new ResponseEntity<>(Map.of(
+                "error", e.getLocalizedMessage().split(";")[3]), BAD_REQUEST);
+    }
+
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, TypeMismatchException.class})
     @ResponseStatus(BAD_REQUEST)
     public ResponseEntity<?> handleException(Exception e) {
 
-        log.error("[!] Exception:\n {}", e.getMessage());
+        log.error("[!] Type Mismatch:\n {}", e.getMessage());
         return ResponseEntity
                 .badRequest()
                 .lastModified(NOW)
@@ -53,7 +63,7 @@ public final class ErrorController extends RuntimeException {
     @ResponseStatus(BAD_REQUEST)
     public ResponseEntity<?> handleValidException(ValidationException e) {
 
-        log.error("[!] Valid Exception \n Exception:{}", (Object[]) e.getStackTrace());
+        log.error("[!] Validation \n Exception:{}", (Object[]) e.getStackTrace());
         return ResponseEntity
                 .badRequest()
                 .lastModified(NOW)
@@ -64,6 +74,8 @@ public final class ErrorController extends RuntimeException {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(NOT_FOUND)
     public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException e) {
+
+        log.error("[!] Not Found \n Exception:{}", (Object[]) e.getStackTrace());
         return new ResponseEntity<>(Map.of(
                 "timestamp", NOW,
                 "error", e.getMessage()), NOT_FOUND);
@@ -73,7 +85,7 @@ public final class ErrorController extends RuntimeException {
     @ResponseStatus(BAD_REQUEST)
     public ResponseEntity<?> handleFriendsException(FriendsException e) {
 
-        log.error("[!] Friends Exception \n Exception:{}", (Object[]) e.getStackTrace());
+        log.error("[!] Friends \n Exception:{}", (Object[]) e.getStackTrace());
         return ResponseEntity
                 .badRequest()
                 .lastModified(NOW)
