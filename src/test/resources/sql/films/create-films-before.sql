@@ -16,4 +16,4 @@ insert into FILMS (ID, NAME, DESCRIPTION, DURATION, RELEASEDATE, MPA_RATING_ID) 
 
 --ALTER SEQUENCE hibernate_sequence RESTART WITH 10;
 
-alter table FILMS alter COLUMN ID RESTART with 1;
+alter table FILMS alter COLUMN ID RESTART with 10;

@@ -1,5 +1,7 @@
 DELETE FROM GENRES;
 
+alter table GENRES alter COLUMN ID RESTART with 1;
+
 INSERT INTO GENRES (ID, NAME) VALUES
 (1,  'Комедия'),
 (2,  'Драма'),
