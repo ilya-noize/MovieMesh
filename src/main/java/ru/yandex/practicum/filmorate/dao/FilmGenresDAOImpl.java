@@ -2,12 +2,15 @@ package ru.yandex.practicum.filmorate.dao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FilmGenres;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
 @Slf4j
@@ -19,11 +22,20 @@ public final class FilmGenresDAOImpl implements FilmGenresDAO {
 
     @Override
     public void add(Long filmId, List<Genre> genres) {
-        for (Genre genre : genres) {
-            log.debug("[i] ADD FilmGENRE\tfilmId:{}\tgenreId:{}", filmId, genre.getId());
-            String sql = "MERGE INTO FILM_GENRES KEY(FILM_ID, GENRE_ID) VALUES (?, ?);";
-            jdbcTemplate.update(sql, filmId, genre.getId());
-        }
+        log.debug("[i] ADD FilmGENRE\n filmId:{}, genres:{}\n execute:\n", filmId, genres);
+        String sql = "MERGE INTO FILM_GENRES KEY(FILM_ID, GENRE_ID) VALUES (?, ?);";
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Long genreId = genres.get(i).getId();
+                log.debug("\t filmId:{}\t genreId:{}\n", filmId, genreId);
+                ps.setLong(1, filmId);
+                ps.setLong(2, genreId);
+            }
+
+            public int getBatchSize() {
+                return genres.size();
+            }
+        });
     }
 
     @Override
