@@ -24,8 +24,10 @@ public final class Film {
     @NotNull
     @Size(max = 200, message = "The description length is no more than 200 characters.")
     private final String description;
+    @NotNull
     @CorrectReleaseDate(value = RELEASE_DATE_LIMIT)
     private final LocalDate releaseDate;
+    @NotNull
     @Positive(message = "The duration of the movie is a positive natural number.")
     private final Integer duration;
     @NotNull
