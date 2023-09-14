@@ -1,51 +1,95 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.FailSetFilmLikesException;
-import ru.yandex.practicum.filmorate.exception.FailSetFriendException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import ru.yandex.practicum.filmorate.exception.FriendsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
-import ru.yandex.practicum.filmorate.model.ErrorResponse;
+
+import javax.validation.ValidationException;
+import java.time.ZonedDateTime;
+import java.util.Map;
+
+import static java.time.Clock.system;
+import static java.time.Clock.systemDefaultZone;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestControllerAdvice
 @Slf4j
-public class ErrorController {
-    @ExceptionHandler(Throwable.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleMethodArgumentNotValidException(Throwable e) {
-        log.error("Method Argument Not Valid - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+public final class ErrorController extends RuntimeException {
+    private static final ZonedDateTime NOW = ZonedDateTime.now(system(systemDefaultZone().getZone()));
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+
+        log.error("[!] Data Integrity Violation:\n {}", e.getMessage());
+        return new ResponseEntity<>(Map.of(
+                "error", e.getLocalizedMessage().split(";")[3]), BAD_REQUEST);
+    }
+
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, TypeMismatchException.class})
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<?> handleException(Exception e) {
+
+        log.error("[!] Type Mismatch:\n {}", e.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .lastModified(NOW)
+                .header("error", e.getLocalizedMessage())
+                .build();
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserAlreadyExistException(UserAlreadyExistException e) {
-        log.error("User Already Exist - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ResponseStatus(NOT_FOUND)
+    public ResponseEntity<?> handleUserAlreadyExistException(UserAlreadyExistException e) {
+
+        log.error("[!] User Already Exist \n Exception:{}", (Object[]) e.getStackTrace());
+        return ResponseEntity
+                .badRequest()
+                .lastModified(NOW)
+                .header("error", e.getLocalizedMessage())
+                .build();
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(NotFoundException e) {
-        log.error("Not Found - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<?> handleValidException(ValidationException e) {
+
+        log.error("[!] Validation \n Exception:{}", (Object[]) e.getStackTrace());
+        return ResponseEntity
+                .badRequest()
+                .lastModified(NOW)
+                .header("error", e.getLocalizedMessage())
+                .build();
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleFailSetFriendException(FailSetFriendException e) {
-        log.error("Fail Set Friend - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException e) {
+
+        log.error("[!] Not Found \n Exception:{}", (Object[]) e.getStackTrace());
+        return new ResponseEntity<>(Map.of(
+                "timestamp", NOW,
+                "error", e.getMessage()), NOT_FOUND);
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleFailSetFilmLikesException(FailSetFilmLikesException e) {
-        log.error("Fail Set Film Likes - Exception:{}", (Object[]) e.getStackTrace());
-        return new ErrorResponse(e.getMessage());
+    @ExceptionHandler(FriendsException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ResponseEntity<?> handleFriendsException(FriendsException e) {
+
+        log.error("[!] Friends \n Exception:{}", (Object[]) e.getStackTrace());
+        return ResponseEntity
+                .badRequest()
+                .lastModified(NOW)
+                .header("error", e.getLocalizedMessage())
+                .build();
     }
 }

@@ -1,201 +1,128 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.http.HttpMethod.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest()
-@RequiredArgsConstructor
-public class UserControllerTest {
-    private static final LocalDate RIGHT_BIRTHDAY = LocalDate.of(2000, 1, 1);
-    private static final LocalDate WRONG_BIRTHDAY = LocalDate.now();
-    private UserController controller;
+@WebMvcTest(UserController.class)
+class UserControllerTest {
+    private static MockHttpServletRequestBuilder requestBuilder;
+    @Autowired
+    MockMvc mockMvc;
+    @MockBean
+    UserService userService;
 
-    @DisplayName(value = "Создать пользователя")
+
+    @BeforeEach
+    void setUp() {
+    }
+
+    @AfterEach
+    void tearDown() {
+        requestBuilder = null;
+    }
+
     @Test
-    void createUser() {
-        try {
-            User user = controller.create(getUser());
-            assertNotNull(user.getId());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+    void create() throws Exception {
+        Mockito.when(userService.create(getUser())).thenReturn(getUser());
+
+        requestBuilder = post("/users")
+                .param("\"login\"", "\"dolore\"")
+                .param("\"name\"", "\"Nick Name\"")
+                .param("\"email\"", "\"mail@mail.ru\"")
+                .param("\"birthday\"", "\"1946-08-20\"");
+
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void update() throws Exception {
+        Mockito.when(userService.update(getUser())).thenReturn(getUser());
+
+        create();
+        requestBuilder = post("/users")
+                .param("\"login\"", "\"doloreUpdate\"")
+                .param("\"name\"", "\"est adipisicing\"")
+                .param("\"id\"", "\"1\"")
+                .param("\"email\"", "\"mail@yandex.ru\"")
+                .param("\"birthday\"", "\"1976-09-20\"");
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void get() throws Exception {
+        mockMvc.perform(request(GET, "/users/1"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void createFriend() throws Exception {
+        mockMvc.perform(request(PUT, "/users/1/friends/1"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteFriend() throws Exception {
+        mockMvc.perform(request(DELETE, "/users/1/friends/1"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    void getFriends() throws Exception {
+        mockMvc.perform(request(GET, "/users/1/friends"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("[]"));
+    }
+
+    @Test
+    void getCommonFriends() throws Exception {
+        mockMvc.perform(request(GET, "/users/1/friends/common/2"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAll() throws Exception {
+        mockMvc.perform(request(GET, "/users"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("[]")));
     }
 
     private User getUser() {
-        return new User("login", "name", "login@yahoo.com", RIGHT_BIRTHDAY);
-    }
-
-    @DisplayName(value = "Создать пользователя - Безымянный: Логин = Имя")
-    @Test
-    void createUserNoName() {
-        try {
-            controller.create(getUserNoName());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    private User getUserNoName() {
-        return new User("login", null, "login@yahoo.com", RIGHT_BIRTHDAY);
-    }
-
-    @DisplayName(value = "Создать пользователя - Ошибка:Неверный email")
-    @Test
-    void createUserFailEmail() {
-
-        try {
-            controller.create(getUserFailEmail());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    private User getUserFailEmail() {
-        return new User("login", "name", "loginyahoocom@.", RIGHT_BIRTHDAY);
-    }
-
-    @DisplayName(value = "Создать пользователя - Ошибка:Пробел в логине")
-    @Test
-    void createUserFailSpaceLogin() {
-        try {
-            controller.create(getUserFailSpaceLogin());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    private User getUserFailSpaceLogin() {
-        return new User("log in", "name", "login@yahoo.com", RIGHT_BIRTHDAY);
-    }
-
-    @DisplayName(value = "Создать пользователя - Ошибка:Короткий логин")
-    @Test
-    void createUserFailShortLogin() {
-        try {
-            controller.create(getUserFailShortLogin());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    private User getUserFailShortLogin() {
-        return new User("l", "name", "login@yahoo.com", RIGHT_BIRTHDAY);
-    }
-
-    @DisplayName(value = "Создать пользователя - Ошибка:Длинный логин")
-    @Test
-    void createUserFailLongLogin() {
-        try {
-            controller.create(getUserFailLongLogin());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    private User getUserFailLongLogin() {
-        return new User("loginIsMoreTwentySymbols", "name", "login@yahoo.com", RIGHT_BIRTHDAY);
-    }
-
-    @DisplayName(value = "Создать пользователя - Ошибка:Дата рождения не в прошлом")
-    @Test
-    void createUserFailWrongBirthday() {
-        try {
-            controller.create(getUserFailBirthday());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    private User getUserFailBirthday() {
-        return new User("login", "name", "login@yahoo.com", WRONG_BIRTHDAY);
-    }
-
-    @DisplayName(value = "Изменить пользователя")
-    @Test
-    void updateUser() {
-        try {
-            User user = controller.create(getUser());
-            user.setName("login2");
-            user = controller.update(user);
-            assertEquals(1L, user.getId());
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    @DisplayName(value = "Изменить пользователя - Ошибка: несуществующий пользователь")
-    @Test
-    void updateUserInvalidUser() {
-        User user = getUserNotExist();
-        try {
-            controller.update(user);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    private User getUserNotExist() {
-        User user = new User("qwerty", "Ivan", "login@yahoo.com", RIGHT_BIRTHDAY);
-        user.setId(9999L);
-        return user;
-    }
-
-    @DisplayName(value = "Получить список пользователей")
-    @Test
-    void getUsers() {
-        try {
-            controller.create(getUser());
-            int countUsers = controller.getAll().size();
-            assertEquals(1, countUsers);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    @DisplayName(value = "Добавить друга")
-    @Test
-    void addFriend() {
-        try {
-            controller.addFriend(null, null);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    @DisplayName(value = "Удалить друга")
-    @Test
-    void deleteFriend() {
-        try {
-            controller.deleteFriend(null, null);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    @DisplayName(value = "Получить список друзей")
-    @Test
-    void getUserFriends() {
-        try {
-            controller.getUserFriends(9999L);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
-    }
-
-    @DisplayName(value = "Получить список общих друзей двух пользователей")
-    @Test
-    void getUserCommonFriends() {
-        try {
-            controller.getUserCommonFriends(null, null);
-        } catch (Exception e) {
-            assertNull(e.getMessage());
-        }
+        return new User(
+                1L,
+                "email@mail.ru",
+                "login",
+                "name",
+                LocalDate.of(2000, 1, 1)
+        );
     }
 }

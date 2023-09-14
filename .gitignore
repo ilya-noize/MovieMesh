@@ -51,3 +51,5 @@ db/*
 /mvnw
 /mvnw.cmd
 /src/main/java/ru/yandex/practicum/filmorate/log
+/old/
+/src/main/resources/schema_backup.sql

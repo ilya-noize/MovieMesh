@@ -1,22 +1,47 @@
 # Project java-filmorate
+
 ## Branches Developer
+
 ### main
-+ Ветка слияния с другими ветками разработки после успешного review
+
++ Ветка слияния с другими ветками разработки после успешного review.
+
 ### controllers-films-users [9 sprint]
-+ Настройка Maven
-+ SpringBoot
-+ Создание модели приложения
-+ Примитивный функционал обслуживание данных в хранении 
+
++ Настройка Maven.
++ SpringBoot.
++ Создание модели приложения.
++ Примитивный функционал обслуживание данных в хранении.
+
 ### add-friends-likes [10 sprint]
-+ Расширение модели: добавлены Friends для User и Likes для Film
+
++ Расширение модели: добавлены Friends для User и Likes для Film.
 + Расширение функционала контроллеров.
+
+### add-database [11 sprint]
+
+<img src="C:\Users\ILKA\dev\java-filmorate\src\main\resources\db_schema.svg" title="Схема БД" width="900" height="400"/>
++ Изменена реализация работы со всеми предыдущими моделями (а именно Film и User) на работу в базе данных (далее
+  сокращённо **БД**).
++ Добавлена возможность оставлять симпатии пользователей к фильмам.
++ Изменён функционал работы Друзья. Теперь дружба пользователей не может быть взаимной по умолчанию. Больше похоже на
+  подписку.
++ Расширение модели: Genres. Добавлены жанры к фильмам. Изменение и добавление новых жаров не предусмотрено техническим
+  заданием.
++ Расширение модели: MPARating. Добавлены рейтинги к фильмам. Изменение и добавление новых рейтингов не предусмотрено
+  техническим заданием.
 ## Хранение данных
-Сейчас данные можно хранить в переменных Map<Long, T>,
+~~Сейчас данные можно хранить в переменных Map<Long , T>,
 где Long — ключ (идентификатор объекта), а T — сам объект (User или Film);
-Доступ к объектам предоставляется по ключу.
-Для добавления, изменения, в будущем и удаление, записей используется контроллер.
+Доступ к объектам предоставляется по ключу.~~
+<p>
+Сейчас данные можно хранить в БД.<br/>
+Для добавления и редактирования (в будущем и удаления) записей используется контроллер.
+</p>
+[link]
 
 ## Улучшение API приложения до соответствия REST.
+
 Изменена архитектура приложения с помощью внедрения зависимостей.
 
 Принцип работы приложения разделён на слои:
@@ -25,107 +50,116 @@
 + controller @RestController — обслуживание данных в хранении через сервисный слой.
 
 ## Model
-### USER
+
+### User
+
 * Идентификатор — id : Long. Условие: Positive
 * Электронная почта — email : String. Условие: Pattern(Email)
 * Логин — login : String. Условие: NoSpaces, Size[3..20]
 * Имя — name : String.
 * Дата рождения — birthday : LocalDate. Условие: Past
-* Список друзей — friends : Set<Long>.
-### FILM
+* ~~Список друзей — friends : Set<Long>.~~ [Sprint 11] Update: Реализовано в БД. Это поле более не актуально.
+
+### Film
+
 * Идентификатор — id : Long. Условие: Positive
-* Название — name : String. Условие: NotNull/NotBlank
+* Название — name : String. Условие: NotBlank
 * Описание — description : String. Условие: Size=200
 * Дата релиза — releaseDate : LocalDate. Условие: After 28 DEC 1895
 * Продолжительность фильма — duration : int. Условие: Positive
-* Идентификаторы пользователей, поставивших like фильму — likes : Set<Long>.
-## Storages
-`@Component` — слой хранения данных (далее будет реализовано хранить данные в долговременном хранилище, чтобы они не зависели от перезапуска приложения.)
-### Abstract MasterStorage.class : Generic <T t> для USER и FILM
-    private Long generateId = 1L;
+* [Sprint 11] Рейтинг Ассоциации кинематографистов - mpaRating : MPARating Условие: NotNull
+* [Sprint 11] Список жанров - genres : List<Genre>
+* ~~Идентификаторы пользователей, поставивших like фильму — likes : Set<Long>.~~ [Sprint 11] Update: Реализовано в БД.
+  Это поле более не актуально.
 
-    protected Long increment() {
-        return generateId++;
-    }
+### Genre
 
-    public abstract T create(T t);
+* Идентификатор — id : Long. Условие: Positive
+* Название — name : String. Условие: NotBlank
 
-    public abstract T update(T t);
+### MPARating
 
-    public abstract T get(Long id);
+* Идентификатор — id : Long. Условие: Positive
+* Название — name : String. Условие: NotBlank
+* Описание — description : String. Условие: NotBlank
 
-    public abstract List<T> getAll();
+### FilmGenres
 
-    public abstract boolean isExist(Long id);
++ Идентификатор фильма — filmId : Long. Условие: Positive, NotNull
++ Жанр — genre : Genre. Условие: Positive, NotNull
 
-### UserStorage
-    private final Map<Long, User> storage;
-+ реализация абстрактных методов
+## DAO
 
-### FilmStorage
-    private final Map<Long, Film> storage;
-+ реализация абстрактных методов
+`@Component` — слой хранения данных (далее будет реализовано хранить данные в долговременном хранилище, чтобы они не
+зависели от перезапуска приложения.)
+
+### UserDAO
+
+create — создание нового пользователя с уникальным никнеймом/логином
+update — изменение существующего пользователя
+get — получение существующего пользователя
+getAll — получение всех пользователей
+createFriend
+deleteFriend
+getFriends
+getCommonFriends
+
+### FilmDAO
+
+create — создание нового фильма
+update — изменение существующего фильма
+get — получение существующего фильма
+getAll — получение всех фильмов
+getPopular — получение популярных фильмов
+
+### FilmGenresDAO
+
+add — добавить жанр фильму
+delete — удалить жанр у фильма
+getAllFilmGenres — получить жанры у требуемых фильмов
+
+### FilmLikesDAO
+
+add — добавить симпатию пользователя к фильму
+delete — удалить симпатию пользователя к фильму
+
+### GenreDAO
+
+get — получение существующего жанра
+getAll — получение всех жанров
+
+### MPARatingDAO
+
+get — получение существующего рейтинга
+getAll — получение всех рейтингов
 
 ## Services
+
 `@Service` — сервисный слой. Обеспечивает безопасность сохранности данных в процессе работы приложения.
-### Abstract MasterService
-    private final MasterStorage<T> storage;
+...
 
-    public T create(T t) {
-        return storage.create(t);
-    }
-
-    public T update(T t) {
-        return storage.update(t);
-    }
-
-    public T get(Long id) {
-        return storage.get(id);
-    }
-
-    public List<T> getAll() {
-        return storage.getAll();
-    }
 ### UserService
-    @Override
-    public User create(User user)
-С проверкой имени и уникального логина
 
-    @Override
-    public User update(User user)
-С проверкой имени и уникального логина
-
-    public void addFriend(Long id, Long idFriend)
-Добавить друга в список
-
-    public void deleteFriend(Long supposedId, Long supposedIdFriend)
-Удалить друга из списка
-
-    public Set<User> getFriends(Long supposedId)
-Получить список друзей
-
-    public Set<User> getFriendsCommon(Long id, Long otherId)
-Получить список общих друзей между пользователями
-
-* private-методы:
-* + валидация
-* + списки друзей 
+...
 
 ### FilmService
-    private final MasterStorage<User> userStorage;
 
-    public List<Film> getPopular(Long supposedCount)
-Получить популярные фильмы у пользователей
+...
 
-    public void addLike(Long supposedId, Long supposedUserId)
-Добавить лайк пользователя фильму
+### GenreService
 
-    public void deleteLike(Long supposedId, Long supposedUserId)
-Удалить лайк пользователя фильму
+...
+
+### MPARatingService
+
+...
 
 ## Controllers
+
 `@RestController` — обслуживание данных в хранении через сервисный слой.
+
 ### Users
+
 * POST /users — создание пользователя;
 * PUT /users — обновление пользователя;
 * PUT /users/{id}/friends/{friendId} — добавление в друзья.
@@ -133,11 +167,24 @@
 * GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
 * GET /users/{id}/friends/common/{otherId} — список общих друзей с другим пользователем.
 * GET /users — получение списка всех пользователей.
+
 ### Films
-* POST /films — Добавляет фильма.
+
+* POST /films — Добавление фильма.
 * PUT /films — Обновляет фильма.
 * PUT /films/{id}/like/{userId} — Пользователь ставит лайк фильму.
 * DELETE /films/{id}/like/{userId} — Пользователь удаляет лайк.
 * GET /films — Возвращает список всех фильмов
 * GET /films/popular?count={count} — Возвращает список из первых count* фильмов по количеству лайков.
-* + Если значение параметра count не задано, вернуть первые 10.
+*
+    + Если значение параметра count не задано, вернуть первые 10.
+
+### Genres
+
+* GET /genres/{id} — получение существующего жанра.
+* GET /genres — получение списка всех жанров.
+
+### MPARating
+
+* GET /mpa/{id} — получение существующего рейтинга.
+* GET /mpa — получение списка всех рейтингов.
