@@ -31,6 +31,6 @@ public final class Film {
     @Positive(message = "The duration of the movie is a positive natural number.")
     private final Integer duration;
     @NotNull
-    private MPARating mpa;
+    private final MPARating mpa;
     private LinkedHashSet<Genre> genres;
 }
